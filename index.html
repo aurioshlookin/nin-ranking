@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nin Online Tournaments</title>
+    <title>Nin Online Tournaments - Hawk Server</title>
     <!-- ADICIONADO ID para o script encontrar e alterar o favicon -->
     <link rel="icon" type="image/png" href="./icon.png" id="dynamic-favicon">
     
@@ -50,6 +50,8 @@
         const ArrowRight = (props) => <IconBase {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></IconBase>;
         const Loader2 = (props) => <IconBase {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></IconBase>;
         const AlertCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
+        const ServerIcon = (props) => <IconBase {...props}><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></IconBase>;
+        const InfoIcon = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
         
@@ -155,6 +157,78 @@
             </div>
         );
 
+        // --- COMPONENTE DE GRÁFICO SIMPLES ---
+        const PlayerPerformanceChart = ({ matches }) => {
+            // Agrupar partidas por data
+            const statsByDate = useMemo(() => {
+                const groups = {};
+                // Pegar os últimos 7 dias de atividade (ou apenas ordenar os dias disponíveis)
+                const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                
+                sortedMatches.forEach(match => {
+                    const date = new Date(match.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                    if (!groups[date]) groups[date] = { date, wins: 0, losses: 0, total: 0 };
+                    groups[date].total += 1;
+                    if (match.result === 'win') groups[date].wins += 1;
+                    else groups[date].losses += 1;
+                });
+                
+                // Retornar array (pegando apenas os últimos 5-7 dias para caber no gráfico)
+                return Object.values(groups).slice(-7); 
+            }, [matches]);
+
+            if (statsByDate.length === 0) return null;
+
+            // Encontrar o valor máximo para escala do gráfico
+            const maxVal = Math.max(...statsByDate.map(d => d.total));
+
+            return (
+                <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 h-full flex flex-col">
+                    <h4 className="text-slate-400 text-xs font-bold uppercase mb-4 flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-yellow-500"/> Desempenho Recente (Dia)
+                    </h4>
+                    <div className="flex-1 flex items-end justify-between gap-2 min-h-[120px]">
+                        {statsByDate.map((stat, idx) => {
+                            // Cálculos de altura
+                            const winHeight = (stat.wins / maxVal) * 100;
+                            const lossHeight = (stat.losses / maxVal) * 100;
+                            
+                            return (
+                                <div key={idx} className="flex flex-col items-center justify-end h-full w-full group relative">
+                                    {/* Tooltip simples */}
+                                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-xs rounded px-2 py-1 border border-slate-700 whitespace-nowrap z-10 pointer-events-none">
+                                        <span className="text-green-400">{stat.wins}V</span> - <span className="text-red-400">{stat.losses}D</span>
+                                    </div>
+
+                                    <div className="w-full flex flex-col-reverse gap-1 items-center h-full justify-end">
+                                        {/* Barra de Derrotas (Vermelha) */}
+                                        {stat.losses > 0 && (
+                                            <div 
+                                                style={{ height: `${lossHeight}%` }} 
+                                                className="w-full max-w-[12px] bg-red-500/50 rounded-sm hover:bg-red-500 transition-colors"
+                                            ></div>
+                                        )}
+                                        {/* Barra de Vitórias (Verde) */}
+                                        {stat.wins > 0 && (
+                                            <div 
+                                                style={{ height: `${winHeight}%` }} 
+                                                className="w-full max-w-[12px] bg-green-500/50 rounded-sm hover:bg-green-500 transition-colors"
+                                            ></div>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] text-slate-500 mt-2 font-mono">{stat.date}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="mt-3 flex justify-center gap-4 text-[10px] text-slate-400">
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-green-500/50 rounded-full"></div> Vitórias</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-500/50 rounded-full"></div> Derrotas</div>
+                    </div>
+                </div>
+            );
+        };
+
         // MODAL DE DETALHES DO JOGADOR
         const PlayerModal = ({ player, history, onClose, activeTab }) => {
             if (!player) return null;
@@ -181,7 +255,7 @@
 
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 transition-opacity animate-in fade-in duration-200">
-                    <div className="bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+                    <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
                         
                         {/* Header do Modal */}
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50">
@@ -206,63 +280,99 @@
                             </button>
                         </div>
 
-                        {/* Corpo do Modal com Scroll */}
-                        <div className="overflow-y-auto p-4 scrollbar-thin">
-                            
-                            {Object.keys(matchesByDate).length > 0 ? (
-                                Object.entries(matchesByDate).map(([date, matches]) => (
-                                    <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
-                                        {/* CABEÇALHO DA DATA (SEM CLASSE 'sticky') */}
-                                        <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 text-yellow-500" />
-                                            <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
-                                            <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
-                                        </div>
-                                        
-                                        {/* LISTA DE PARTIDAS DO DIA */}
-                                        <div className="space-y-2">
-                                            {matches.map((match, idx) => (
-                                                <div 
-                                                    key={idx} 
-                                                    className={`p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${
-                                                        match.result === 'win' 
-                                                            ? 'bg-green-900/10 border-green-500/20 hover:bg-green-900/20' 
-                                                            : 'bg-red-900/10 border-red-500/20 hover:bg-red-900/20'
-                                                    }`}
-                                                >
-                                                    <div className="flex flex-col">
-                                                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1">
-                                                            {match.mode}
-                                                        </span>
-                                                        <div className="flex items-center gap-2 text-white font-medium">
-                                                            <span className={match.result === 'win' ? 'text-green-400' : 'text-red-400'}>
-                                                                {match.result === 'win' ? 'Venceu' : 'Perdeu para'}
-                                                            </span>
-                                                            <Swords className="w-4 h-4 text-slate-500" />
-                                                            <span>{match.opponent}</span>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div className="text-right flex items-center gap-2 text-slate-400 text-xs sm:text-sm">
-                                                        <Clock className="w-4 h-4" />
-                                                        <span>
-                                                            {/* DATA COMPLETA E HORA AQUI */}
-                                                            {match.timestamp ? new Date(match.timestamp).toLocaleString('pt-BR', {
-                                                                day: '2-digit', month: '2-digit', year: 'numeric',
-                                                                hour: '2-digit', minute: '2-digit'
-                                                            }) : '--:--'}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            ))}
+                        {/* Corpo do Modal: Layout Grid (Lateral no Desktop, Stack no Mobile) */}
+                        <div className="flex-1 overflow-hidden">
+                            <div className="h-full flex flex-col lg:flex-row">
+                                
+                                {/* Lado Esquerdo: Gráfico e Resumo (Sticky no Desktop) */}
+                                <div className="w-full lg:w-1/3 p-4 lg:p-6 bg-slate-900 lg:border-r border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible">
+                                    
+                                    {/* Componente de Gráfico */}
+                                    <PlayerPerformanceChart matches={playerMatches} />
+
+                                    {/* Resumo Extra */}
+                                    <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800">
+                                        <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
+                                            <InfoIcon className="w-4 h-4 text-blue-500"/> Estatísticas Rápidas
+                                        </h4>
+                                        <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between text-slate-300">
+                                                <span>Total Partidas</span>
+                                                <span className="font-bold">{playerMatches.length}</span>
+                                            </div>
+                                            <div className="flex justify-between text-slate-300">
+                                                <span>Taxa de Vitória</span>
+                                                <span className={parseFloat(player.winRate) >= 50 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>{player.winRate}%</span>
+                                            </div>
+                                            <div className="flex justify-between text-slate-300">
+                                                <span>Melhor Modo</span>
+                                                <span className="text-yellow-500 font-medium">
+                                                    {Object.entries(player.modes).sort((a,b) => b[1].wins - a[1].wins)[0]?.[0] || '-'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                ))
-                            ) : (
-                                <div className="text-center py-10 text-slate-500">
-                                    Nenhuma partida registrada neste filtro.
                                 </div>
-                            )}
+
+                                {/* Lado Direito: Histórico de Partidas (Scrollable) */}
+                                <div className="w-full lg:w-2/3 overflow-y-auto p-4 lg:p-6 scrollbar-thin">
+                                    <h3 className="text-lg font-bold text-white mb-4 sticky top-0 bg-slate-900 pb-2 z-10 border-b border-slate-800 flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-slate-500"/> Histórico de Batalhas
+                                    </h3>
+                                    
+                                    {Object.keys(matchesByDate).length > 0 ? (
+                                        Object.entries(matchesByDate).map(([date, matches]) => (
+                                            <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
+                                                {/* CABEÇALHO DA DATA */}
+                                                <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2">
+                                                    <Calendar className="w-4 h-4 text-yellow-500" />
+                                                    <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
+                                                    <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
+                                                </div>
+                                                
+                                                {/* LISTA DE PARTIDAS DO DIA */}
+                                                <div className="space-y-2">
+                                                    {matches.map((match, idx) => (
+                                                        <div 
+                                                            key={idx} 
+                                                            className={`p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${
+                                                                match.result === 'win' 
+                                                                    ? 'bg-green-900/5 border-green-500/10 hover:bg-green-900/10' 
+                                                                    : 'bg-red-900/5 border-red-500/10 hover:bg-red-900/10'
+                                                            }`}
+                                                        >
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">
+                                                                    {match.mode}
+                                                                </span>
+                                                                <div className="flex items-center gap-2 text-slate-200 text-sm font-medium">
+                                                                    <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>
+                                                                        {match.result === 'win' ? 'V' : 'D'}
+                                                                    </span>
+                                                                    <span className="text-slate-600">vs</span>
+                                                                    <span>{match.opponent}</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div className="text-right flex items-center gap-2 text-slate-500 text-xs">
+                                                                <span>
+                                                                    {match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {
+                                                                        hour: '2-digit', minute: '2-digit'
+                                                                    }) : '--:--'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-10 text-slate-500">
+                                            Nenhuma partida registrada neste filtro.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -282,6 +392,9 @@
             const [timeFilter, setTimeFilter] = useState('all');
             const [customStartDate, setCustomStartDate] = useState('');
             const [customEndDate, setCustomEndDate] = useState('');
+
+            // Estado para intervalo de datas global
+            const [dateRange, setDateRange] = useState({ start: null, end: null });
 
             // Efeito para definir o Favicon
             useEffect(() => {
@@ -316,14 +429,28 @@
                 fetchData();
             }, []);
 
-            // Process Data
+            // Process Data e Calcular Datas
             useEffect(() => {
                 if (rawData.length === 0) {
                     setData({ rankings: [], history: {} });
                     return;
                 }
 
-                const timestamps = rawData.map(l => l.timestamp ? new Date(l.timestamp).getTime() : 0).filter(t => t > 0);
+                // Extrair timestamps válidos
+                const timestamps = rawData
+                    .map(l => l.timestamp ? new Date(l.timestamp).getTime() : 0)
+                    .filter(t => t > 0);
+                
+                // Calcular intervalo global de datas
+                if (timestamps.length > 0) {
+                    const minTime = Math.min(...timestamps);
+                    const maxTime = Math.max(...timestamps);
+                    setDateRange({
+                        start: new Date(minTime).toLocaleDateString('pt-BR'),
+                        end: new Date(maxTime).toLocaleDateString('pt-BR')
+                    });
+                }
+
                 const latestTime = timestamps.length > 0 ? Math.max(...timestamps) : Date.now();
                 const referenceDate = new Date(latestTime); 
 
@@ -467,7 +594,7 @@
                                 <img 
                                     src={CUSTOM_ICON_URL} 
                                     alt="Logo" 
-                                    className="w-16 h-16 object-cover rounded-2xl shadow-lg shadow-orange-500/20"
+                                    className="w-20 h-20 object-cover rounded-2xl shadow-lg shadow-orange-500/20"
                                     onError={(e) => {
                                         // Fallback se a imagem não carregar: mostra o quadrado laranja antigo
                                         e.target.style.display = 'none';
@@ -475,18 +602,28 @@
                                     }}
                                 />
                                 {/* Fallback Invisível por padrão */}
-                                <div className="hidden bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center w-16 h-16">
-                                    <Trophy className="w-8 h-8 text-white" />
+                                <div className="hidden bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center w-20 h-20">
+                                    <Trophy className="w-10 h-10 text-white" />
                                 </div>
                                 
-                                <div>
+                                <div className="flex flex-col gap-1">
                                     <h1 className="text-4xl font-black text-white tracking-tight">
                                         Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span>
                                     </h1>
-                                    <p className="text-slate-400 font-medium mt-1 flex items-center gap-2">
-                                        <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span>
-                                        Estatísticas atualizadas semanalmente
-                                    </p>
+                                    
+                                    {/* NOVAS INFORMAÇÕES DO SERVIDOR E DATA */}
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold text-slate-300">
+                                            <ServerIcon className="w-3 h-3 text-blue-400" />
+                                            <span>Servidor: Hawk</span>
+                                        </div>
+                                        {dateRange.start && (
+                                            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold text-slate-300">
+                                                <Calendar className="w-3 h-3 text-yellow-500" />
+                                                <span>{dateRange.start} até {dateRange.end}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
