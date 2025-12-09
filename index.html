@@ -594,14 +594,20 @@
             // CÁLCULO ESTATÍSTICO PARA OS CARDS
             const mostWinsPlayer = useMemo(() => {
                 if (filteredRankings.length === 0) return null;
-                // Clona e ordena por vitórias (desc)
-                return [...filteredRankings].sort((a,b) => b.wins - a.wins)[0];
+                // Clona e ordena por vitórias (desc), desempate por WR (desc - maior é melhor)
+                return [...filteredRankings].sort((a,b) => {
+                    if (b.wins !== a.wins) return b.wins - a.wins;
+                    return parseFloat(b.winRate) - parseFloat(a.winRate);
+                })[0];
             }, [filteredRankings]);
 
             const mostLossesPlayer = useMemo(() => {
                 if (filteredRankings.length === 0) return null;
-                // Clona e ordena por derrotas (desc)
-                return [...filteredRankings].sort((a,b) => b.losses - a.losses)[0];
+                // Clona e ordena por derrotas (desc), desempate por WR (asc - menor é pior)
+                return [...filteredRankings].sort((a,b) => {
+                    if (b.losses !== a.losses) return b.losses - a.losses;
+                    return parseFloat(a.winRate) - parseFloat(b.winRate);
+                })[0];
             }, [filteredRankings]);
 
 
