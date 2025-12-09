@@ -55,7 +55,7 @@
         const Menu = (props) => <IconBase {...props}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
-        const DATA_FILES = ['./servidor_page_1.json','./servidor_page_2.json','./servidor_page_3.json']; 
+        const DATA_FILES = ['./servidor_page_1.json', './servidor_page_2.json', './servidor_page_3.json']; 
         const CUSTOM_ICON_URL = './icon.png'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
 
@@ -157,14 +157,13 @@
             }, [matches]);
 
             // Rolagem automática para o final (direita) ao carregar
-            // MUDANÇA: Adicionado setTimeout para garantir que a renderização terminou antes de rolar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
                         if (scrollRef.current) {
                             scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
                         }
-                    }, 50); // 50ms de delay para garantir o paint
+                    }, 50); 
                 }
             }, [statsByDate]);
 
@@ -280,8 +279,8 @@
             }, {});
 
             return (
-                // MUDANÇA: Removido 'animate-in fade-in' do modal para não quebrar o position:sticky
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 duration-200">
+                // MUDANÇA: Removido 'duration-200' e 'animate-in' para garantir que o position: sticky funcione
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
                     <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
                         
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
@@ -348,7 +347,7 @@
                                         {Object.keys(matchesByDate).length > 0 ? (
                                             Object.entries(matchesByDate).map(([date, matches]) => (
                                                 <div key={date} className="mb-6 last:mb-0 relative">
-                                                    {/* Sticky Header Corrigido - Sem animações nos pais e z-index alto */}
+                                                    {/* Sticky Header Corrigido - Removemos relative do pai e animações do modal */}
                                                     <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-yellow-500" />
