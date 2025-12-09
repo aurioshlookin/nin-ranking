@@ -180,7 +180,7 @@
             if (statsByDate.length === 0) return null;
 
             // Encontrar o valor máximo para escala do gráfico
-            const maxVal = Math.max(...statsByDate.map(d => d.total));
+            const maxVal = Math.max(...statsByDate.map(d => Math.max(d.wins, d.losses))); // Escala baseada no maior valor individual
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col">
@@ -189,9 +189,10 @@
                     </h4>
                     <div className="flex items-end justify-between gap-2 h-48">
                         {statsByDate.map((stat, idx) => {
-                            // Cálculos de altura
-                            const winHeight = (stat.wins / maxVal) * 100;
-                            const lossHeight = (stat.losses / maxVal) * 100;
+                            // Cálculos de altura relativos ao maior valor
+                            // Mínimo de 5% para a barra aparecer mesmo com valor baixo se > 0
+                            const winHeight = stat.wins > 0 ? Math.max((stat.wins / maxVal) * 100, 5) : 0;
+                            const lossHeight = stat.losses > 0 ? Math.max((stat.losses / maxVal) * 100, 5) : 0;
                             
                             return (
                                 <div key={idx} className="flex flex-col items-center justify-end h-full w-full group relative">
@@ -200,30 +201,33 @@
                                         <span className="text-green-400">{stat.wins}V</span> - <span className="text-red-400">{stat.losses}D</span>
                                     </div>
 
-                                    <div className="w-full flex flex-col-reverse gap-1 items-center h-full justify-end">
-                                        {/* Barra de Derrotas (Vermelha) */}
-                                        {stat.losses > 0 && (
+                                    {/* Barras Lado a Lado */}
+                                    <div className="w-full flex items-end justify-center gap-1 h-full">
+                                        {/* Barra de Vitórias (Verde) - Esquerda */}
+                                        <div className="w-3 bg-slate-800/50 rounded-t-sm h-full flex items-end relative overflow-hidden">
+                                             <div 
+                                                style={{ height: `${winHeight}%` }} 
+                                                className="w-full bg-green-500 hover:bg-green-400 transition-all duration-300"
+                                            ></div>
+                                        </div>
+
+                                        {/* Barra de Derrotas (Vermelha) - Direita */}
+                                        <div className="w-3 bg-slate-800/50 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                             <div 
                                                 style={{ height: `${lossHeight}%` }} 
-                                                className="w-full max-w-[12px] bg-red-500/50 rounded-sm hover:bg-red-500 transition-colors"
+                                                className="w-full bg-red-500 hover:bg-red-400 transition-all duration-300"
                                             ></div>
-                                        )}
-                                        {/* Barra de Vitórias (Verde) */}
-                                        {stat.wins > 0 && (
-                                            <div 
-                                                style={{ height: `${winHeight}%` }} 
-                                                className="w-full max-w-[12px] bg-green-500/50 rounded-sm hover:bg-green-500 transition-colors"
-                                            ></div>
-                                        )}
+                                        </div>
                                     </div>
+                                    
                                     <span className="text-[10px] text-slate-500 mt-2 font-mono">{stat.date}</span>
                                 </div>
                             )
                         })}
                     </div>
                     <div className="mt-3 flex justify-center gap-4 text-[10px] text-slate-400">
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-green-500/50 rounded-full"></div> Vitórias</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-500/50 rounded-full"></div> Derrotas</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-green-500 rounded-full"></div> Vitórias</div>
+                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-500 rounded-full"></div> Derrotas</div>
                     </div>
                 </div>
             );
@@ -253,7 +257,6 @@
 
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 transition-opacity animate-in fade-in duration-200">
-                    {/* ADICIONADO: h-[90vh] para garantir altura fixa no container principal do modal */}
                     <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
                         
                         {/* Header do Modal */}
@@ -280,11 +283,10 @@
                         </div>
 
                         {/* Corpo do Modal: Layout Grid */}
-                        {/* ADICIONADO: min-h-0 para permitir que os filhos rolem dentro deste flex container */}
                         <div className="flex-1 overflow-hidden min-h-0">
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 
-                                {/* Lado Visual Direito */}
+                                {/* Lado Visual Direito (Gráficos) */}
                                 <div className="w-full lg:w-1/3 p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
                                     <PlayerPerformanceChart matches={playerMatches} />
 
@@ -312,61 +314,68 @@
                                 </div>
 
                                 {/* Lado Visual Esquerdo: Histórico de Partidas */}
-                                {/* ADICIONADO: h-full e overflow-y-auto explicitamente aqui */}
-                                <div className="w-full lg:w-2/3 p-4 lg:p-6 scrollbar-thin flex-1 overflow-y-auto h-full bg-slate-950/20">
-                                    <h3 className="text-lg font-bold text-white mb-4 sticky top-0 bg-slate-900 pb-2 z-10 border-b border-slate-800 flex items-center gap-2">
-                                        <Clock className="w-5 h-5 text-slate-500"/> Histórico de Batalhas
-                                    </h3>
+                                {/* MUDANÇA: Estrutura alterada para separar Header de Lista, garantindo scroll correto */}
+                                <div className="w-full lg:w-2/3 flex flex-col h-full bg-slate-950/20">
                                     
-                                    {Object.keys(matchesByDate).length > 0 ? (
-                                        Object.entries(matchesByDate).map(([date, matches]) => (
-                                            <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
-                                                <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-yellow-500" />
-                                                    <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
-                                                    <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
-                                                </div>
-                                                
-                                                <div className="space-y-2">
-                                                    {matches.map((match, idx) => (
-                                                        <div 
-                                                            key={idx} 
-                                                            className={`p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${
-                                                                match.result === 'win' 
-                                                                    ? 'bg-green-900/5 border-green-500/10 hover:bg-green-900/10' 
-                                                                    : 'bg-red-900/5 border-red-500/10 hover:bg-red-900/10'
-                                                            }`}
-                                                        >
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">
-                                                                    {match.mode}
-                                                                </span>
-                                                                <div className="flex items-center gap-2 text-slate-200 text-sm font-medium">
-                                                                    <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>
-                                                                        {match.result === 'win' ? 'V' : 'D'}
+                                    {/* Header Fixo (Não rola) */}
+                                    <div className="p-4 lg:p-6 pb-2 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm z-10 flex-shrink-0">
+                                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                            <Clock className="w-5 h-5 text-slate-500"/> Histórico de Batalhas
+                                        </h3>
+                                    </div>
+
+                                    {/* Lista Rola (Scroll) */}
+                                    <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-2 scrollbar-thin">
+                                        {Object.keys(matchesByDate).length > 0 ? (
+                                            Object.entries(matchesByDate).map(([date, matches]) => (
+                                                <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
+                                                    <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2 sticky top-0 bg-slate-950/90 z-10 backdrop-blur-sm">
+                                                        <Calendar className="w-4 h-4 text-yellow-500" />
+                                                        <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
+                                                        <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
+                                                    </div>
+                                                    
+                                                    <div className="space-y-2">
+                                                        {matches.map((match, idx) => (
+                                                            <div 
+                                                                key={idx} 
+                                                                className={`p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${
+                                                                    match.result === 'win' 
+                                                                        ? 'bg-green-900/5 border-green-500/10 hover:bg-green-900/10' 
+                                                                        : 'bg-red-900/5 border-red-500/10 hover:bg-red-900/10'
+                                                                }`}
+                                                            >
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">
+                                                                        {match.mode}
                                                                     </span>
-                                                                    <span className="text-slate-600">vs</span>
-                                                                    <span>{match.opponent}</span>
+                                                                    <div className="flex items-center gap-2 text-slate-200 text-sm font-medium">
+                                                                        <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>
+                                                                            {match.result === 'win' ? 'V' : 'D'}
+                                                                        </span>
+                                                                        <span className="text-slate-600">vs</span>
+                                                                        <span>{match.opponent}</span>
+                                                                    </div>
+                                                                </div>
+                                                                
+                                                                <div className="text-right flex items-center gap-2 text-slate-500 text-xs">
+                                                                    <span>
+                                                                        {match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {
+                                                                            hour: '2-digit', minute: '2-digit'
+                                                                        }) : '--:--'}
+                                                                    </span>
                                                                 </div>
                                                             </div>
-                                                            
-                                                            <div className="text-right flex items-center gap-2 text-slate-500 text-xs">
-                                                                <span>
-                                                                    {match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {
-                                                                        hour: '2-digit', minute: '2-digit'
-                                                                    }) : '--:--'}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                        ))}
+                                                    </div>
                                                 </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-10 text-slate-500">
+                                                Nenhuma partida registrada neste filtro.
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-10 text-slate-500">
-                                            Nenhuma partida registrada neste filtro.
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -385,7 +394,7 @@
             const [sortConfig, setSortConfig] = useState({ key: 'wins', direction: 'desc' });
             const [activeTab, setActiveTab] = useState('Geral');
             const [selectedPlayer, setSelectedPlayer] = useState(null);
-            // MUDANÇA: Filtro padrão alterado para 'current_month' (Este Mês)
+            
             const [timeFilter, setTimeFilter] = useState('current_month');
             const [availableMonths, setAvailableMonths] = useState([]);
             const [targetMonth, setTargetMonth] = useState('');
@@ -499,7 +508,6 @@
                     
                     if (timeFilter === 'day') return diff <= oneDay && diff >= 0;
                     if (timeFilter === 'week') return diff <= 7 * oneDay && diff >= 0;
-                    // 'month' antigo (últimos 30 dias) foi substituído por 'current_month', mas mantendo lógica se necessário
                     return true;
                 });
 
@@ -653,7 +661,8 @@
                                 <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                                     
                                     {/* Seletor de Período e Seletores Condicionais */}
-                                    <div className="flex flex-col gap-2">
+                                    {/* MUDANÇA: flex-wrap e flex-row para colocar itens lado a lado */}
+                                    <div className="flex flex-row flex-wrap items-center gap-2">
                                         {/* Dropdown Principal */}
                                         <div className="relative group w-full sm:w-48">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -665,11 +674,12 @@
                                                 className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
                                             >
                                                 <option value="current_month">Este Mês</option>
-                                                <option value="all">Todo o Período</option>
                                                 <option value="day">Últimas 24h</option>
                                                 <option value="week">Última Semana</option>
                                                 <option value="specific_month">Selecionar Mês</option>
                                                 <option value="custom">Data Personalizada</option>
+                                                {/* MUDANÇA: Todo o Período movido para o final */}
+                                                <option value="all">Todo o Período</option>
                                             </select>
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                 <ChevronDown className="w-4 h-4 text-slate-500" />
@@ -678,11 +688,11 @@
 
                                         {/* Dropdown Secundário: Selecionar Mês Específico */}
                                         {timeFilter === 'specific_month' && availableMonths.length > 0 && (
-                                            <div className="relative group w-full sm:w-48 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="relative group w-full sm:w-48 animate-in fade-in slide-in-from-left-2 duration-200">
                                                 <select 
                                                     value={targetMonth}
                                                     onChange={(e) => setTargetMonth(e.target.value)}
-                                                    className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm"
+                                                    className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm"
                                                 >
                                                     {availableMonths.map(monthStr => {
                                                         const [year, month] = monthStr.split('-');
@@ -701,17 +711,17 @@
 
                                         {/* Inputs de Data Personalizada */}
                                         {timeFilter === 'custom' && (
-                                            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1 px-2 animate-in fade-in slide-in-from-left-4 duration-300">
+                                            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1 px-2 animate-in fade-in slide-in-from-left-4 duration-300 h-[46px]">
                                                 <input 
                                                     type="date" 
-                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer"
+                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer h-full"
                                                     value={customStartDate}
                                                     onChange={(e) => setCustomStartDate(e.target.value)}
                                                 />
                                                 <ArrowRight className="w-4 h-4 text-slate-500" />
                                                 <input 
                                                     type="date" 
-                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer"
+                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer h-full"
                                                     value={customEndDate}
                                                     onChange={(e) => setCustomEndDate(e.target.value)}
                                                 />
