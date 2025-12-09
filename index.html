@@ -5,42 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nin Online Tournaments</title>
     
-    <!-- Carregando Tailwind CSS -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Carregando React e ReactDOM -->
+    <!-- React Core -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Carregando Babel para traduzir o código React no navegador -->
+    <!-- Babel para traduzir JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Carregando Lucide Icons (Versão React) -->
-    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
 
     <style>
-        /* Personalização da barra de rolagem para ficar mais elegante */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569; 
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans">
@@ -48,15 +29,28 @@
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
-        // Importando ícones do pacote global lucideReact
-        const { 
-            Trophy, Swords, Skull, Search, TrendingUp, Users, Medal, 
-            Calendar, Clock, X, Filter, ChevronDown, ArrowRight, 
-            Loader2, AlertCircle 
-        } = lucideReact;
+
+        // --- ÍCONES SVG INTEGRADOS (Para evitar erros de carregamento externo) ---
+        const IconBase = ({ children, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>
+        );
+        const Trophy = (props) => <IconBase {...props}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></IconBase>;
+        const Swords = (props) => <IconBase {...props}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/></IconBase>;
+        const Users = (props) => <IconBase {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></IconBase>;
+        const Medal = (props) => <IconBase {...props}><circle cx="12" cy="17" r="5"/><path d="M9 17v-8"/><path d="M15 17v-8"/><path d="M9 17h6"/><path d="M12 2v5"/><path d="M12 2l-4 5"/><path d="M12 2l4 5"/></IconBase>;
+        const TrendingUp = (props) => <IconBase {...props}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></IconBase>;
+        const Search = (props) => <IconBase {...props}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></IconBase>;
+        const Calendar = (props) => <IconBase {...props}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></IconBase>;
+        const Clock = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></IconBase>;
+        const XIcon = (props) => <IconBase {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
+        const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
+        const ChevronDown = (props) => <IconBase {...props}><path d="m6 9 6 6 6-6"/></IconBase>;
+        const ArrowRight = (props) => <IconBase {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></IconBase>;
+        const Loader2 = (props) => <IconBase {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></IconBase>;
+        const AlertCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
 
         // CONFIGURAÇÃO
-        // O HTML vai procurar o arquivo na mesma pasta onde ele estiver hospedado
+        // IMPORTANTE: Este link assume que o arquivo .json está na mesma pasta no GitHub Pages.
         const DATA_URL = './servidor_page_1.json'; 
 
         // --- LÓGICA DO APLICATIVO ---
@@ -92,7 +86,6 @@
 
             data.forEach(log => {
                 const content = log.content || "";
-                // Regex para capturar: [Modo] Vencedor derrotou Perdedor
                 const match = content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
 
                 if (match) {
@@ -143,7 +136,7 @@
         const Card = ({ title, value, icon: Icon, colorClass }) => (
             <div className="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700 flex items-center space-x-4 animate-in fade-in duration-500">
                 <div className={`p-3 rounded-full ${colorClass} bg-opacity-20`}>
-                    <Icon size={24} className={colorClass.replace('bg-', 'text-')} />
+                    <Icon className={`w-6 h-6 ${colorClass.replace('bg-', 'text-')}`} />
                 </div>
                 <div>
                     <p className="text-slate-400 text-sm font-medium">{title}</p>
@@ -169,7 +162,7 @@
                             <div>
                                 <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
                                     {player.name}
-                                    {parseFloat(player.winRate) >= 60 && <TrendingUp className="text-green-400" size={24} />}
+                                    {parseFloat(player.winRate) >= 60 && <TrendingUp className="w-6 h-6 text-green-400" />}
                                 </h2>
                                 <div className="flex flex-wrap gap-4 text-sm text-slate-400 items-center">
                                     <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-xs text-yellow-500 font-bold uppercase tracking-wider">
@@ -183,13 +176,13 @@
                                 </div>
                             </div>
                             <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-700 rounded-full">
-                                <X size={24} />
+                                <XIcon className="w-6 h-6" />
                             </button>
                         </div>
 
                         <div className="overflow-y-auto p-4 space-y-3">
                             <h3 className="text-lg font-semibold text-slate-300 mb-4 px-2 flex items-center gap-2">
-                                <Calendar size={18} /> Histórico de Partidas {activeTab !== 'Geral' ? `(${activeTab})` : ''}
+                                <Calendar className="w-5 h-5" /> Histórico de Partidas {activeTab !== 'Geral' ? `(${activeTab})` : ''}
                             </h3>
                             
                             {sortedMatches.length > 0 ? (
@@ -210,13 +203,13 @@
                                                 <span className={match.result === 'win' ? 'text-green-400' : 'text-red-400'}>
                                                     {match.result === 'win' ? 'Venceu' : 'Perdeu para'}
                                                 </span>
-                                                <Swords size={14} className="text-slate-500" />
+                                                <Swords className="w-4 h-4 text-slate-500" />
                                                 <span>{match.opponent}</span>
                                             </div>
                                         </div>
                                         
                                         <div className="text-right flex items-center gap-2 text-slate-400 text-xs sm:text-sm">
-                                            <Clock size={14} />
+                                            <Clock className="w-4 h-4" />
                                             <span>
                                                 {match.timestamp ? new Date(match.timestamp).toLocaleDateString('pt-BR', {
                                                     day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
@@ -250,7 +243,6 @@
             const [customStartDate, setCustomStartDate] = useState('');
             const [customEndDate, setCustomEndDate] = useState('');
 
-            // Fetch Data
             useEffect(() => {
                 const fetchData = async () => {
                     setIsLoading(true);
@@ -258,13 +250,13 @@
                     try {
                         const response = await fetch(DATA_URL);
                         if (!response.ok) {
-                            throw new Error(`Erro ao carregar dados: ${response.statusText}`);
+                            throw new Error(`Status: ${response.status}`);
                         }
                         const jsonData = await response.json();
                         setRawData(jsonData);
                     } catch (err) {
                         console.error("Fetch error:", err);
-                        setError("Não foi possível carregar o arquivo 'servidor_page_1.json'. Certifique-se de que ele foi enviado para o repositório e está na mesma pasta.");
+                        setError(`Erro ao carregar dados: ${err.message}. Verifique se 'servidor_page_1.json' está na mesma pasta.`);
                         setRawData([]); 
                     } finally {
                         setIsLoading(false);
@@ -274,7 +266,6 @@
                 fetchData();
             }, []);
 
-            // Process Data
             useEffect(() => {
                 if (rawData.length === 0) {
                     setData({ rankings: [], history: {} });
@@ -293,12 +284,10 @@
                     
                     if (timeFilter === 'custom') {
                         if (!customStartDate || !customEndDate) return true;
-                        // Ajustar para UTC ou manter local simples para demo
                         const start = new Date(customStartDate).getTime();
                         const end = new Date(customEndDate);
                         end.setHours(23, 59, 59, 999);
                         const endTime = end.getTime();
-                        
                         return logTime >= start && logTime <= endTime;
                     }
 
@@ -315,7 +304,6 @@
                 setData(processed);
             }, [rawData, timeFilter, customStartDate, customEndDate]);
 
-            // Modos
             const tournamentModes = useMemo(() => {
                 if (rawData.length === 0) return ['Geral'];
                 const modes = new Set();
@@ -326,7 +314,6 @@
                 return ['Geral', ...Array.from(modes).sort()];
             }, [rawData]);
 
-            // Filtros e Ordenação
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
 
@@ -379,7 +366,7 @@
             if (isLoading) {
                 return (
                     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400">
-                        <Loader2 size={48} className="animate-spin text-yellow-500 mb-4" />
+                        <Loader2 className="w-12 h-12 animate-spin text-yellow-500 mb-4" />
                         <p className="text-lg font-medium">Buscando dados do servidor...</p>
                         <p className="text-sm mt-2 text-slate-600">Lendo: {DATA_URL}</p>
                     </div>
@@ -389,9 +376,17 @@
             if (error) {
                 return (
                     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 p-8 text-center">
-                        <AlertCircle size={64} className="mb-4" />
+                        <AlertCircle className="w-16 h-16 mb-4" />
                         <h2 className="text-2xl font-bold mb-2">Erro ao carregar dados</h2>
                         <p className="max-w-md">{error}</p>
+                        <div className="mt-6 p-4 bg-slate-900 rounded border border-slate-800 text-left text-sm text-slate-400">
+                            <p className="font-bold text-yellow-500 mb-2">Como corrigir:</p>
+                            <ul className="list-disc pl-5 space-y-1">
+                                <li>Certifique-se de que o arquivo <code>servidor_page_1.json</code> existe.</li>
+                                <li>Se estiver no PC (local), você precisa usar um servidor local (ex: VS Code Live Server).</li>
+                                <li>Se estiver no GitHub, verifique se o arquivo JSON subiu junto com o HTML.</li>
+                            </ul>
+                        </div>
                         <button 
                             onClick={() => window.location.reload()}
                             className="mt-6 px-6 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors text-white"
@@ -419,7 +414,7 @@
                         <div className="flex flex-col lg:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-6">
                             <div className="flex items-center gap-4 w-full lg:w-auto">
                                 <div className="bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20">
-                                    <Trophy size={32} className="text-white" />
+                                    <Trophy className="w-8 h-8 text-white" />
                                 </div>
                                 <div>
                                     <h1 className="text-4xl font-black text-white tracking-tight">
@@ -440,7 +435,7 @@
                                     <div className="flex flex-col sm:flex-row gap-2">
                                         <div className="relative group">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Calendar className="text-slate-500" size={18} />
+                                                <Calendar className="w-4 h-4 text-slate-500" />
                                             </div>
                                             <select 
                                                 value={timeFilter}
@@ -454,7 +449,7 @@
                                                 <option value="custom">Personalizado</option>
                                             </select>
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <ChevronDown className="text-slate-500" size={16} />
+                                                <ChevronDown className="w-4 h-4 text-slate-500" />
                                             </div>
                                         </div>
 
@@ -467,7 +462,7 @@
                                                     value={customStartDate}
                                                     onChange={(e) => setCustomStartDate(e.target.value)}
                                                 />
-                                                <ArrowRight size={14} className="text-slate-500" />
+                                                <ArrowRight className="w-4 h-4 text-slate-500" />
                                                 <input 
                                                     type="date" 
                                                     className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer"
@@ -481,7 +476,7 @@
                                     {/* Barra de Pesquisa */}
                                     <div className="relative w-full sm:w-64 group">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <Search className="text-slate-500 group-focus-within:text-yellow-500 transition-colors" size={20} />
+                                            <Search className="w-5 h-5 text-slate-500 group-focus-within:text-yellow-500 transition-colors" />
                                         </div>
                                         <input 
                                             type="text" 
@@ -507,7 +502,7 @@
                                             : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                                     }`}
                                 >
-                                    {mode === 'Geral' ? <Filter size={16} /> : <Swords size={16} />}
+                                    {mode === 'Geral' ? <Filter className="w-4 h-4" /> : <Swords className="w-4 h-4" />}
                                     {mode}
                                 </button>
                             ))}
@@ -561,9 +556,9 @@
                                             let rankIcon = null;
                                             const rank = index + 1;
 
-                                            if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy size={16} className="mx-auto" />; }
-                                            if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal size={16} className="mx-auto" />; }
-                                            if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal size={16} className="mx-auto" />; }
+                                            if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
+                                            if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                            if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
 
                                             return (
                                                 <tr 
@@ -604,7 +599,7 @@
                                             <tr>
                                                 <td colSpan="6" className="p-12 text-center text-slate-500">
                                                     <div className="flex flex-col items-center gap-3">
-                                                        <Users size={48} className="text-slate-700" />
+                                                        <Users className="w-12 h-12 text-slate-700" />
                                                         <p>Nenhum jogador encontrado para este filtro.</p>
                                                     </div>
                                                 </td>
