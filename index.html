@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nin Online Tournaments</title>
-    <!-- Favicon Dinâmico -->
-    <link rel="icon" type="image/png" href="" id="dynamic-favicon">
+    <!-- Favicon fixo apontando para icon.png na mesma pasta -->
+    <link rel="icon" type="image/png" href="./icon.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -212,8 +212,8 @@
                             {Object.keys(matchesByDate).length > 0 ? (
                                 Object.entries(matchesByDate).map(([date, matches]) => (
                                     <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
-                                        {/* CABEÇALHO DA DATA */}
-                                        <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm py-2 px-1 z-10 border-b border-slate-800 mb-3 flex items-center gap-2">
+                                        {/* CABEÇALHO DA DATA (SEM STICKY) */}
+                                        <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2">
                                             <Calendar className="w-4 h-4 text-yellow-500" />
                                             <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
                                             <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
@@ -246,8 +246,9 @@
                                                     <div className="text-right flex items-center gap-2 text-slate-400 text-xs sm:text-sm">
                                                         <Clock className="w-4 h-4" />
                                                         <span>
-                                                            {match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {
-                                                                hour: '2-digit', minute: '2-digit'
+                                                            {/* ATUALIZADO: Mostra Data e Hora completas aqui */}
+                                                            {match.timestamp ? new Date(match.timestamp).toLocaleString('pt-BR', {
+                                                                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
                                                             }) : '--:--'}
                                                         </span>
                                                     </div>
