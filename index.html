@@ -61,8 +61,6 @@
         ]; 
 
         // CONFIGURAÇÃO DO ÍCONE
-        // Substitua 'icon.png' pelo nome da sua imagem no GitHub.
-        // Ela deve estar na mesma pasta (raiz) do index.html.
         const CUSTOM_ICON_URL = './icon.png'; 
 
         // --- LÓGICA DO APLICATIVO ---
@@ -159,10 +157,11 @@
 
         // --- COMPONENTE DE GRÁFICO SIMPLES ---
         const PlayerPerformanceChart = ({ matches }) => {
+            const [hoveredStat, setHoveredStat] = useState(null);
+
             // Agrupar partidas por data
             const statsByDate = useMemo(() => {
                 const groups = {};
-                // MUDANÇA: Removido o slice(-7) para mostrar todo o histórico
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
                 
                 sortedMatches.forEach(match => {
@@ -176,68 +175,84 @@
                 return Object.values(groups); 
             }, [matches]);
 
+            // Atualiza o estado padrão para o último dia quando os dados mudam
+            useEffect(() => {
+                if (statsByDate.length > 0) {
+                    setHoveredStat(null); // Reseta para mostrar o padrão ou o último
+                }
+            }, [statsByDate]);
+
             if (statsByDate.length === 0) return null;
 
-            // Encontrar o valor máximo para escala do gráfico
-            const maxVal = Math.max(...statsByDate.map(d => Math.max(d.wins, d.losses))); // Escala baseada no maior valor individual
+            const maxVal = Math.max(...statsByDate.map(d => Math.max(d.wins, d.losses))); 
+            
+            // Se nada estiver "hovered", mostra o último dia
+            const displayStat = hoveredStat || statsByDate[statsByDate.length - 1];
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col">
-                    <h4 className="text-slate-400 text-xs font-bold uppercase mb-4 flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-yellow-500"/> Desempenho (Dia)
-                    </h4>
+                    <div className="flex justify-between items-start mb-4">
+                        <h4 className="text-slate-400 text-xs font-bold uppercase flex items-center gap-2">
+                            <TrendingUp className="w-4 h-4 text-yellow-500"/> Desempenho (Dia)
+                        </h4>
+                        
+                        {/* Mostrador de Dados Dinâmico (Hover) */}
+                        {displayStat && (
+                            <div className="text-xs bg-slate-800 border border-slate-700 rounded px-2 py-1 flex gap-3 animate-in fade-in duration-200">
+                                <span className="text-slate-300 font-bold">{displayStat.date}</span>
+                                <span className="text-green-400 font-bold">{displayStat.wins}V</span>
+                                <span className="text-red-400 font-bold">{displayStat.losses}D</span>
+                            </div>
+                        )}
+                    </div>
                     
-                    {/* MUDANÇA: overflow-x-auto para rolagem horizontal e min-w-max para impedir que as barras "andem" */}
                     <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800/50">
                         <div className="flex items-end gap-3 h-48 px-2 min-w-max">
                             {statsByDate.map((stat, idx) => {
-                                // Cálculos de altura relativos ao maior valor
-                                // Mínimo de 5% para a barra aparecer mesmo com valor baixo se > 0
                                 const winHeight = stat.wins > 0 ? Math.max((stat.wins / maxVal) * 100, 5) : 0;
                                 const lossHeight = stat.losses > 0 ? Math.max((stat.losses / maxVal) * 100, 5) : 0;
                                 
                                 return (
-                                    // MUDANÇA: min-w-[50px] fixa a largura de cada coluna
-                                    <div key={idx} className="flex flex-col items-center justify-end h-full w-12 min-w-[48px] group relative flex-shrink-0">
-                                        {/* Tooltip simples */}
-                                        <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-xs rounded px-2 py-1 border border-slate-700 whitespace-nowrap z-10 pointer-events-none">
-                                            <span className="text-green-400">{stat.wins}V</span> - <span className="text-red-400">{stat.losses}D</span>
-                                        </div>
-
-                                        {/* Barras Lado a Lado */}
+                                    <div 
+                                        key={idx} 
+                                        className="flex flex-col items-center justify-end h-full w-12 min-w-[48px] group relative flex-shrink-0 cursor-default"
+                                        onMouseEnter={() => setHoveredStat(stat)}
+                                        onMouseLeave={() => setHoveredStat(null)}
+                                    >
                                         <div className="w-full flex items-end justify-center gap-1 h-full">
-                                            {/* Barra de Vitórias (Verde) - Esquerda */}
+                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                  <div 
                                                     style={{ height: `${winHeight}%` }} 
-                                                    className="w-full bg-green-500 hover:bg-green-400 transition-all duration-300"
+                                                    className={`w-full transition-all duration-300 ${
+                                                        hoveredStat === stat ? 'bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]' : 'bg-green-600'
+                                                    }`}
                                                 ></div>
                                             </div>
 
-                                            {/* Barra de Derrotas (Vermelha) - Direita */}
+                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                 <div 
                                                     style={{ height: `${lossHeight}%` }} 
-                                                    className="w-full bg-red-500 hover:bg-red-400 transition-all duration-300"
+                                                    className={`w-full transition-all duration-300 ${
+                                                        hoveredStat === stat ? 'bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]' : 'bg-red-600'
+                                                    }`}
                                                 ></div>
                                             </div>
                                         </div>
                                         
-                                        <span className="text-[10px] text-slate-500 mt-2 font-mono whitespace-nowrap">{stat.date}</span>
+                                        <span className={`text-[10px] mt-2 font-mono whitespace-nowrap transition-colors ${
+                                            hoveredStat === stat ? 'text-white font-bold' : 'text-slate-500'
+                                        }`}>{stat.date}</span>
                                     </div>
                                 )
                             })}
                         </div>
                     </div>
-                    <div className="mt-3 flex justify-center gap-4 text-[10px] text-slate-400">
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-green-500 rounded-full"></div> Vitórias</div>
-                        <div className="flex items-center gap-1"><div className="w-2 h-2 bg-red-500 rounded-full"></div> Derrotas</div>
-                    </div>
                 </div>
             );
         };
 
-        // MODAL DE DETALHES DO JOGADOR
         const PlayerModal = ({ player, history, onClose, activeTab }) => {
             if (!player) return null;
 
@@ -261,9 +276,8 @@
 
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 transition-opacity animate-in fade-in duration-200">
-                    <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
+                    <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
                         
-                        {/* Header do Modal */}
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
                             <div>
                                 <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
@@ -286,12 +300,11 @@
                             </button>
                         </div>
 
-                        {/* Corpo do Modal: Layout Grid */}
                         <div className="flex-1 overflow-hidden min-h-0">
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 
-                                {/* Lado Visual Direito (Gráficos) */}
-                                <div className="w-full lg:w-1/3 p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
+                                {/* Lado Visual Direito (Gráficos) - AUMENTADO PARA w-5/12 (aprox 41%) */}
+                                <div className="w-full lg:w-5/12 p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
                                     <PlayerPerformanceChart matches={playerMatches} />
 
                                     <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800">
@@ -317,23 +330,21 @@
                                     </div>
                                 </div>
 
-                                {/* Lado Visual Esquerdo: Histórico de Partidas */}
-                                {/* MUDANÇA: Estrutura alterada para separar Header de Lista, garantindo scroll correto */}
-                                <div className="w-full lg:w-2/3 flex flex-col h-full bg-slate-950/20">
-                                    
-                                    {/* Header Fixo (Não rola) */}
+                                {/* Lado Visual Esquerdo: Histórico de Partidas - AJUSTADO PARA w-7/12 */}
+                                <div className="w-full lg:w-7/12 flex flex-col h-full bg-slate-950/20">
                                     <div className="p-4 lg:p-6 pb-2 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm z-10 flex-shrink-0">
                                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
                                             <Clock className="w-5 h-5 text-slate-500"/> Histórico de Batalhas
                                         </h3>
                                     </div>
 
-                                    {/* Lista Rola (Scroll) */}
                                     <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-2 scrollbar-thin">
                                         {Object.keys(matchesByDate).length > 0 ? (
                                             Object.entries(matchesByDate).map(([date, matches]) => (
-                                                <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
-                                                    <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2 sticky top-0 bg-slate-950/90 z-10 backdrop-blur-sm">
+                                                /* REMOVIDA ANIMAÇÃO AQUI QUE QUEBRAVA O STICKY */
+                                                <div key={date} className="mb-6 last:mb-0">
+                                                    {/* Sticky Header com fundo sólido para cobrir conteúdo ao rolar */}
+                                                    <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2 sticky top-0 bg-slate-900 z-10 shadow-sm">
                                                         <Calendar className="w-4 h-4 text-yellow-500" />
                                                         <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
                                                         <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
@@ -364,7 +375,6 @@
                                                                 
                                                                 <div className="text-right flex items-center gap-2 text-slate-500 text-xs">
                                                                     <span>
-                                                                        {/* MUDANÇA: Adicionado data (dia/mês) junto com a hora */}
                                                                         {match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {
                                                                             day: '2-digit',
                                                                             month: '2-digit',
@@ -406,10 +416,7 @@
             const [timeFilter, setTimeFilter] = useState('current_month');
             const [availableMonths, setAvailableMonths] = useState([]);
             const [targetMonth, setTargetMonth] = useState('');
-            const [customStartDate, setCustomStartDate] = useState('');
-            const [customEndDate, setCustomEndDate] = useState('');
 
-            // Estado para intervalo de datas global
             const [dateRange, setDateRange] = useState({ start: null, end: null });
 
             useEffect(() => {
@@ -449,7 +456,6 @@
                     return;
                 }
 
-                // 1. Calcular datas globais e meses disponíveis
                 const timestamps = rawData
                     .map(l => l.timestamp ? new Date(l.timestamp).getTime() : 0)
                     .filter(t => t > 0);
@@ -462,18 +468,15 @@
                         end: new Date(maxTime).toLocaleDateString('pt-BR')
                     });
 
-                    // Extrair meses únicos
                     const uniqueMonths = new Set();
                     timestamps.forEach(ts => {
                         const d = new Date(ts);
-                        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM para value
+                        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                         uniqueMonths.add(key);
                     });
-                    // Ordenar descrescente (mais recente primeiro)
                     const sortedMonths = Array.from(uniqueMonths).sort().reverse();
                     setAvailableMonths(sortedMonths);
                     
-                    // Definir o mês alvo padrão como o primeiro da lista se não houver um selecionado
                     if (!targetMonth && sortedMonths.length > 0) {
                         setTargetMonth(sortedMonths[0]);
                     }
@@ -488,27 +491,16 @@
                     const logTime = new Date(log.timestamp).getTime();
                     const logDate = new Date(log.timestamp);
                     
-                    // Filtro para "Este Mês" (Mês atual do calendário)
                     if (timeFilter === 'current_month') {
                         return logDate.getMonth() === referenceDate.getMonth() && 
                                logDate.getFullYear() === referenceDate.getFullYear();
                     }
 
-                    // Filtro para "Selecionar Mês" (Mês Específico)
                     if (timeFilter === 'specific_month') {
                         if (!targetMonth) return true;
                         const [year, month] = targetMonth.split('-').map(Number);
                         return logDate.getMonth() + 1 === month && 
                                logDate.getFullYear() === year;
-                    }
-                    
-                    if (timeFilter === 'custom') {
-                        if (!customStartDate || !customEndDate) return true;
-                        const start = new Date(customStartDate).getTime();
-                        const end = new Date(customEndDate);
-                        end.setHours(23, 59, 59, 999);
-                        const endTime = end.getTime();
-                        return logTime >= start && logTime <= endTime;
                     }
 
                     const diff = referenceDate.getTime() - logTime;
@@ -521,7 +513,7 @@
 
                 const processed = processBattleLogs(filteredLogs);
                 setData(processed);
-            }, [rawData, timeFilter, customStartDate, customEndDate, targetMonth]);
+            }, [rawData, timeFilter, targetMonth]);
 
             const tournamentModes = useMemo(() => {
                 if (rawData.length === 0) return ['Geral'];
@@ -628,7 +620,6 @@
 
                     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                         
-                        {/* Header Principal */}
                         <div className="flex flex-col lg:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-6">
                             <div className="flex items-center gap-4 w-full lg:w-auto">
                                 <img 
@@ -664,14 +655,10 @@
                                 </div>
                             </div>
 
-                            {/* Controles de Filtro e Pesquisa */}
                             <div className="flex flex-col gap-4 w-full lg:w-auto items-end">
                                 <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                                     
-                                    {/* Seletor de Período e Seletores Condicionais */}
-                                    {/* MUDANÇA: flex-wrap e flex-row para colocar itens lado a lado */}
                                     <div className="flex flex-row flex-wrap items-center gap-2">
-                                        {/* Dropdown Principal */}
                                         <div className="relative group w-full sm:w-48">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <Calendar className="w-4 h-4 text-slate-500" />
@@ -685,8 +672,6 @@
                                                 <option value="day">Últimas 24h</option>
                                                 <option value="week">Última Semana</option>
                                                 <option value="specific_month">Selecionar Mês</option>
-                                                <option value="custom">Data Personalizada</option>
-                                                {/* MUDANÇA: Todo o Período movido para o final */}
                                                 <option value="all">Todo o Período</option>
                                             </select>
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -694,7 +679,6 @@
                                             </div>
                                         </div>
 
-                                        {/* Dropdown Secundário: Selecionar Mês Específico */}
                                         {timeFilter === 'specific_month' && availableMonths.length > 0 && (
                                             <div className="relative group w-full sm:w-48 animate-in fade-in slide-in-from-left-2 duration-200">
                                                 <select 
@@ -716,28 +700,8 @@
                                                 </div>
                                             </div>
                                         )}
-
-                                        {/* Inputs de Data Personalizada */}
-                                        {timeFilter === 'custom' && (
-                                            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1 px-2 animate-in fade-in slide-in-from-left-4 duration-300 h-[46px]">
-                                                <input 
-                                                    type="date" 
-                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer h-full"
-                                                    value={customStartDate}
-                                                    onChange={(e) => setCustomStartDate(e.target.value)}
-                                                />
-                                                <ArrowRight className="w-4 h-4 text-slate-500" />
-                                                <input 
-                                                    type="date" 
-                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer h-full"
-                                                    value={customEndDate}
-                                                    onChange={(e) => setCustomEndDate(e.target.value)}
-                                                />
-                                            </div>
-                                        )}
                                     </div>
 
-                                    {/* Barra de Pesquisa */}
                                     <div className="relative w-full sm:w-64 group">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <Search className="w-5 h-5 text-slate-500 group-focus-within:text-yellow-500 transition-colors" />
@@ -754,7 +718,6 @@
                             </div>
                         </div>
 
-                        {/* Abas de Navegação */}
                         <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide">
                             {tournamentModes.map(mode => (
                                 <button
@@ -772,7 +735,6 @@
                             ))}
                         </div>
 
-                        {/* Dashboard Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <Card 
                                 title="Jogadores Ativos" 
@@ -800,7 +762,6 @@
                             />
                         </div>
 
-                        {/* Tabela de Ranking */}
                         <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
