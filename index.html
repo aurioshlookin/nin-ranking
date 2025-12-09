@@ -183,12 +183,10 @@
             const maxVal = Math.max(...statsByDate.map(d => d.total));
 
             return (
-                // REMOVIDO h-full e adicionado mb-4 apenas
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col">
                     <h4 className="text-slate-400 text-xs font-bold uppercase mb-4 flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-yellow-500"/> Desempenho Recente (Dia)
                     </h4>
-                    {/* ADICIONADO h-48 para fixar altura e evitar que estique */}
                     <div className="flex items-end justify-between gap-2 h-48">
                         {statsByDate.map((stat, idx) => {
                             // Cálculos de altura
@@ -240,10 +238,8 @@
                 ? allMatches 
                 : allMatches.filter(match => match.mode === activeTab);
 
-            // Ordenar partidas por data (recente primeiro)
             const sortedMatches = [...playerMatches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-            // AGRUPAMENTO POR DATA (LÓGICA DE SEPARAÇÃO)
             const matchesByDate = sortedMatches.reduce((groups, match) => {
                 const date = match.timestamp 
                     ? new Date(match.timestamp).toLocaleDateString('pt-BR') 
@@ -257,10 +253,11 @@
 
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 transition-opacity animate-in fade-in duration-200">
-                    <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+                    {/* ADICIONADO: h-[90vh] para garantir altura fixa no container principal do modal */}
+                    <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
                         
                         {/* Header do Modal */}
-                        <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50">
+                        <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
                             <div>
                                 <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
                                     {player.name}
@@ -282,20 +279,15 @@
                             </button>
                         </div>
 
-                        {/* Corpo do Modal: Layout Grid (Lateral no Desktop, Stack no Mobile) */}
-                        <div className="flex-1 overflow-hidden">
-                            {/* ALTERAÇÃO: lg:flex-row-reverse para colocar o gráfico à direita no desktop */}
+                        {/* Corpo do Modal: Layout Grid */}
+                        {/* ADICIONADO: min-h-0 para permitir que os filhos rolem dentro deste flex container */}
+                        <div className="flex-1 overflow-hidden min-h-0">
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 
-                                {/* Lado Visual Direito (HTML primeiro): Gráfico e Resumo (Sticky no Desktop) */}
-                                {/* ALTERAÇÃO: lg:border-l (borda na esquerda) em vez de lg:border-r */}
-                                {/* Adicionado flex-shrink-0 para garantir que o gráfico não encolha */}
+                                {/* Lado Visual Direito */}
                                 <div className="w-full lg:w-1/3 p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
-                                    
-                                    {/* Componente de Gráfico */}
                                     <PlayerPerformanceChart matches={playerMatches} />
 
-                                    {/* Resumo Extra */}
                                     <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800">
                                         <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
                                             <InfoIcon className="w-4 h-4 text-blue-500"/> Estatísticas Rápidas
@@ -319,9 +311,9 @@
                                     </div>
                                 </div>
 
-                                {/* Lado Visual Esquerdo (HTML segundo): Histórico de Partidas (Scrollable) */}
-                                {/* ADICIONADO: flex-1 min-h-0 para garantir scroll independente no flex container */}
-                                <div className="w-full lg:w-2/3 overflow-y-auto p-4 lg:p-6 scrollbar-thin flex-1 min-h-0">
+                                {/* Lado Visual Esquerdo: Histórico de Partidas */}
+                                {/* ADICIONADO: h-full e overflow-y-auto explicitamente aqui */}
+                                <div className="w-full lg:w-2/3 p-4 lg:p-6 scrollbar-thin flex-1 overflow-y-auto h-full bg-slate-950/20">
                                     <h3 className="text-lg font-bold text-white mb-4 sticky top-0 bg-slate-900 pb-2 z-10 border-b border-slate-800 flex items-center gap-2">
                                         <Clock className="w-5 h-5 text-slate-500"/> Histórico de Batalhas
                                     </h3>
@@ -329,14 +321,12 @@
                                     {Object.keys(matchesByDate).length > 0 ? (
                                         Object.entries(matchesByDate).map(([date, matches]) => (
                                             <div key={date} className="mb-6 last:mb-0 animate-in slide-in-from-bottom-2 duration-300">
-                                                {/* CABEÇALHO DA DATA */}
                                                 <div className="py-2 px-1 border-b border-slate-800 mb-3 flex items-center gap-2">
                                                     <Calendar className="w-4 h-4 text-yellow-500" />
                                                     <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
                                                     <span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full">{matches.length} partidas</span>
                                                 </div>
                                                 
-                                                {/* LISTA DE PARTIDAS DO DIA */}
                                                 <div className="space-y-2">
                                                     {matches.map((match, idx) => (
                                                         <div 
@@ -395,14 +385,16 @@
             const [sortConfig, setSortConfig] = useState({ key: 'wins', direction: 'desc' });
             const [activeTab, setActiveTab] = useState('Geral');
             const [selectedPlayer, setSelectedPlayer] = useState(null);
-            const [timeFilter, setTimeFilter] = useState('all');
+            // MUDANÇA: Filtro padrão alterado para 'current_month' (Este Mês)
+            const [timeFilter, setTimeFilter] = useState('current_month');
+            const [availableMonths, setAvailableMonths] = useState([]);
+            const [targetMonth, setTargetMonth] = useState('');
             const [customStartDate, setCustomStartDate] = useState('');
             const [customEndDate, setCustomEndDate] = useState('');
 
             // Estado para intervalo de datas global
             const [dateRange, setDateRange] = useState({ start: null, end: null });
 
-            // Efeito para definir o Favicon
             useEffect(() => {
                 const favicon = document.getElementById('dynamic-favicon');
                 if (favicon && CUSTOM_ICON_URL) {
@@ -410,7 +402,6 @@
                 }
             }, []);
 
-            // 1. Fetch Data
             useEffect(() => {
                 const fetchData = async () => {
                     setIsLoading(true);
@@ -435,19 +426,17 @@
                 fetchData();
             }, []);
 
-            // Process Data e Calcular Datas
             useEffect(() => {
                 if (rawData.length === 0) {
                     setData({ rankings: [], history: {} });
                     return;
                 }
 
-                // Extrair timestamps válidos
+                // 1. Calcular datas globais e meses disponíveis
                 const timestamps = rawData
                     .map(l => l.timestamp ? new Date(l.timestamp).getTime() : 0)
                     .filter(t => t > 0);
                 
-                // Calcular intervalo global de datas
                 if (timestamps.length > 0) {
                     const minTime = Math.min(...timestamps);
                     const maxTime = Math.max(...timestamps);
@@ -455,16 +444,46 @@
                         start: new Date(minTime).toLocaleDateString('pt-BR'),
                         end: new Date(maxTime).toLocaleDateString('pt-BR')
                     });
+
+                    // Extrair meses únicos
+                    const uniqueMonths = new Set();
+                    timestamps.forEach(ts => {
+                        const d = new Date(ts);
+                        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM para value
+                        uniqueMonths.add(key);
+                    });
+                    // Ordenar descrescente (mais recente primeiro)
+                    const sortedMonths = Array.from(uniqueMonths).sort().reverse();
+                    setAvailableMonths(sortedMonths);
+                    
+                    // Definir o mês alvo padrão como o primeiro da lista se não houver um selecionado
+                    if (!targetMonth && sortedMonths.length > 0) {
+                        setTargetMonth(sortedMonths[0]);
+                    }
                 }
 
-                const latestTime = timestamps.length > 0 ? Math.max(...timestamps) : Date.now();
-                const referenceDate = new Date(latestTime); 
+                const referenceDate = new Date(); 
 
                 const filteredLogs = rawData.filter(log => {
                     if (timeFilter === 'all') return true;
                     if (!log.timestamp) return false;
                     
                     const logTime = new Date(log.timestamp).getTime();
+                    const logDate = new Date(log.timestamp);
+                    
+                    // Filtro para "Este Mês" (Mês atual do calendário)
+                    if (timeFilter === 'current_month') {
+                        return logDate.getMonth() === referenceDate.getMonth() && 
+                               logDate.getFullYear() === referenceDate.getFullYear();
+                    }
+
+                    // Filtro para "Selecionar Mês" (Mês Específico)
+                    if (timeFilter === 'specific_month') {
+                        if (!targetMonth) return true;
+                        const [year, month] = targetMonth.split('-').map(Number);
+                        return logDate.getMonth() + 1 === month && 
+                               logDate.getFullYear() === year;
+                    }
                     
                     if (timeFilter === 'custom') {
                         if (!customStartDate || !customEndDate) return true;
@@ -480,13 +499,13 @@
                     
                     if (timeFilter === 'day') return diff <= oneDay && diff >= 0;
                     if (timeFilter === 'week') return diff <= 7 * oneDay && diff >= 0;
-                    if (timeFilter === 'month') return diff <= 30 * oneDay && diff >= 0;
+                    // 'month' antigo (últimos 30 dias) foi substituído por 'current_month', mas mantendo lógica se necessário
                     return true;
                 });
 
                 const processed = processBattleLogs(filteredLogs);
                 setData(processed);
-            }, [rawData, timeFilter, customStartDate, customEndDate]);
+            }, [rawData, timeFilter, customStartDate, customEndDate, targetMonth]);
 
             const tournamentModes = useMemo(() => {
                 if (rawData.length === 0) return ['Geral'];
@@ -596,18 +615,15 @@
                         {/* Header Principal */}
                         <div className="flex flex-col lg:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-6">
                             <div className="flex items-center gap-4 w-full lg:w-auto">
-                                {/* MUDANÇA: Ícone diretamente aqui, substituindo o quadrado laranja */}
                                 <img 
                                     src={CUSTOM_ICON_URL} 
                                     alt="Logo" 
                                     className="w-20 h-20 object-cover rounded-2xl shadow-lg shadow-orange-500/20"
                                     onError={(e) => {
-                                        // Fallback se a imagem não carregar: mostra o quadrado laranja antigo
                                         e.target.style.display = 'none';
                                         e.target.nextSibling.style.display = 'flex';
                                     }}
                                 />
-                                {/* Fallback Invisível por padrão */}
                                 <div className="hidden bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center w-20 h-20">
                                     <Trophy className="w-10 h-10 text-white" />
                                 </div>
@@ -617,7 +633,6 @@
                                         Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span>
                                     </h1>
                                     
-                                    {/* NOVAS INFORMAÇÕES DO SERVIDOR E DATA */}
                                     <div className="flex flex-wrap gap-2 mt-1">
                                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold text-slate-300">
                                             <ServerIcon className="w-3 h-3 text-blue-400" />
@@ -637,29 +652,54 @@
                             <div className="flex flex-col gap-4 w-full lg:w-auto items-end">
                                 <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
                                     
-                                    {/* Seletor de Período e Campos de Data Personalizada */}
-                                    <div className="flex flex-col sm:flex-row gap-2">
-                                        <div className="relative group">
+                                    {/* Seletor de Período e Seletores Condicionais */}
+                                    <div className="flex flex-col gap-2">
+                                        {/* Dropdown Principal */}
+                                        <div className="relative group w-full sm:w-48">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                 <Calendar className="w-4 h-4 text-slate-500" />
                                             </div>
                                             <select 
                                                 value={timeFilter}
                                                 onChange={(e) => setTimeFilter(e.target.value)}
-                                                className="appearance-none w-full sm:w-48 bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
+                                                className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
                                             >
+                                                <option value="current_month">Este Mês</option>
                                                 <option value="all">Todo o Período</option>
                                                 <option value="day">Últimas 24h</option>
                                                 <option value="week">Última Semana</option>
-                                                <option value="month">Último Mês</option>
-                                                <option value="custom">Personalizado</option>
+                                                <option value="specific_month">Selecionar Mês</option>
+                                                <option value="custom">Data Personalizada</option>
                                             </select>
                                             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                 <ChevronDown className="w-4 h-4 text-slate-500" />
                                             </div>
                                         </div>
 
-                                        {/* Campos de Data Personalizada */}
+                                        {/* Dropdown Secundário: Selecionar Mês Específico */}
+                                        {timeFilter === 'specific_month' && availableMonths.length > 0 && (
+                                            <div className="relative group w-full sm:w-48 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                <select 
+                                                    value={targetMonth}
+                                                    onChange={(e) => setTargetMonth(e.target.value)}
+                                                    className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm"
+                                                >
+                                                    {availableMonths.map(monthStr => {
+                                                        const [year, month] = monthStr.split('-');
+                                                        return (
+                                                            <option key={monthStr} value={monthStr}>
+                                                                {`${month}/${year}`}
+                                                            </option>
+                                                        );
+                                                    })}
+                                                </select>
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <ChevronDown className="w-3 h-3 text-slate-500" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Inputs de Data Personalizada */}
                                         {timeFilter === 'custom' && (
                                             <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1 px-2 animate-in fade-in slide-in-from-left-4 duration-300">
                                                 <input 
