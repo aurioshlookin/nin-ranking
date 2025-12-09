@@ -53,9 +53,10 @@
         const ServerIcon = (props) => <IconBase {...props}><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></IconBase>;
         const InfoIcon = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></IconBase>;
         const Menu = (props) => <IconBase {...props}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconBase>;
+        const TrendingDown = (props) => <IconBase {...props}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
-        const DATA_FILES = ['./servidor_page_1.json', './servidor_page_2.json', './servidor_page_3.json']; 
+        const DATA_FILES = ['./servidor_page_1.json', './servidor_page_2.json', './servidor_page_3.json', './servidor_page_4.json']; 
         const CUSTOM_ICON_URL = './icon.png'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
 
@@ -279,7 +280,6 @@
             }, {});
 
             return (
-                // MUDANÇA: Removido 'duration-200' e 'animate-in' para garantir que o position: sticky funcione
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
                     <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
                         
@@ -347,8 +347,8 @@
                                         {Object.keys(matchesByDate).length > 0 ? (
                                             Object.entries(matchesByDate).map(([date, matches]) => (
                                                 <div key={date} className="mb-6 last:mb-0 relative">
-                                                    {/* Sticky Header Corrigido - Removemos relative do pai e animações do modal */}
-                                                    <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
+                                                    {/* MUDANÇA: 'sticky' removido para a data ficar estática e não rolar junto */}
+                                                    <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-yellow-500" />
                                                             <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
@@ -591,6 +591,20 @@
 
             const totalBattles = filteredRankings.reduce((acc, curr) => acc + curr.wins, 0); 
 
+            // CÁLCULO ESTATÍSTICO PARA OS CARDS
+            const mostWinsPlayer = useMemo(() => {
+                if (filteredRankings.length === 0) return null;
+                // Clona e ordena por vitórias (desc)
+                return [...filteredRankings].sort((a,b) => b.wins - a.wins)[0];
+            }, [filteredRankings]);
+
+            const mostLossesPlayer = useMemo(() => {
+                if (filteredRankings.length === 0) return null;
+                // Clona e ordena por derrotas (desc)
+                return [...filteredRankings].sort((a,b) => b.losses - a.losses)[0];
+            }, [filteredRankings]);
+
+
             if (isLoading) {
                 return (
                     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400">
@@ -800,17 +814,19 @@
                                 icon={Swords} 
                                 colorClass="text-red-400 bg-red-500" 
                             />
+                            {/* CARD: Mais Vitórias */}
                             <Card 
-                                title="Melhor Jogador" 
-                                value={filteredRankings.length > 0 ? filteredRankings[0].name : '-'} 
+                                title="Mais Vitórias" 
+                                value={mostWinsPlayer ? mostWinsPlayer.name : '-'} 
                                 icon={Medal} 
                                 colorClass="text-yellow-400 bg-yellow-500" 
                             />
+                            {/* CARD: Mais Derrotas */}
                             <Card 
-                                title="Média de Vitórias" 
-                                value={filteredRankings.length ? (totalBattles / filteredRankings.length).toFixed(1) : 0} 
-                                icon={TrendingUp} 
-                                colorClass="text-emerald-400 bg-emerald-500" 
+                                title="Mais Derrotas" 
+                                value={mostLossesPlayer ? mostLossesPlayer.name : '-'} 
+                                icon={TrendingDown} 
+                                colorClass="text-orange-400 bg-orange-500" 
                             />
                         </div>
 
