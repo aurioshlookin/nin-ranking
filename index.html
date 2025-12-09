@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nin Online Tournaments</title>
+    
+    <!-- Carregando Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Carregando React e ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Carregando Babel para traduzir o código React no navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Carregando Lucide Icons (Versão React) -->
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide-react.min.js"></script>
+
+    <style>
+        /* Personalização da barra de rolagem para ficar mais elegante */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        // Importando ícones do pacote global lucideReact
+        const { 
+            Trophy, Swords, Skull, Search, TrendingUp, Users, Medal, 
+            Calendar, Clock, X, Filter, ChevronDown, ArrowRight, 
+            Loader2, AlertCircle 
+        } = lucideReact;
+
+        // CONFIGURAÇÃO
+        // O HTML vai procurar o arquivo na mesma pasta onde ele estiver hospedado
+        const DATA_URL = './servidor_page_1.json'; 
+
+        // --- LÓGICA DO APLICATIVO ---
+
+        const processBattleLogs = (data) => {
+            const stats = {};
+            const history = {};
+
+            const initPlayer = (name) => {
+                if (!stats[name]) {
+                    stats[name] = {
+                        name,
+                        wins: 0,
+                        losses: 0,
+                        battles: 0,
+                        winRate: 0,
+                        modes: {} 
+                    };
+                    history[name] = [];
+                }
+            };
+
+            const updateModeStats = (playerName, mode, result) => {
+                if (!stats[playerName].modes[mode]) {
+                    stats[playerName].modes[mode] = { wins: 0, losses: 0, battles: 0 };
+                }
+                stats[playerName].modes[mode].battles += 1;
+                if (result === 'win') stats[playerName].modes[mode].wins += 1;
+                else stats[playerName].modes[mode].losses += 1;
+            };
+
+            if (!Array.isArray(data)) return { rankings: [], history: {} };
+
+            data.forEach(log => {
+                const content = log.content || "";
+                // Regex para capturar: [Modo] Vencedor derrotou Perdedor
+                const match = content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+
+                if (match) {
+                    const mode = match[1]; 
+                    const winnersPart = match[2];
+                    const losersPart = match[3];
+                    const timestamp = log.timestamp;
+
+                    const winners = winnersPart.split(',').map(n => n.trim()).filter(n => n.length > 0);
+                    const losers = losersPart.split(',').map(n => n.trim()).filter(n => n.length > 0);
+
+                    winners.forEach(winner => {
+                        initPlayer(winner);
+                        stats[winner].wins += 1;
+                        stats[winner].battles += 1;
+                        updateModeStats(winner, mode, 'win');
+                        history[winner].push({
+                            opponent: losers.join(', '),
+                            result: 'win',
+                            timestamp: timestamp,
+                            mode: mode
+                        });
+                    });
+
+                    losers.forEach(loser => {
+                        initPlayer(loser);
+                        stats[loser].losses += 1;
+                        stats[loser].battles += 1;
+                        updateModeStats(loser, mode, 'loss');
+                        history[loser].push({
+                            opponent: winners.join(', '),
+                            result: 'loss',
+                            timestamp: timestamp,
+                            mode: mode
+                        });
+                    });
+                }
+            });
+
+            const rankings = Object.values(stats).map(player => ({
+                ...player,
+                winRate: player.battles > 0 ? ((player.wins / player.battles) * 100).toFixed(1) : 0
+            })).sort((a, b) => b.wins - a.wins);
+
+            return { rankings, history };
+        };
+
+        const Card = ({ title, value, icon: Icon, colorClass }) => (
+            <div className="bg-slate-800 p-6 rounded-lg shadow-lg border border-slate-700 flex items-center space-x-4 animate-in fade-in duration-500">
+                <div className={`p-3 rounded-full ${colorClass} bg-opacity-20`}>
+                    <Icon size={24} className={colorClass.replace('bg-', 'text-')} />
+                </div>
+                <div>
+                    <p className="text-slate-400 text-sm font-medium">{title}</p>
+                    <h3 className="text-2xl font-bold text-white">{value}</h3>
+                </div>
+            </div>
+        );
+
+        const PlayerModal = ({ player, history, onClose, activeTab }) => {
+            if (!player) return null;
+
+            const allMatches = history[player.name] || [];
+            const playerMatches = activeTab === 'Geral' 
+                ? allMatches 
+                : allMatches.filter(match => match.mode === activeTab);
+
+            const sortedMatches = [...playerMatches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            return (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 transition-opacity animate-in fade-in duration-200">
+                    <div className="bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50">
+                            <div>
+                                <h2 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
+                                    {player.name}
+                                    {parseFloat(player.winRate) >= 60 && <TrendingUp className="text-green-400" size={24} />}
+                                </h2>
+                                <div className="flex flex-wrap gap-4 text-sm text-slate-400 items-center">
+                                    <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-xs text-yellow-500 font-bold uppercase tracking-wider">
+                                        {activeTab}
+                                    </span>
+                                    <span>{player.wins} Vitórias</span>
+                                    <span>{player.losses} Derrotas</span>
+                                    <span className={parseFloat(player.winRate) >= 50 ? 'text-green-400' : 'text-red-400'}>
+                                        {player.winRate}% WR
+                                    </span>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-700 rounded-full">
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto p-4 space-y-3">
+                            <h3 className="text-lg font-semibold text-slate-300 mb-4 px-2 flex items-center gap-2">
+                                <Calendar size={18} /> Histórico de Partidas {activeTab !== 'Geral' ? `(${activeTab})` : ''}
+                            </h3>
+                            
+                            {sortedMatches.length > 0 ? (
+                                sortedMatches.map((match, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        className={`p-4 rounded-xl border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${
+                                            match.result === 'win' 
+                                                ? 'bg-green-900/10 border-green-500/20 hover:bg-green-900/20' 
+                                                : 'bg-red-900/10 border-red-500/20 hover:bg-red-900/20'
+                                        }`}
+                                    >
+                                        <div className="flex flex-col">
+                                            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1 flex items-center gap-1">
+                                                {match.mode}
+                                            </span>
+                                            <div className="flex items-center gap-2 text-white font-medium">
+                                                <span className={match.result === 'win' ? 'text-green-400' : 'text-red-400'}>
+                                                    {match.result === 'win' ? 'Venceu' : 'Perdeu para'}
+                                                </span>
+                                                <Swords size={14} className="text-slate-500" />
+                                                <span>{match.opponent}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="text-right flex items-center gap-2 text-slate-400 text-xs sm:text-sm">
+                                            <Clock size={14} />
+                                            <span>
+                                                {match.timestamp ? new Date(match.timestamp).toLocaleDateString('pt-BR', {
+                                                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                                                }) : 'Data desconhecida'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-10 text-slate-500">
+                                    Nenhuma partida registrada neste filtro.
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [rawData, setRawData] = useState([]);
+            const [data, setData] = useState({ rankings: [], history: {} });
+            const [isLoading, setIsLoading] = useState(true);
+            const [error, setError] = useState(null);
+            
+            const [searchTerm, setSearchTerm] = useState('');
+            const [sortConfig, setSortConfig] = useState({ key: 'wins', direction: 'desc' });
+            const [activeTab, setActiveTab] = useState('Geral');
+            const [selectedPlayer, setSelectedPlayer] = useState(null);
+            const [timeFilter, setTimeFilter] = useState('all');
+            const [customStartDate, setCustomStartDate] = useState('');
+            const [customEndDate, setCustomEndDate] = useState('');
+
+            // Fetch Data
+            useEffect(() => {
+                const fetchData = async () => {
+                    setIsLoading(true);
+                    setError(null);
+                    try {
+                        const response = await fetch(DATA_URL);
+                        if (!response.ok) {
+                            throw new Error(`Erro ao carregar dados: ${response.statusText}`);
+                        }
+                        const jsonData = await response.json();
+                        setRawData(jsonData);
+                    } catch (err) {
+                        console.error("Fetch error:", err);
+                        setError("Não foi possível carregar o arquivo 'servidor_page_1.json'. Certifique-se de que ele foi enviado para o repositório e está na mesma pasta.");
+                        setRawData([]); 
+                    } finally {
+                        setIsLoading(false);
+                    }
+                };
+
+                fetchData();
+            }, []);
+
+            // Process Data
+            useEffect(() => {
+                if (rawData.length === 0) {
+                    setData({ rankings: [], history: {} });
+                    return;
+                }
+
+                const timestamps = rawData.map(l => l.timestamp ? new Date(l.timestamp).getTime() : 0).filter(t => t > 0);
+                const latestTime = timestamps.length > 0 ? Math.max(...timestamps) : Date.now();
+                const referenceDate = new Date(latestTime); 
+
+                const filteredLogs = rawData.filter(log => {
+                    if (timeFilter === 'all') return true;
+                    if (!log.timestamp) return false;
+                    
+                    const logTime = new Date(log.timestamp).getTime();
+                    
+                    if (timeFilter === 'custom') {
+                        if (!customStartDate || !customEndDate) return true;
+                        // Ajustar para UTC ou manter local simples para demo
+                        const start = new Date(customStartDate).getTime();
+                        const end = new Date(customEndDate);
+                        end.setHours(23, 59, 59, 999);
+                        const endTime = end.getTime();
+                        
+                        return logTime >= start && logTime <= endTime;
+                    }
+
+                    const diff = referenceDate.getTime() - logTime;
+                    const oneDay = 24 * 60 * 60 * 1000;
+                    
+                    if (timeFilter === 'day') return diff <= oneDay && diff >= 0;
+                    if (timeFilter === 'week') return diff <= 7 * oneDay && diff >= 0;
+                    if (timeFilter === 'month') return diff <= 30 * oneDay && diff >= 0;
+                    return true;
+                });
+
+                const processed = processBattleLogs(filteredLogs);
+                setData(processed);
+            }, [rawData, timeFilter, customStartDate, customEndDate]);
+
+            // Modos
+            const tournamentModes = useMemo(() => {
+                if (rawData.length === 0) return ['Geral'];
+                const modes = new Set();
+                rawData.forEach(log => {
+                    const match = (log.content || "").match(/^\[(.*?)\]/);
+                    if (match) modes.add(match[1]);
+                });
+                return ['Geral', ...Array.from(modes).sort()];
+            }, [rawData]);
+
+            // Filtros e Ordenação
+            const filteredRankings = useMemo(() => {
+                let players = [...data.rankings];
+
+                if (activeTab !== 'Geral') {
+                    players = players.map(p => {
+                        const modeStats = p.modes && p.modes[activeTab];
+                        if (!modeStats) return null;
+
+                        return {
+                            ...p,
+                            wins: modeStats.wins,
+                            losses: modeStats.losses,
+                            battles: modeStats.battles,
+                            winRate: modeStats.battles > 0 ? ((modeStats.wins / modeStats.battles) * 100).toFixed(1) : 0
+                        };
+                    }).filter(p => p !== null);
+                }
+
+                if (searchTerm) {
+                    players = players.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+                }
+
+                players.sort((a, b) => {
+                    let aValue = a[sortConfig.key];
+                    let bValue = b[sortConfig.key];
+
+                    if (!isNaN(parseFloat(aValue))) {
+                        aValue = parseFloat(aValue);
+                        bValue = parseFloat(bValue);
+                    }
+
+                    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+                    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                return players;
+            }, [data.rankings, searchTerm, sortConfig, activeTab]);
+
+            const handleSort = (key) => {
+                let direction = 'desc';
+                if (sortConfig.key === key && sortConfig.direction === 'desc') {
+                    direction = 'asc';
+                }
+                setSortConfig({ key, direction });
+            };
+
+            const totalBattles = filteredRankings.reduce((acc, curr) => acc + curr.wins, 0); 
+
+            if (isLoading) {
+                return (
+                    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400">
+                        <Loader2 size={48} className="animate-spin text-yellow-500 mb-4" />
+                        <p className="text-lg font-medium">Buscando dados do servidor...</p>
+                        <p className="text-sm mt-2 text-slate-600">Lendo: {DATA_URL}</p>
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 p-8 text-center">
+                        <AlertCircle size={64} className="mb-4" />
+                        <h2 className="text-2xl font-bold mb-2">Erro ao carregar dados</h2>
+                        <p className="max-w-md">{error}</p>
+                        <button 
+                            onClick={() => window.location.reload()}
+                            className="mt-6 px-6 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors text-white"
+                        >
+                            Tentar Novamente
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8">
+                    {selectedPlayer && (
+                        <PlayerModal 
+                            player={selectedPlayer} 
+                            history={data.history} 
+                            activeTab={activeTab}
+                            onClose={() => setSelectedPlayer(null)} 
+                        />
+                    )}
+
+                    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        
+                        {/* Header Principal */}
+                        <div className="flex flex-col lg:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-6">
+                            <div className="flex items-center gap-4 w-full lg:w-auto">
+                                <div className="bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20">
+                                    <Trophy size={32} className="text-white" />
+                                </div>
+                                <div>
+                                    <h1 className="text-4xl font-black text-white tracking-tight">
+                                        Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span>
+                                    </h1>
+                                    <p className="text-slate-400 font-medium mt-1 flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-green-500 inline-block animate-pulse"></span>
+                                        Estatísticas atualizadas semanalmente
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Controles de Filtro e Pesquisa */}
+                            <div className="flex flex-col gap-4 w-full lg:w-auto items-end">
+                                <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+                                    
+                                    {/* Seletor de Período e Campos de Data Personalizada */}
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <Calendar className="text-slate-500" size={18} />
+                                            </div>
+                                            <select 
+                                                value={timeFilter}
+                                                onChange={(e) => setTimeFilter(e.target.value)}
+                                                className="appearance-none w-full sm:w-48 bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
+                                            >
+                                                <option value="all">Todo o Período</option>
+                                                <option value="day">Últimas 24h</option>
+                                                <option value="week">Última Semana</option>
+                                                <option value="month">Último Mês</option>
+                                                <option value="custom">Personalizado</option>
+                                            </select>
+                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <ChevronDown className="text-slate-500" size={16} />
+                                            </div>
+                                        </div>
+
+                                        {/* Campos de Data Personalizada */}
+                                        {timeFilter === 'custom' && (
+                                            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl p-1 px-2 animate-in fade-in slide-in-from-left-4 duration-300">
+                                                <input 
+                                                    type="date" 
+                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer"
+                                                    value={customStartDate}
+                                                    onChange={(e) => setCustomStartDate(e.target.value)}
+                                                />
+                                                <ArrowRight size={14} className="text-slate-500" />
+                                                <input 
+                                                    type="date" 
+                                                    className="bg-transparent text-slate-200 text-sm focus:outline-none p-1 cursor-pointer"
+                                                    value={customEndDate}
+                                                    onChange={(e) => setCustomEndDate(e.target.value)}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Barra de Pesquisa */}
+                                    <div className="relative w-full sm:w-64 group">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <Search className="text-slate-500 group-focus-within:text-yellow-500 transition-colors" size={20} />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            placeholder="Buscar jogador..." 
+                                            className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-sm"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Abas de Navegação */}
+                        <div className="flex overflow-x-auto pb-2 gap-2 scrollbar-hide">
+                            {tournamentModes.map(mode => (
+                                <button
+                                    key={mode}
+                                    onClick={() => setActiveTab(mode)}
+                                    className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                                        activeTab === mode 
+                                            ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' 
+                                            : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    }`}
+                                >
+                                    {mode === 'Geral' ? <Filter size={16} /> : <Swords size={16} />}
+                                    {mode}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Dashboard Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <Card 
+                                title="Jogadores Ativos" 
+                                value={filteredRankings.length} 
+                                icon={Users} 
+                                colorClass="text-blue-400 bg-blue-500" 
+                            />
+                            <Card 
+                                title="Batalhas Totais" 
+                                value={totalBattles} 
+                                icon={Swords} 
+                                colorClass="text-red-400 bg-red-500" 
+                            />
+                            <Card 
+                                title="Melhor Jogador" 
+                                value={filteredRankings.length > 0 ? filteredRankings[0].name : '-'} 
+                                icon={Medal} 
+                                colorClass="text-yellow-400 bg-yellow-500" 
+                            />
+                            <Card 
+                                title="Média de Vitórias" 
+                                value={filteredRankings.length ? (totalBattles / filteredRankings.length).toFixed(1) : 0} 
+                                icon={TrendingUp} 
+                                colorClass="text-emerald-400 bg-emerald-500" 
+                            />
+                        </div>
+
+                        {/* Tabela de Ranking */}
+                        <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                            <th className="p-5 w-20 text-center">#</th>
+                                            <th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>Jogador</th>
+                                            <th className="p-5 text-center cursor-pointer hover:text-yellow-400 transition-colors" onClick={() => handleSort('wins')}>Vitórias</th>
+                                            <th className="p-5 text-center cursor-pointer hover:text-red-400 transition-colors" onClick={() => handleSort('losses')}>Derrotas</th>
+                                            <th className="p-5 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('battles')}>Partidas</th>
+                                            <th className="p-5 text-center cursor-pointer hover:text-green-400 transition-colors" onClick={() => handleSort('winRate')}>Win Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800">
+                                        {filteredRankings.map((player, index) => {
+                                            let rankColor = "text-slate-500";
+                                            let rankIcon = null;
+                                            const rank = index + 1;
+
+                                            if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy size={16} className="mx-auto" />; }
+                                            if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal size={16} className="mx-auto" />; }
+                                            if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal size={16} className="mx-auto" />; }
+
+                                            return (
+                                                <tr 
+                                                    key={player.name} 
+                                                    onClick={() => setSelectedPlayer(player)}
+                                                    className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                                                >
+                                                    <td className={`p-5 text-center font-bold ${rankColor} text-lg`}>
+                                                        {rankIcon || `#${rank}`}
+                                                    </td>
+                                                    <td className="p-5 font-semibold text-white group-hover:text-yellow-400 transition-colors">
+                                                        {player.name}
+                                                    </td>
+                                                    <td className="p-5 text-center font-bold text-slate-200">
+                                                        {player.wins}
+                                                    </td>
+                                                    <td className="p-5 text-center font-medium text-slate-500">
+                                                        {player.losses}
+                                                    </td>
+                                                    <td className="p-5 text-center text-slate-400">
+                                                        {player.battles}
+                                                    </td>
+                                                    <td className="p-5 text-center">
+                                                        <div className="flex flex-col items-center gap-1">
+                                                            <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                                                parseFloat(player.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
+                                                                parseFloat(player.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                                                'bg-red-500/20 text-red-400'
+                                                            }`}>
+                                                                {player.winRate}%
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                        {filteredRankings.length === 0 && (
+                                            <tr>
+                                                <td colSpan="6" className="p-12 text-center text-slate-500">
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <Users size={48} className="text-slate-700" />
+                                                        <p>Nenhum jogador encontrado para este filtro.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
