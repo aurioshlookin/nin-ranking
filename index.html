@@ -54,10 +54,24 @@
         const InfoIcon = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></IconBase>;
         const Menu = (props) => <IconBase {...props}><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></IconBase>;
         const TrendingDown = (props) => <IconBase {...props}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></IconBase>;
+        const ShieldCheck = (props) => <IconBase {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
+        const DATA_FILES = ['./servidor_page_1.json']; 
         const CUSTOM_ICON_URL = './icon.png'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
+        
+        // Descrições para cada categoria
+        const MODE_DESCRIPTIONS = {
+            'Geral': 'Visão completa de todas as partidas registradas no servidor, incluindo eventos e ranqueadas.',
+            'Ranked': 'Soma exclusiva das filas ranqueadas automáticas (Auto1v1, Auto2v2 e Auto3v3).',
+            'Auto1v1': 'Partidas ranqueadas automatizadas no formato 1 contra 1.',
+            'Auto2v2': 'Partidas ranqueadas automatizadas no formato 2 contra 2.',
+            'Auto3v3': 'Partidas ranqueadas automatizadas no formato 3 contra 3.',
+            'DBE1v1': 'Torneio especial Dragon Ball Event no formato 1v1.',
+            'DBE2v2': 'Torneio especial Dragon Ball Event no formato 2v2.',
+            'Default': 'Estatísticas detalhadas para este modo de jogo específico.'
+        };
 
         // --- LÓGICA DO APLICATIVO ---
 
@@ -140,7 +154,6 @@
             const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
             const scrollRef = useRef(null);
 
-            // Agrupar partidas por data (Ordenação Cronológica: Antigo -> Recente)
             const statsByDate = useMemo(() => {
                 const groups = {};
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -156,7 +169,6 @@
                 return Object.values(groups); 
             }, [matches]);
 
-            // Rolagem automática para o final (direita) ao carregar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
@@ -167,7 +179,6 @@
                 }
             }, [statsByDate]);
 
-            // Handler para o mouse
             const handleMouseMove = (e) => {
                 setTooltipPos({ x: e.clientX, y: e.clientY });
             };
@@ -178,7 +189,6 @@
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col relative" >
-                    {/* TOOLTIP FLUTUANTE (FIXO NA TELA PARA EVITAR CORTES) */}
                     {hoveredStat && (
                         <div 
                             className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]"
@@ -223,7 +233,6 @@
                                         onMouseLeave={() => setHoveredStat(null)}
                                     >
                                         <div className="w-full flex items-end justify-center gap-1 h-full px-1">
-                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                  <div 
                                                     style={{ height: `${winHeight}%` }} 
@@ -233,7 +242,6 @@
                                                 ></div>
                                             </div>
 
-                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                 <div 
                                                     style={{ height: `${lossHeight}%` }} 
@@ -260,11 +268,16 @@
             if (!player) return null;
 
             const allMatches = history[player.name] || [];
-            const playerMatches = activeTab === 'Geral' 
-                ? allMatches 
-                : allMatches.filter(match => match.mode === activeTab);
+            
+            // Lógica de Filtro para o Modal (Ranked vs Geral vs Modos)
+            const playerMatches = useMemo(() => {
+                if (activeTab === 'Geral') return allMatches;
+                if (activeTab === 'Ranked') {
+                    return allMatches.filter(match => ['Auto1v1', 'Auto2v2', 'Auto3v3'].includes(match.mode));
+                }
+                return allMatches.filter(match => match.mode === activeTab);
+            }, [allMatches, activeTab]);
 
-            // Ordenação para lista: Recente -> Antigo
             const sortedMatches = [...playerMatches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             const matchesByDate = sortedMatches.reduce((groups, match) => {
@@ -307,7 +320,6 @@
                         <div className="flex-1 overflow-hidden min-h-0">
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 
-                                {/* Lado Visual Direito (Gráficos) - Largura 45% */}
                                 <div className="w-full lg:w-[45%] p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
                                     <PlayerPerformanceChart matches={playerMatches} />
 
@@ -334,7 +346,6 @@
                                     </div>
                                 </div>
 
-                                {/* Lado Visual Esquerdo: Histórico de Partidas - Largura 55% */}
                                 <div className="w-full lg:w-[55%] flex flex-col h-full bg-slate-950/20">
                                     <div className="p-4 lg:p-6 pb-2 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm z-20 flex-shrink-0">
                                         <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -346,7 +357,6 @@
                                         {Object.keys(matchesByDate).length > 0 ? (
                                             Object.entries(matchesByDate).map(([date, matches]) => (
                                                 <div key={date} className="mb-6 last:mb-0 relative">
-                                                    {/* MUDANÇA: 'sticky' removido para a data ficar estática e não rolar junto */}
                                                     <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-yellow-500" />
@@ -432,7 +442,6 @@
                 }
             }, []);
 
-            // 1. Fetch Data: Lógica de Carregamento Sequencial
             useEffect(() => {
                 const fetchData = async () => {
                     setIsLoading(true);
@@ -454,18 +463,14 @@
                                     }
                                     page++;
                                 } else {
-                                    // 404 ou erro, consideramos fim da lista
                                     foundEnd = true;
                                 }
                             } catch (err) {
-                                // Erro de rede ou outro, paramos
                                 foundEnd = true;
                             }
                         }
                         
                         if (loadedData.length === 0 && page === 1) {
-                             // Não achou nem o primeiro
-                             // Podemos definir rawData como vazio, ou mostrar erro se preferir
                              console.warn("Nenhum arquivo encontrado começando com servidor_page_1.json");
                         }
 
@@ -546,9 +551,8 @@
                 setData(processed);
             }, [rawData, timeFilter, targetMonth]);
 
-            // Lógica de Modos: Principais vs Outros
             const modeGroups = useMemo(() => {
-                if (rawData.length === 0) return { main: ['Geral'], others: [] };
+                if (rawData.length === 0) return { main: ['Geral', 'Ranked'], others: [] };
                 const modes = new Set();
                 rawData.forEach(log => {
                     const match = (log.content || "").match(/^\[(.*?)\]/);
@@ -557,10 +561,8 @@
                 
                 const allFoundModes = Array.from(modes);
                 
-                // Filtra os que existem na prioridade
-                const mainModes = ['Geral', ...PRIORITY_MODES.filter(m => modes.has(m))];
-                
-                // O resto vai para "Outros"
+                // MUDANÇA: Adicionado 'Ranked' manualmente após 'Geral'
+                const mainModes = ['Geral', 'Ranked', ...PRIORITY_MODES.filter(m => modes.has(m))];
                 const otherModes = allFoundModes.filter(m => !PRIORITY_MODES.includes(m)).sort();
                 
                 return { main: mainModes, others: otherModes };
@@ -569,7 +571,34 @@
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
 
-                if (activeTab !== 'Geral') {
+                if (activeTab === 'Geral') {
+                    // Padrão (já processado)
+                } else if (activeTab === 'Ranked') {
+                    // MUDANÇA: Lógica de Filtro para Categoria 'Ranked'
+                    players = players.map(p => {
+                        let wins = 0, losses = 0, battles = 0;
+                        const rankedModes = ['Auto1v1', 'Auto2v2', 'Auto3v3'];
+                        
+                        rankedModes.forEach(m => {
+                            if (p.modes && p.modes[m]) {
+                                wins += p.modes[m].wins;
+                                losses += p.modes[m].losses;
+                                battles += p.modes[m].battles;
+                            }
+                        });
+
+                        if (battles === 0) return null;
+
+                        return {
+                            ...p,
+                            wins,
+                            losses,
+                            battles,
+                            winRate: ((wins / battles) * 100).toFixed(1)
+                        };
+                    }).filter(p => p !== null);
+                } else {
+                    // Modo Específico
                     players = players.map(p => {
                         const modeStats = p.modes && p.modes[activeTab];
                         if (!modeStats) return null;
@@ -589,25 +618,18 @@
                 }
 
                 players.sort((a, b) => {
-                    // LÓGICA DE ORDENAÇÃO PERSONALIZADA
-                    
-                    // Caso 1: Ordenando por Vitórias (Padrão)
                     if (sortConfig.key === 'wins') {
                         if (a.wins !== b.wins) {
                             return sortConfig.direction === 'asc' ? a.wins - b.wins : b.wins - a.wins;
                         }
-                        // Desempate 1: WinRate (Maior é melhor)
                         const wrA = parseFloat(a.winRate);
                         const wrB = parseFloat(b.winRate);
                         if (wrA !== wrB) {
                             return sortConfig.direction === 'asc' ? wrA - wrB : wrB - wrA;
                         }
-                        // Desempate 2: Derrotas (Menor é melhor - "ficar mais em cima")
-                        // Se Desc (Melhor -> Pior), queremos MENOS derrotas primeiro.
                         return sortConfig.direction === 'asc' ? b.losses - a.losses : a.losses - b.losses;
                     }
 
-                    // Caso padrão para outras colunas
                     let aValue = a[sortConfig.key];
                     let bValue = b[sortConfig.key];
 
@@ -634,10 +656,8 @@
 
             const totalBattles = filteredRankings.reduce((acc, curr) => acc + curr.wins, 0); 
 
-            // CÁLCULO ESTATÍSTICO PARA OS CARDS
             const mostWinsPlayer = useMemo(() => {
                 if (filteredRankings.length === 0) return null;
-                // Clona e ordena por vitórias (desc), desempate por WR (desc - maior é melhor)
                 return [...filteredRankings].sort((a,b) => {
                     if (b.wins !== a.wins) return b.wins - a.wins;
                     return parseFloat(b.winRate) - parseFloat(a.winRate);
@@ -646,7 +666,6 @@
 
             const mostLossesPlayer = useMemo(() => {
                 if (filteredRankings.length === 0) return null;
-                // Clona e ordena por derrotas (desc), desempate por WR (asc - menor é pior)
                 return [...filteredRankings].sort((a,b) => {
                     if (b.losses !== a.losses) return b.losses - a.losses;
                     return parseFloat(a.winRate) - parseFloat(b.winRate);
@@ -799,55 +818,65 @@
                         </div>
 
                         {/* Abas de Navegação (Modos Principais e Dropdown Outros) */}
-                        <div className="flex flex-wrap gap-2 pb-2">
-                            {modeGroups.main.map(mode => (
-                                <button
-                                    key={mode}
-                                    onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
-                                    className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
-                                        activeTab === mode 
-                                            ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' 
-                                            : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                                    }`}
-                                >
-                                    {mode === 'Geral' ? <Filter className="w-4 h-4" /> : <Swords className="w-4 h-4" />}
-                                    {mode}
-                                </button>
-                            ))}
-
-                            {/* Dropdown Outros Modos */}
-                            {modeGroups.others.length > 0 && (
-                                <div className="relative">
+                        <div className="flex flex-col gap-3 pb-2">
+                            <div className="flex flex-wrap gap-2">
+                                {modeGroups.main.map(mode => (
                                     <button
-                                        onClick={() => setShowOtherModes(!showOtherModes)}
+                                        key={mode}
+                                        onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
                                         className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
-                                            modeGroups.others.includes(activeTab) 
+                                            activeTab === mode 
                                                 ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' 
                                                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                                         }`}
                                     >
-                                        <Menu className="w-4 h-4" />
-                                        {modeGroups.others.includes(activeTab) ? activeTab : "Outros Modos"}
-                                        <ChevronDown className={`w-4 h-4 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} />
+                                        {mode === 'Geral' ? <Filter className="w-4 h-4" /> : 
+                                         mode === 'Ranked' ? <ShieldCheck className="w-4 h-4" /> :
+                                         <Swords className="w-4 h-4" />}
+                                        {mode}
                                     </button>
+                                ))}
 
-                                    {showOtherModes && (
-                                        <div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                            {modeGroups.others.map(mode => (
-                                                <button
-                                                    key={mode}
-                                                    onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
-                                                    className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${
-                                                        activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'
-                                                    }`}
-                                                >
-                                                    {mode}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                {/* Dropdown Outros Modos */}
+                                {modeGroups.others.length > 0 && (
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setShowOtherModes(!showOtherModes)}
+                                            className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                                                modeGroups.others.includes(activeTab) 
+                                                    ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' 
+                                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                            }`}
+                                        >
+                                            <Menu className="w-4 h-4" />
+                                            {modeGroups.others.includes(activeTab) ? activeTab : "Outros Modos"}
+                                            <ChevronDown className={`w-4 h-4 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        {showOtherModes && (
+                                            <div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {modeGroups.others.map(mode => (
+                                                    <button
+                                                        key={mode}
+                                                        onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
+                                                        className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${
+                                                            activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'
+                                                        }`}
+                                                    >
+                                                        {mode}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* MUDANÇA: Descrição Dinâmica da Categoria */}
+                            <div className="text-slate-400 text-sm flex items-start gap-2 pl-1 animate-in fade-in duration-300">
+                                <InfoIcon className="w-4 h-4 mt-0.5 text-slate-500 flex-shrink-0" />
+                                <p>{MODE_DESCRIPTIONS[activeTab] || MODE_DESCRIPTIONS['Default']}</p>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
