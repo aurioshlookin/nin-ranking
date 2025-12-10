@@ -58,8 +58,8 @@
         const GitBranch = (props) => <IconBase {...props}><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></IconBase>;
         const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></IconBase>;
         const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconBase>;
-        // Renomeado de Map para MapIcon para evitar conflito com o objeto Map global do JS
         const MapIcon = (props) => <IconBase {...props}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></IconBase>;
+        const Layers = (props) => <IconBase {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
@@ -180,6 +180,7 @@
             const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
             const scrollRef = useRef(null);
 
+            // Agrupar partidas por data (Ordenação Cronológica: Antigo -> Recente)
             const statsByDate = useMemo(() => {
                 const groups = {};
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -195,6 +196,7 @@
                 return Object.values(groups); 
             }, [matches]);
 
+            // Rolagem automática para o final (direita) ao carregar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
@@ -205,6 +207,7 @@
                 }
             }, [statsByDate]);
 
+            // Handler para o mouse
             const handleMouseMove = (e) => {
                 setTooltipPos({ x: e.clientX, y: e.clientY });
             };
@@ -215,6 +218,7 @@
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col relative" >
+                    {/* TOOLTIP FLUTUANTE (FIXO NA TELA PARA EVITAR CORTES) */}
                     {hoveredStat && (
                         <div 
                             className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]"
@@ -259,6 +263,7 @@
                                         onMouseLeave={() => setHoveredStat(null)}
                                     >
                                         <div className="w-full flex items-end justify-center gap-1 h-full px-1">
+                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                  <div 
                                                     style={{ height: `${winHeight}%` }} 
@@ -268,6 +273,7 @@
                                                 ></div>
                                             </div>
 
+                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                 <div 
                                                     style={{ height: `${lossHeight}%` }} 
@@ -293,7 +299,15 @@
         const TournamentBracketModal = ({ tournament, onClose }) => {
             if (!tournament) return null;
 
+            // Organizar partidas em "Rounds" (Chaves)
+            // Assumindo que a ordem é cronológica inversa (última = final)
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Agrupamento heurístico simples:
+            // Índice 0: Final
+            // Índice 1-2: Semifinais
+            // Índice 3-6: Quartas
+            // Índice 7+: Classificatórias
             
             const rounds = {
                 'Final': [matches[0]].filter(Boolean),
@@ -305,11 +319,11 @@
             return (
                 <div 
                     className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50"
-                    onClick={onClose} 
+                    onClick={onClose} // Fecha ao clicar fora
                 >
                     <div 
                         className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} 
+                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
                     >
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                             <div>
@@ -338,6 +352,7 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                                             {roundMatches.map((match, idx) => (
                                                 <div key={idx} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col items-center justify-center relative overflow-hidden group hover:border-slate-600 transition-colors">
+                                                    {/* Vencedor */}
                                                     <div className="w-full flex justify-between items-center mb-2">
                                                         <span className="text-green-400 font-bold truncate flex-1">{match.winners.join(', ')}</span>
                                                         <Trophy className="w-4 h-4 text-yellow-500 ml-2" />
@@ -345,6 +360,7 @@
                                                     
                                                     <div className="w-full h-px bg-slate-800 my-1"></div>
                                                     
+                                                    {/* Perdedor */}
                                                     <div className="w-full flex justify-between items-center mt-2 opacity-60">
                                                         <span className="text-red-400 font-medium truncate flex-1">{match.losers.join(', ')}</span>
                                                     </div>
@@ -426,11 +442,11 @@
             return (
                 <div 
                     className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50"
-                    onClick={onClose}
+                    onClick={onClose} // Fecha ao clicar fora
                 >
                     <div 
                         className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} 
+                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
                     >
                         
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
@@ -574,6 +590,9 @@
             const [viewMode, setViewMode] = useState('ranking'); // 'ranking' | 'tournaments' | 'masteries' | 'villages'
             const [selectedTournament, setSelectedTournament] = useState(null);
             const [showInfoModal, setShowInfoModal] = useState(false);
+            
+            // ADICIONADO: Estado para o modo de visualização das maestrias (Combined vs Individual)
+            const [masteryViewMode, setMasteryViewMode] = useState('combined');
 
             useEffect(() => {
                 const favicon = document.getElementById('dynamic-favicon');
@@ -878,27 +897,56 @@
                 return players;
             }, [data.rankings, searchTerm, sortConfig, activeTab]);
 
-            // NOVAS ESTATÍSTICAS AGREGADAS PARA MAESTRIAS E VILAS
+            // NOVAS ESTATÍSTICAS AGREGADAS PARA MAESTRIAS E VILAS (ATUALIZADA COM MODO INDIVIDUAL/COMBINADO)
             const groupedMasteries = useMemo(() => {
                 const stats = {};
-                filteredRankings.forEach(p => {
-                    // Contar para Maestria 1
-                    if (p.meta && p.meta.mastery_1) {
-                        const m1 = p.meta.mastery_1;
-                        if (!stats[m1]) stats[m1] = { name: m1, wins: 0, players: 0 };
-                        stats[m1].wins += p.wins;
-                        stats[m1].players += 1;
-                    }
-                    // Contar para Maestria 2
-                    if (p.meta && p.meta.mastery_2) {
-                        const m2 = p.meta.mastery_2;
-                        if (!stats[m2]) stats[m2] = { name: m2, wins: 0, players: 0 };
-                        stats[m2].wins += p.wins;
-                        stats[m2].players += 1;
-                    }
-                });
+                
+                if (masteryViewMode === 'individual') {
+                    // MODO INDIVIDUAL: Conta cada maestria separadamente
+                    filteredRankings.forEach(p => {
+                        // Contar para Maestria 1
+                        if (p.meta && p.meta.mastery_1) {
+                            const m1 = p.meta.mastery_1;
+                            if (!stats[m1]) stats[m1] = { name: m1, parts: [m1], wins: 0, players: 0 };
+                            stats[m1].wins += p.wins;
+                            stats[m1].players += 1;
+                        }
+                        // Contar para Maestria 2
+                        if (p.meta && p.meta.mastery_2) {
+                            const m2 = p.meta.mastery_2;
+                            if (!stats[m2]) stats[m2] = { name: m2, parts: [m2], wins: 0, players: 0 };
+                            stats[m2].wins += p.wins;
+                            stats[m2].players += 1;
+                        }
+                    });
+                } else {
+                    // MODO COMBINADO: Conta a combinação única (ex: Água + Médico)
+                    filteredRankings.forEach(p => {
+                        if (p.meta && (p.meta.mastery_1 || p.meta.mastery_2)) {
+                            const m1 = p.meta.mastery_1;
+                            const m2 = p.meta.mastery_2;
+                            let key;
+                            let displayParts = [];
+                            
+                            if (m1 && m2) {
+                                // Ordenar alfabeticamente para consistência (Água + Médico == Médico + Água)
+                                const parts = [m1, m2].sort();
+                                key = parts.join(' + ');
+                                displayParts = parts;
+                            } else {
+                                key = m1 || m2;
+                                displayParts = [key];
+                            }
+                            
+                            if (!stats[key]) stats[key] = { name: key, parts: displayParts, wins: 0, players: 0 };
+                            stats[key].wins += p.wins;
+                            stats[key].players += 1;
+                        }
+                    });
+                }
+                
                 return Object.values(stats).sort((a, b) => b.wins - a.wins);
-            }, [filteredRankings]);
+            }, [filteredRankings, masteryViewMode]);
 
             const groupedVillages = useMemo(() => {
                 const stats = {};
@@ -1370,9 +1418,35 @@
                         {/* RANKING DE MAESTRIAS */}
                         {viewMode === 'masteries' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="p-6 border-b border-slate-800">
-                                    <h3 className="text-xl font-bold text-white">Ranking de Maestrias</h3>
-                                    <p className="text-slate-400 text-sm">Estatísticas acumuladas por maestria.</p>
+                                <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+                                    <div>
+                                        <h3 className="text-xl font-bold text-white">Ranking de Maestrias</h3>
+                                        <p className="text-slate-400 text-sm">Estatísticas acumuladas por maestria.</p>
+                                    </div>
+                                    
+                                    {/* MUDANÇA: TOGGLE DE VISUALIZAÇÃO */}
+                                    <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
+                                        <button
+                                            onClick={() => setMasteryViewMode('combined')}
+                                            className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
+                                                masteryViewMode === 'combined' 
+                                                    ? 'bg-blue-600 text-white shadow-sm' 
+                                                    : 'text-slate-400 hover:text-white'
+                                            }`}
+                                        >
+                                            Combinadas
+                                        </button>
+                                        <button
+                                            onClick={() => setMasteryViewMode('individual')}
+                                            className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
+                                                masteryViewMode === 'individual' 
+                                                    ? 'bg-blue-600 text-white shadow-sm' 
+                                                    : 'text-slate-400 hover:text-white'
+                                            }`}
+                                        >
+                                            Individuais
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
@@ -1389,9 +1463,14 @@
                                                 <tr key={m.name} className="hover:bg-slate-800/50 transition-colors">
                                                     <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
                                                     <td className="p-5">
-                                                        <span className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide ${STYLE_MAP[m.name] || 'text-slate-200'}`}>
-                                                            {m.name}
-                                                        </span>
+                                                        {/* Renderização condicional para partes de maestria */}
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {m.parts.map((part, i) => (
+                                                                <span key={i} className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide ${STYLE_MAP[part] || 'text-slate-200 border-slate-700'}`}>
+                                                                    {part}
+                                                                </span>
+                                                            ))}
+                                                        </div>
                                                     </td>
                                                     <td className="p-5 text-center text-slate-300 font-bold">{m.players}</td>
                                                     <td className="p-5 text-center text-yellow-500 font-bold">{m.wins}</td>
