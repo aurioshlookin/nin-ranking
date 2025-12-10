@@ -656,12 +656,17 @@
                 return { main: mainModes, others: otherModes };
             }, [rawData]);
 
-            // Lógica de Agrupamento de Torneios (Agora usa filteredLogs e ActiveTab)
+            // Lógica de Agrupamento de Torneios (CORRIGIDA)
             const groupedTournaments = useMemo(() => {
                 if (filteredLogs.length === 0) return [];
-                const groups = {};
+                
+                // Sort logs by time first to ensure clustering works linearly
+                const sortedLogs = [...filteredLogs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                
+                const tournaments = [];
+                const GAP_THRESHOLD = 90 * 60 * 1000; // 90 minutos de intervalo
 
-                filteredLogs.forEach(log => {
+                sortedLogs.forEach(log => {
                     const content = log.content || "";
                     const match = content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
                     if (match && log.timestamp) {
@@ -678,32 +683,53 @@
 
                         if (!isMatch) return;
 
-                        const date = new Date(log.timestamp).toLocaleDateString('pt-BR');
-                        const key = `${mode}-${date}`;
+                        const logTime = new Date(log.timestamp).getTime();
+                        let targetTournament = null;
                         
-                        if (!groups[key]) {
-                            groups[key] = {
-                                id: key,
-                                name: mode,
-                                date: date,
-                                timestamp: new Date(log.timestamp).getTime(),
-                                matches: []
-                            };
+                        // Encontrar o último torneio deste modo para verificar o intervalo
+                        for (let i = tournaments.length - 1; i >= 0; i--) {
+                            if (tournaments[i].name === mode) {
+                                const lastMatchTime = tournaments[i].lastMatchTimestamp;
+                                if (logTime - lastMatchTime <= GAP_THRESHOLD) {
+                                    targetTournament = tournaments[i];
+                                }
+                                break; 
+                            }
                         }
-                        
+
                         const winners = match[2].split(',').map(n => n.trim()).filter(n => n.length > 0);
                         const losers = match[3].split(',').map(n => n.trim()).filter(n => n.length > 0);
+                        const matchData = { winners, losers, timestamp: log.timestamp };
 
-                        groups[key].matches.push({
-                            winners,
-                            losers,
-                            timestamp: log.timestamp
-                        });
+                        if (targetTournament) {
+                            targetTournament.matches.push(matchData);
+                            targetTournament.lastMatchTimestamp = logTime; 
+                        } else {
+                            tournaments.push({
+                                id: `${mode}-${log.timestamp}`, 
+                                name: mode,
+                                date: new Date(log.timestamp).toLocaleDateString('pt-BR'), 
+                                timestamp: logTime, 
+                                lastMatchTimestamp: logTime,
+                                matches: [matchData]
+                            });
+                        }
                     }
                 });
 
-                return Object.values(groups).sort((a, b) => b.timestamp - a.timestamp);
-            }, [filteredLogs, activeTab]); // Depende de filteredLogs e activeTab
+                // Ordenar por timestamp final (mais recente)
+                return tournaments.sort((a, b) => b.lastMatchTimestamp - a.lastMatchTimestamp);
+            }, [filteredLogs, activeTab]); 
+
+            // AGRUPAR TORNEIOS POR DATA PARA EXIBIÇÃO
+            const tournamentsByDate = useMemo(() => {
+                const groups = {};
+                groupedTournaments.forEach(t => {
+                    if (!groups[t.date]) groups[t.date] = [];
+                    groups[t.date].push(t);
+                });
+                return groups;
+            }, [groupedTournaments]);
 
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
@@ -867,7 +893,7 @@
                                 <img 
                                     src={CUSTOM_ICON_URL} 
                                     alt="Logo" 
-                                    className="w-20 h-20 object-cover rounded-2xl shadow-lg shadow-orange-500/20"
+                                    className="w-20 h-20 object-cover rounded-2xl" 
                                     onError={(e) => {
                                         e.target.style.display = 'none';
                                         e.target.nextSibling.style.display = 'flex';
@@ -1121,30 +1147,40 @@
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
-                                            {groupedTournaments.map(tournament => (
-                                                <tr 
-                                                    key={tournament.id} 
-                                                    onClick={() => setSelectedTournament(tournament)}
-                                                    className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
-                                                >
-                                                    <td className="p-5 text-slate-400 font-mono text-sm">
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="w-4 h-4 text-slate-600" />
-                                                            {tournament.date}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5 font-bold text-white group-hover:text-yellow-400 transition-colors text-lg">
-                                                        {tournament.name}
-                                                    </td>
-                                                    <td className="p-5 text-center text-slate-400">
-                                                        <span className="bg-slate-800 px-3 py-1 rounded-full text-xs font-bold border border-slate-700">
-                                                            {tournament.matches.length} partidas
-                                                        </span>
-                                                    </td>
-                                                    <td className="p-5 text-right text-slate-500 group-hover:text-white transition-colors">
-                                                        <ArrowRight className="w-5 h-5 ml-auto" />
-                                                    </td>
-                                                </tr>
+                                            {Object.entries(tournamentsByDate).map(([date, tournaments]) => (
+                                                <React.Fragment key={date}>
+                                                    {/* LINHA DE CABEÇALHO PARA A DATA */}
+                                                    <tr className="bg-slate-900/80 border-b border-slate-800">
+                                                        <td colSpan="4" className="p-3 px-5 text-yellow-500 font-bold text-xs uppercase tracking-wider sticky top-0 bg-slate-950/90 backdrop-blur-sm z-10">
+                                                            {date}
+                                                        </td>
+                                                    </tr>
+                                                    {tournaments.map(tournament => (
+                                                        <tr 
+                                                            key={tournament.id} 
+                                                            onClick={() => setSelectedTournament(tournament)}
+                                                            className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                                                        >
+                                                            <td className="p-5 text-slate-400 font-mono text-sm">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Calendar className="w-4 h-4 text-slate-600" />
+                                                                    {tournament.date}
+                                                                </div>
+                                                            </td>
+                                                            <td className="p-5 font-bold text-white group-hover:text-yellow-400 transition-colors text-lg">
+                                                                {tournament.name}
+                                                            </td>
+                                                            <td className="p-5 text-center text-slate-400">
+                                                                <span className="bg-slate-800 px-3 py-1 rounded-full text-xs font-bold border border-slate-700">
+                                                                    {tournament.matches.length} partidas
+                                                                </span>
+                                                            </td>
+                                                            <td className="p-5 text-right text-slate-500 group-hover:text-white transition-colors">
+                                                                <ArrowRight className="w-5 h-5 ml-auto" />
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </React.Fragment>
                                             ))}
                                             {groupedTournaments.length === 0 && (
                                                 <tr>
