@@ -56,6 +56,7 @@
         const TrendingDown = (props) => <IconBase {...props}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></IconBase>;
         const ShieldCheck = (props) => <IconBase {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></IconBase>;
         const GitBranch = (props) => <IconBase {...props}><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></IconBase>;
+        const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
@@ -277,12 +278,6 @@
             // Assumindo que a ordem é cronológica inversa (última = final)
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
-            // Agrupamento heurístico simples:
-            // Índice 0: Final
-            // Índice 1-2: Semifinais
-            // Índice 3-6: Quartas
-            // Índice 7+: Classificatórias
-            
             const rounds = {
                 'Final': [matches[0]].filter(Boolean),
                 'Semifinais': matches.slice(1, 3),
@@ -353,6 +348,39 @@
                 </div>
             );
         };
+
+        const InfoModal = ({ onClose }) => (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
+                <div className="bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                    <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            <HelpCircle className="w-5 h-5 text-blue-400" />
+                            Como usar o site
+                        </h2>
+                        <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
+                            <XIcon className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <div className="p-6 text-slate-300 text-sm leading-relaxed space-y-4">
+                        <div className="space-y-2">
+                            <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Funcionalidades</h3>
+                            <ul className="list-disc pl-5 space-y-1 marker:text-slate-600">
+                                <li><strong>Ranking:</strong> Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.</li>
+                                <li><strong>Torneios:</strong> Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.</li>
+                                <li><strong>Filtros:</strong> Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.</li>
+                            </ul>
+                        </div>
+                        <div className="h-px bg-slate-800 w-full"></div>
+                        <div className="space-y-2">
+                            <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Sobre o Projeto</h3>
+                            <p>Este painel foi desenvolvido por <strong className="text-white">Auriosh</strong>.</p>
+                            <p className="text-xs text-slate-500">É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.</p>
+                            <p className="text-xs text-slate-500">A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial <span className="text-blue-400 bg-blue-900/30 px-1 rounded">Servidor</span> do Discord.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
 
         const PlayerModal = ({ player, history, onClose, activeTab }) => {
             if (!player) return null;
@@ -529,6 +557,7 @@
             const [showOtherModes, setShowOtherModes] = useState(false);
             const [viewMode, setViewMode] = useState('ranking'); 
             const [selectedTournament, setSelectedTournament] = useState(null);
+            const [showInfoModal, setShowInfoModal] = useState(false);
 
             useEffect(() => {
                 const favicon = document.getElementById('dynamic-favicon');
@@ -891,6 +920,8 @@
             return (
                 <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8">
                     {/* Modais */}
+                    {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
+                    
                     {selectedPlayer && (
                         <PlayerModal 
                             player={selectedPlayer} 
@@ -910,7 +941,7 @@
                     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
                         
                         {/* Header Principal */}
-                        <div className="flex flex-col lg:flex-row justify-between items-end border-b border-slate-800 pb-6 gap-6">
+                        <div className="flex flex-col lg:flex-row justify-between items-start border-b border-slate-800 pb-6 gap-6 relative">
                             <div className="flex items-center gap-4 w-full lg:w-auto">
                                 <img 
                                     src={CUSTOM_ICON_URL} 
@@ -926,9 +957,19 @@
                                 </div>
                                 
                                 <div className="flex flex-col gap-1">
-                                    <h1 className="text-4xl font-black text-white tracking-tight">
-                                        Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span>
-                                    </h1>
+                                    <div className="flex items-center gap-3">
+                                        <h1 className="text-4xl font-black text-white tracking-tight">
+                                            Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span>
+                                        </h1>
+                                        {/* Botão de Ajuda no Header */}
+                                        <button 
+                                            onClick={() => setShowInfoModal(true)}
+                                            className="bg-slate-800 p-1.5 rounded-full hover:bg-slate-700 transition-colors text-slate-400 hover:text-blue-400 border border-slate-700"
+                                            title="Como usar / Sobre"
+                                        >
+                                            <HelpCircle className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                     
                                     <div className="flex flex-wrap gap-2 mt-1">
                                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold text-slate-300">
@@ -944,41 +985,110 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Menu de Navegação Principal (Ranking / Torneios) */}
-                            <div className="flex gap-2">
-                                <button 
-                                    onClick={() => setViewMode('ranking')}
-                                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 ${
-                                        viewMode === 'ranking' ? 'bg-yellow-500 text-slate-900' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                                    }`}
-                                >
-                                    <Trophy className="w-4 h-4" /> Ranking
-                                </button>
-                                <button 
-                                    onClick={() => setViewMode('tournaments')}
-                                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 ${
-                                        viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                                    }`}
-                                >
-                                    <GitBranch className="w-4 h-4" /> Torneios
-                                </button>
+                        {/* BARRA DE BUSCA EM DESTAQUE (Entre Header e Botões de Nav) */}
+                        <div className="w-full">
+                            <div className="relative group w-full">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Search className="w-6 h-6 text-slate-500 group-focus-within:text-yellow-500 transition-colors" />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder="Buscar jogador..." 
+                                    className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-lg text-lg"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
                             </div>
                         </div>
 
-                        {/* FILTROS E ABAS (AGORA FORA DO CONDICIONAL DE VISUALIZAÇÃO - COMUNS A TUDO) */}
-                        <div className="flex flex-col gap-4 w-full lg:w-auto items-end">
-                            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-                                
-                                <div className="flex flex-row flex-wrap items-center gap-2">
-                                    <div className="relative group w-full sm:w-48">
+                        {/* Menu de Navegação Principal (Ranking / Torneios) */}
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => setViewMode('ranking')}
+                                className={`px-6 py-3 rounded-lg font-bold text-base transition-colors flex items-center gap-2 ${
+                                    viewMode === 'ranking' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                }`}
+                            >
+                                <Trophy className="w-5 h-5" /> Ranking
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('tournaments')}
+                                className={`px-6 py-3 rounded-lg font-bold text-base transition-colors flex items-center gap-2 ${
+                                    viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                }`}
+                            >
+                                <GitBranch className="w-5 h-5" /> Torneios
+                            </button>
+                        </div>
+
+                        {/* Abas de Modos E Filtros de Data (NA MESMA LINHA MAS SEPARADOS) */}
+                        <div className="flex flex-col gap-3 pb-2 border-b border-slate-800">
+                            <div className="flex flex-wrap items-center gap-2">
+                                {/* Lado Esquerdo: Modos */}
+                                <div className="flex flex-wrap gap-2">
+                                    {modeGroups.main.map(mode => (
+                                        <button
+                                            key={mode}
+                                            onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
+                                            className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                                                activeTab === mode 
+                                                    ? 'bg-blue-600 text-white shadow-md' 
+                                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                            }`}
+                                        >
+                                            {mode === 'Geral' ? <Filter className="w-3.5 h-3.5" /> : 
+                                            mode === 'Ranked' ? <ShieldCheck className="w-3.5 h-3.5" /> :
+                                            <Swords className="w-3.5 h-3.5" />}
+                                            {mode}
+                                        </button>
+                                    ))}
+
+                                    {modeGroups.others.length > 0 && (
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => setShowOtherModes(!showOtherModes)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                                                    modeGroups.others.includes(activeTab) 
+                                                        ? 'bg-blue-600 text-white shadow-md' 
+                                                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                                }`}
+                                            >
+                                                <Menu className="w-3.5 h-3.5" />
+                                                {modeGroups.others.includes(activeTab) ? activeTab : "Outros"}
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} />
+                                            </button>
+
+                                            {showOtherModes && (
+                                                <div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                    {modeGroups.others.map(mode => (
+                                                        <button
+                                                            key={mode}
+                                                            onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
+                                                            className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${
+                                                                activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'
+                                                            }`}
+                                                        >
+                                                            {mode}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Lado Direito: Filtros de Data (usando ml-auto para empurrar) */}
+                                <div className="flex flex-row items-center gap-2 ml-auto">
+                                    <div className="relative group w-40 sm:w-48">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <Calendar className="w-4 h-4 text-slate-500" />
                                         </div>
                                         <select 
                                             value={timeFilter}
                                             onChange={(e) => setTimeFilter(e.target.value)}
-                                            className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
+                                            className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-2 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-slate-800 transition-colors text-sm font-medium"
                                         >
                                             <option value="current_month">Este Mês</option>
                                             <option value="day">Últimas 24h</option>
@@ -986,17 +1096,17 @@
                                             <option value="specific_month">Selecionar Mês</option>
                                             <option value="all">Todo o Período</option>
                                         </select>
-                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
                                             <ChevronDown className="w-4 h-4 text-slate-500" />
                                         </div>
                                     </div>
 
                                     {timeFilter === 'specific_month' && availableMonths.length > 0 && (
-                                        <div className="relative group w-full sm:w-48 animate-in fade-in slide-in-from-left-2 duration-200">
+                                        <div className="relative group w-32 sm:w-40 animate-in fade-in slide-in-from-left-2 duration-200">
                                             <select 
                                                 value={targetMonth}
                                                 onChange={(e) => setTargetMonth(e.target.value)}
-                                                className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm"
+                                                className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm font-medium"
                                             >
                                                 {availableMonths.map(monthStr => {
                                                     const [year, month] = monthStr.split('-');
@@ -1007,80 +1117,12 @@
                                                     );
                                                 })}
                                             </select>
-                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
                                                 <ChevronDown className="w-3 h-3 text-slate-500" />
                                             </div>
                                         </div>
                                     )}
                                 </div>
-
-                                <div className="relative w-full sm:w-64 group">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="w-5 h-5 text-slate-500 group-focus-within:text-yellow-500 transition-colors" />
-                                    </div>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Buscar..." 
-                                        className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-sm"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Abas de Navegação (Modos) - TAMBÉM COMUNS A TUDO */}
-                        <div className="flex flex-col gap-3 pb-2">
-                            <div className="flex flex-wrap gap-2">
-                                {modeGroups.main.map(mode => (
-                                    <button
-                                        key={mode}
-                                        onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
-                                        className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
-                                            activeTab === mode 
-                                                ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' 
-                                                : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                                        }`}
-                                    >
-                                        {mode === 'Geral' ? <Filter className="w-4 h-4" /> : 
-                                        mode === 'Ranked' ? <ShieldCheck className="w-4 h-4" /> :
-                                        <Swords className="w-4 h-4" />}
-                                        {mode}
-                                    </button>
-                                ))}
-
-                                {modeGroups.others.length > 0 && (
-                                    <div className="relative">
-                                        <button
-                                            onClick={() => setShowOtherModes(!showOtherModes)}
-                                            className={`px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
-                                                modeGroups.others.includes(activeTab) 
-                                                    ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' 
-                                                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                                            }`}
-                                        >
-                                            <Menu className="w-4 h-4" />
-                                            {modeGroups.others.includes(activeTab) ? activeTab : "Outros Modos"}
-                                            <ChevronDown className={`w-4 h-4 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} />
-                                        </button>
-
-                                        {showOtherModes && (
-                                            <div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                                {modeGroups.others.map(mode => (
-                                                    <button
-                                                        key={mode}
-                                                        onClick={() => { setActiveTab(mode); setShowOtherModes(false); }}
-                                                        className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${
-                                                            activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'
-                                                        }`}
-                                                    >
-                                                        {mode}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
                             </div>
                             
                             <div className="text-slate-400 text-sm flex items-start gap-2 pl-1 animate-in fade-in duration-300">
