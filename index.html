@@ -56,7 +56,6 @@
         const TrendingDown = (props) => <IconBase {...props}><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
-        const DATA_FILES = ['./servidor_page_1.json', './servidor_page_2.json', './servidor_page_3.json', './servidor_page_4.json']; 
         const CUSTOM_ICON_URL = './icon.png'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
 
@@ -433,22 +432,47 @@
                 }
             }, []);
 
+            // 1. Fetch Data: Lógica de Carregamento Sequencial
             useEffect(() => {
                 const fetchData = async () => {
                     setIsLoading(true);
                     setError(null);
-                    try {
-                        const promises = DATA_FILES.map(url => fetch(url).then(res => {
-                            if (!res.ok) throw new Error(`Falha ao carregar ${url}: ${res.statusText}`);
-                            return res.json();
-                        }));
+                    
+                    const loadedData = [];
+                    let page = 1;
+                    let foundEnd = false;
 
-                        const results = await Promise.all(promises);
-                        const combinedData = results.flat();
-                        setRawData(combinedData);
+                    try {
+                        while (!foundEnd) {
+                            const url = `./servidor_page_${page}.json`;
+                            try {
+                                const response = await fetch(url);
+                                if (response.ok) {
+                                    const json = await response.json();
+                                    if (Array.isArray(json)) {
+                                        loadedData.push(...json);
+                                    }
+                                    page++;
+                                } else {
+                                    // 404 ou erro, consideramos fim da lista
+                                    foundEnd = true;
+                                }
+                            } catch (err) {
+                                // Erro de rede ou outro, paramos
+                                foundEnd = true;
+                            }
+                        }
+                        
+                        if (loadedData.length === 0 && page === 1) {
+                             // Não achou nem o primeiro
+                             // Podemos definir rawData como vazio, ou mostrar erro se preferir
+                             console.warn("Nenhum arquivo encontrado começando com servidor_page_1.json");
+                        }
+
+                        setRawData(loadedData);
                     } catch (err) {
                         console.error("Fetch error:", err);
-                        setError(`Erro ao carregar dados: ${err.message}. Verifique se os arquivos JSON estão na pasta correta.`);
+                        setError(`Erro ao carregar dados: ${err.message}`);
                         setRawData([]); 
                     } finally {
                         setIsLoading(false);
@@ -565,6 +589,25 @@
                 }
 
                 players.sort((a, b) => {
+                    // LÓGICA DE ORDENAÇÃO PERSONALIZADA
+                    
+                    // Caso 1: Ordenando por Vitórias (Padrão)
+                    if (sortConfig.key === 'wins') {
+                        if (a.wins !== b.wins) {
+                            return sortConfig.direction === 'asc' ? a.wins - b.wins : b.wins - a.wins;
+                        }
+                        // Desempate 1: WinRate (Maior é melhor)
+                        const wrA = parseFloat(a.winRate);
+                        const wrB = parseFloat(b.winRate);
+                        if (wrA !== wrB) {
+                            return sortConfig.direction === 'asc' ? wrA - wrB : wrB - wrA;
+                        }
+                        // Desempate 2: Derrotas (Menor é melhor - "ficar mais em cima")
+                        // Se Desc (Melhor -> Pior), queremos MENOS derrotas primeiro.
+                        return sortConfig.direction === 'asc' ? b.losses - a.losses : a.losses - b.losses;
+                    }
+
+                    // Caso padrão para outras colunas
                     let aValue = a[sortConfig.key];
                     let bValue = b[sortConfig.key];
 
@@ -616,7 +659,7 @@
                     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400">
                         <Loader2 className="w-12 h-12 animate-spin text-yellow-500 mb-4" />
                         <p className="text-lg font-medium">Buscando dados do servidor...</p>
-                        <p className="text-sm mt-2 text-slate-600">Lendo: {DATA_FILES.join(', ')}</p>
+                        <p className="text-sm mt-2 text-slate-600">Procurando arquivos servidor_page_X.json...</p>
                     </div>
                 );
             }
@@ -630,7 +673,7 @@
                         <div className="mt-6 p-4 bg-slate-900 rounded border border-slate-800 text-left text-sm text-slate-400">
                             <p className="font-bold text-yellow-500 mb-2">Como corrigir:</p>
                             <ul className="list-disc pl-5 space-y-1">
-                                <li>Certifique-se de que os arquivos listados em <code>DATA_FILES</code> existem na mesma pasta.</li>
+                                <li>Certifique-se de que existe pelo menos o arquivo <code>servidor_page_1.json</code> na pasta correta.</li>
                                 <li>Se estiver no GitHub, verifique se os arquivos JSON subiram corretamente.</li>
                             </ul>
                         </div>
