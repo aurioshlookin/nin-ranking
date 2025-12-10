@@ -63,10 +63,9 @@
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
-        const PLAYERS_FILE = './players.json'; // Arquivo de metadados dos jogadores
+        const PLAYERS_FILE = './players.json'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
         
-        // Cores e Estilos para Vilas e Maestrias
         const STYLE_MAP = {
             'Fogo': 'bg-red-500/20 text-red-400 border-red-500/30',
             'Água': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -180,7 +179,6 @@
             const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
             const scrollRef = useRef(null);
 
-            // Agrupar partidas por data (Ordenação Cronológica: Antigo -> Recente)
             const statsByDate = useMemo(() => {
                 const groups = {};
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -196,7 +194,6 @@
                 return Object.values(groups); 
             }, [matches]);
 
-            // Rolagem automática para o final (direita) ao carregar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
@@ -207,7 +204,6 @@
                 }
             }, [statsByDate]);
 
-            // Handler para o mouse
             const handleMouseMove = (e) => {
                 setTooltipPos({ x: e.clientX, y: e.clientY });
             };
@@ -218,7 +214,6 @@
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col relative" >
-                    {/* TOOLTIP FLUTUANTE (FIXO NA TELA PARA EVITAR CORTES) */}
                     {hoveredStat && (
                         <div 
                             className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]"
@@ -263,7 +258,6 @@
                                         onMouseLeave={() => setHoveredStat(null)}
                                     >
                                         <div className="w-full flex items-end justify-center gap-1 h-full px-1">
-                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                  <div 
                                                     style={{ height: `${winHeight}%` }} 
@@ -273,7 +267,6 @@
                                                 ></div>
                                             </div>
 
-                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                 <div 
                                                     style={{ height: `${lossHeight}%` }} 
@@ -299,15 +292,7 @@
         const TournamentBracketModal = ({ tournament, onClose }) => {
             if (!tournament) return null;
 
-            // Organizar partidas em "Rounds" (Chaves)
-            // Assumindo que a ordem é cronológica inversa (última = final)
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            // Agrupamento heurístico simples:
-            // Índice 0: Final
-            // Índice 1-2: Semifinais
-            // Índice 3-6: Quartas
-            // Índice 7+: Classificatórias
             
             const rounds = {
                 'Final': [matches[0]].filter(Boolean),
@@ -319,11 +304,11 @@
             return (
                 <div 
                     className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50"
-                    onClick={onClose} // Fecha ao clicar fora
+                    onClick={onClose} 
                 >
                     <div 
                         className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
+                        onClick={(e) => e.stopPropagation()} 
                     >
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                             <div>
@@ -352,7 +337,6 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                                             {roundMatches.map((match, idx) => (
                                                 <div key={idx} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col items-center justify-center relative overflow-hidden group hover:border-slate-600 transition-colors">
-                                                    {/* Vencedor */}
                                                     <div className="w-full flex justify-between items-center mb-2">
                                                         <span className="text-green-400 font-bold truncate flex-1">{match.winners.join(', ')}</span>
                                                         <Trophy className="w-4 h-4 text-yellow-500 ml-2" />
@@ -360,7 +344,6 @@
                                                     
                                                     <div className="w-full h-px bg-slate-800 my-1"></div>
                                                     
-                                                    {/* Perdedor */}
                                                     <div className="w-full flex justify-between items-center mt-2 opacity-60">
                                                         <span className="text-red-400 font-medium truncate flex-1">{match.losers.join(', ')}</span>
                                                     </div>
@@ -380,7 +363,7 @@
             );
         };
 
-        // --- NOVO COMPONENTE: MasteryDetailsModal ---
+        // --- COMPONENTE: MasteryDetailsModal (Atualizado com colunas extras) ---
         const MasteryDetailsModal = ({ mastery, players, onClose, onPlayerClick }) => {
             return (
                 <div 
@@ -413,6 +396,8 @@
                                         <th className="p-5">#</th>
                                         <th className="p-5">Jogador</th>
                                         <th className="p-5 text-center">Vitórias</th>
+                                        <th className="p-5 text-center">Derrotas</th>
+                                        <th className="p-5 text-center">Partidas</th>
                                         <th className="p-5 text-center">Win Rate</th>
                                     </tr>
                                 </thead>
@@ -461,6 +446,111 @@
                                                     </div>
                                                 </td>
                                                 <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
+                                                <td className="p-5 text-center font-medium text-slate-500">{player.losses}</td>
+                                                <td className="p-5 text-center text-slate-400">{player.battles}</td>
+                                                <td className="p-5 text-center">
+                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                                        parseFloat(player.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
+                                                        parseFloat(player.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                                        'bg-red-500/20 text-red-400'
+                                                    }`}>{player.winRate}%</span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- NOVO COMPONENTE: VillageDetailsModal ---
+        const VillageDetailsModal = ({ village, players, onClose, onPlayerClick }) => {
+            return (
+                <div 
+                    className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200"
+                    onClick={onClose}
+                >
+                    <div 
+                        className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                            <div>
+                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                                    <MapIcon className="text-yellow-500 w-6 h-6" />
+                                    Jogadores da Vila: <span className={STYLE_MAP[village] || ''}>{village}</span>
+                                </h2>
+                                <p className="text-slate-400 text-sm mt-1">
+                                    Listando {players.length} jogadores encontrados
+                                </p>
+                            </div>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
+                                <XIcon className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-0 scrollbar-thin bg-slate-950/50">
+                             <table className="w-full text-left border-collapse">
+                                <thead className="sticky top-0 bg-slate-900 z-10 shadow-md">
+                                    <tr className="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                        <th className="p-5">#</th>
+                                        <th className="p-5">Jogador</th>
+                                        <th className="p-5 text-center">Vitórias</th>
+                                        <th className="p-5 text-center">Derrotas</th>
+                                        <th className="p-5 text-center">Partidas</th>
+                                        <th className="p-5 text-center">Win Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800">
+                                    {players.map((player, index) => {
+                                        let rankColor = "text-slate-500";
+                                        let rankIcon = null;
+                                        const rank = index + 1;
+                                        if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
+                                        if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                        if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+
+                                        return (
+                                            <tr 
+                                                key={player.name} 
+                                                onClick={() => onPlayerClick(player)}
+                                                className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                                            >
+                                                <td className={`p-5 text-center font-bold ${rankColor} text-lg w-16`}>
+                                                    {rankIcon || `#${rank}`}
+                                                </td>
+                                                <td className="p-5">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">
+                                                            {player.name}
+                                                        </span>
+                                                        {player.meta && (player.meta.village || player.meta.mastery_1) && (
+                                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                                {player.meta.village && (
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/50 uppercase tracking-wide ${STYLE_MAP[player.meta.village] || 'text-slate-400'}`}>
+                                                                        {player.meta.village}
+                                                                    </span>
+                                                                )}
+                                                                {player.meta.mastery_1 && (
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_1] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                                        {player.meta.mastery_1}
+                                                                    </span>
+                                                                )}
+                                                                {player.meta.mastery_2 && (
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_2] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                                        {player.meta.mastery_2}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
+                                                <td className="p-5 text-center font-medium text-slate-500">{player.losses}</td>
+                                                <td className="p-5 text-center text-slate-400">{player.battles}</td>
                                                 <td className="p-5 text-center">
                                                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                                                         parseFloat(player.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
@@ -692,6 +782,8 @@
             
             const [masteryViewMode, setMasteryViewMode] = useState('combined');
             const [selectedMastery, setSelectedMastery] = useState(null);
+            // ADICIONADO: Estado para vila selecionada
+            const [selectedVillage, setSelectedVillage] = useState(null);
             
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
@@ -1088,6 +1180,10 @@
                 setSelectedMastery(masteryName);
             };
 
+            const handleVillageClick = (villageName) => {
+                setSelectedVillage(villageName);
+            };
+
             // NOVO: Cálculo dos jogadores filtrados pela maestria para o modal
             const selectedMasteryPlayers = useMemo(() => {
                 if (!selectedMastery) return [];
@@ -1109,6 +1205,12 @@
                      }
                 }).sort((a,b) => b.wins - a.wins);
             }, [selectedMastery, filteredRankings, masteryViewMode]);
+
+            // NOVO: Cálculo dos jogadores filtrados pela VILA para o modal
+            const selectedVillagePlayers = useMemo(() => {
+                if (!selectedVillage) return [];
+                return filteredRankings.filter(p => p.meta?.village === selectedVillage).sort((a,b) => b.wins - a.wins);
+            }, [selectedVillage, filteredRankings]);
 
 
             const totalBattles = filteredRankings.reduce((acc, curr) => acc + curr.wins, 0); 
@@ -1192,8 +1294,18 @@
                             onClose={() => setSelectedMastery(null)}
                             onPlayerClick={(player) => {
                                 setSelectedPlayer(player); // Abre o modal do jogador
-                                // Opcional: fechar o modal de maestria ou mantê-lo aberto por baixo?
-                                // Manter aberto permite voltar ao fechar o jogador.
+                            }}
+                        />
+                    )}
+                    
+                    {/* NOVO MODAL DE VILA */}
+                    {selectedVillage && (
+                        <VillageDetailsModal 
+                            village={selectedVillage}
+                            players={selectedVillagePlayers}
+                            onClose={() => setSelectedVillage(null)}
+                            onPlayerClick={(player) => {
+                                setSelectedPlayer(player); // Abre o modal do jogador
                             }}
                         />
                     )}
@@ -1680,7 +1792,12 @@
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedVillages.map((v, idx) => (
-                                                <tr key={v.name} className="hover:bg-slate-800/50 transition-colors">
+                                                <tr 
+                                                    key={v.name} 
+                                                    className="hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                                                    onClick={() => handleVillageClick(v.name)}
+                                                    title="Clique para ver os jogadores desta vila"
+                                                >
                                                     <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
                                                     <td className="p-5 font-bold text-lg">
                                                         <span className={STYLE_MAP[v.name] || 'text-white'}>{v.name}</span>
