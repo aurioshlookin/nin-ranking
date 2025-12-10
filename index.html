@@ -57,12 +57,36 @@
         const ShieldCheck = (props) => <IconBase {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></IconBase>;
         const GitBranch = (props) => <IconBase {...props}><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></IconBase>;
         const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></IconBase>;
+        const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconBase>;
+        const Map = (props) => <IconBase {...props}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
+        const PLAYERS_FILE = './players.json'; // Arquivo de metadados dos jogadores
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
         
-        // Descrições para cada categoria
+        // Cores e Estilos para Vilas e Maestrias
+        const STYLE_MAP = {
+            'Fogo': 'bg-red-500/20 text-red-400 border-red-500/30',
+            'Água': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+            'Terra': 'bg-amber-700/20 text-amber-500 border-amber-700/30',
+            'Vento': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+            'Raio': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+            'Médico': 'bg-pink-500/20 text-pink-400 border-pink-500/30',
+            'Arma': 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+            'Taijutsu': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+            'Leque': 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+            'Bolha': 'bg-indigo-400/20 text-indigo-300 border-indigo-400/30',
+            'Punho Gentil': 'bg-white/10 text-slate-200 border-white/20',
+            
+            'Folha': 'text-green-400',
+            'Areia': 'text-yellow-500',
+            'Névoa': 'text-blue-400',
+            'Renegado Folha': 'text-slate-400',
+            'Renegado Areia': 'text-slate-400',
+            'Renegado Névoa': 'text-slate-400',
+        };
+
         const MODE_DESCRIPTIONS = {
             'Geral': 'Visão completa de todas as partidas registradas no servidor, incluindo eventos e ranqueadas.',
             'Ranked': 'Soma exclusiva das filas ranqueadas automáticas (Auto1v1, Auto2v2 e Auto3v3).',
@@ -155,7 +179,6 @@
             const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
             const scrollRef = useRef(null);
 
-            // Agrupar partidas por data (Ordenação Cronológica: Antigo -> Recente)
             const statsByDate = useMemo(() => {
                 const groups = {};
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -171,7 +194,6 @@
                 return Object.values(groups); 
             }, [matches]);
 
-            // Rolagem automática para o final (direita) ao carregar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
@@ -182,7 +204,6 @@
                 }
             }, [statsByDate]);
 
-            // Handler para o mouse
             const handleMouseMove = (e) => {
                 setTooltipPos({ x: e.clientX, y: e.clientY });
             };
@@ -193,7 +214,6 @@
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col relative" >
-                    {/* TOOLTIP FLUTUANTE (FIXO NA TELA PARA EVITAR CORTES) */}
                     {hoveredStat && (
                         <div 
                             className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]"
@@ -238,7 +258,6 @@
                                         onMouseLeave={() => setHoveredStat(null)}
                                     >
                                         <div className="w-full flex items-end justify-center gap-1 h-full px-1">
-                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                  <div 
                                                     style={{ height: `${winHeight}%` }} 
@@ -248,7 +267,6 @@
                                                 ></div>
                                             </div>
 
-                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                 <div 
                                                     style={{ height: `${lossHeight}%` }} 
@@ -274,8 +292,6 @@
         const TournamentBracketModal = ({ tournament, onClose }) => {
             if (!tournament) return null;
 
-            // Organizar partidas em "Rounds" (Chaves)
-            // Assumindo que a ordem é cronológica inversa (última = final)
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
             
             const rounds = {
@@ -288,11 +304,11 @@
             return (
                 <div 
                     className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50"
-                    onClick={onClose} // Fecha ao clicar fora
+                    onClick={onClose} 
                 >
                     <div 
                         className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
+                        onClick={(e) => e.stopPropagation()} 
                     >
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                             <div>
@@ -321,7 +337,6 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                                             {roundMatches.map((match, idx) => (
                                                 <div key={idx} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col items-center justify-center relative overflow-hidden group hover:border-slate-600 transition-colors">
-                                                    {/* Vencedor */}
                                                     <div className="w-full flex justify-between items-center mb-2">
                                                         <span className="text-green-400 font-bold truncate flex-1">{match.winners.join(', ')}</span>
                                                         <Trophy className="w-4 h-4 text-yellow-500 ml-2" />
@@ -329,7 +344,6 @@
                                                     
                                                     <div className="w-full h-px bg-slate-800 my-1"></div>
                                                     
-                                                    {/* Perdedor */}
                                                     <div className="w-full flex justify-between items-center mt-2 opacity-60">
                                                         <span className="text-red-400 font-medium truncate flex-1">{match.losers.join(', ')}</span>
                                                     </div>
@@ -411,11 +425,11 @@
             return (
                 <div 
                     className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50"
-                    onClick={onClose} // Fecha ao clicar fora
+                    onClick={onClose}
                 >
                     <div 
                         className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
+                        onClick={(e) => e.stopPropagation()} 
                     >
                         
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
@@ -540,6 +554,7 @@
 
         const App = () => {
             const [rawData, setRawData] = useState([]);
+            const [playersMetadata, setPlayersMetadata] = useState({}); // Novo estado para metadados
             const [data, setData] = useState({ rankings: [], history: {} });
             const [isLoading, setIsLoading] = useState(true);
             const [error, setError] = useState(null);
@@ -555,7 +570,7 @@
             const [dateRange, setDateRange] = useState({ start: null, end: null });
             
             const [showOtherModes, setShowOtherModes] = useState(false);
-            const [viewMode, setViewMode] = useState('ranking'); 
+            const [viewMode, setViewMode] = useState('ranking'); // 'ranking' | 'tournaments' | 'masteries' | 'villages'
             const [selectedTournament, setSelectedTournament] = useState(null);
             const [showInfoModal, setShowInfoModal] = useState(false);
 
@@ -566,17 +581,15 @@
                 }
             }, []);
 
-            // FUNÇÃO DE ARREDONDAMENTO DE HORÁRIO
             const getRoundedTime = (timestamp) => {
                 const date = new Date(timestamp);
                 const hours = date.getHours().toString().padStart(2, '0');
                 const minutes = date.getMinutes();
-                // Arredonda para baixo para o múltiplo de 10 mais próximo
                 const roundedMinutes = (Math.floor(minutes / 10) * 10).toString().padStart(2, '0');
                 return `${hours}:${roundedMinutes}`;
             };
 
-            // 1. CARREGAMENTO DINÂMICO DE ARQUIVOS (WHILE LOOP RESTAURADO)
+            // CARREGAMENTO DOS DADOS (LOGS E PLAYERS.JSON)
             useEffect(() => {
                 const fetchData = async () => {
                     setIsLoading(true);
@@ -605,11 +618,22 @@
                             }
                         }
                         
-                        if (loadedData.length === 0 && page === 1) {
-                             console.warn("Nenhum arquivo encontrado começando com servidor_page_1.json");
+                        setRawData(loadedData);
+
+                        try {
+                            const playersResp = await fetch(PLAYERS_FILE);
+                            if (playersResp.ok) {
+                                const playersJson = await playersResp.json();
+                                const playersMap = {};
+                                playersJson.forEach(p => {
+                                    playersMap[p.name] = p;
+                                });
+                                setPlayersMetadata(playersMap);
+                            }
+                        } catch (err) {
+                            console.warn("Erro ao carregar players.json:", err);
                         }
 
-                        setRawData(loadedData);
                     } catch (err) {
                         console.error("Fetch error:", err);
                         setError(`Erro ao carregar dados: ${err.message}`);
@@ -656,7 +680,6 @@
 
             const referenceDate = useMemo(() => new Date(), []);
 
-            // 2. FILTRAGEM UNIFICADA (Disponível para Ranking e Torneios)
             const filteredLogs = useMemo(() => {
                 return rawData.filter(log => {
                     if (timeFilter === 'all') return true;
@@ -686,11 +709,14 @@
                 });
             }, [rawData, timeFilter, targetMonth, referenceDate]);
 
-            // Processar dados apenas quando os logs filtrados mudarem
             useEffect(() => {
                 const processed = processBattleLogs(filteredLogs);
-                setData(processed);
-            }, [filteredLogs]);
+                const enrichedRankings = processed.rankings.map(r => ({
+                    ...r,
+                    meta: playersMetadata[r.name] || {}
+                }));
+                setData({ ...processed, rankings: enrichedRankings });
+            }, [filteredLogs, playersMetadata]);
 
             const modeGroups = useMemo(() => {
                 if (rawData.length === 0) return { main: ['Geral', 'Ranked'], others: [] };
@@ -707,15 +733,13 @@
                 return { main: mainModes, others: otherModes };
             }, [rawData]);
 
-            // Lógica de Agrupamento de Torneios (CORRIGIDA)
             const groupedTournaments = useMemo(() => {
                 if (filteredLogs.length === 0) return [];
                 
-                // Sort logs by time first to ensure clustering works linearly
                 const sortedLogs = [...filteredLogs].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
                 
                 const tournaments = [];
-                const GAP_THRESHOLD = 90 * 60 * 1000; // 90 minutos de intervalo
+                const GAP_THRESHOLD = 90 * 60 * 1000; 
 
                 sortedLogs.forEach(log => {
                     const content = log.content || "";
@@ -723,7 +747,6 @@
                     if (match && log.timestamp) {
                         const mode = match[1];
                         
-                        // FILTRO POR MODO (TAB)
                         let isMatch = false;
                         if (activeTab === 'Geral') isMatch = true;
                         else if (activeTab === 'Ranked') {
@@ -737,7 +760,6 @@
                         const logTime = new Date(log.timestamp).getTime();
                         let targetTournament = null;
                         
-                        // Encontrar o último torneio deste modo para verificar o intervalo
                         for (let i = tournaments.length - 1; i >= 0; i--) {
                             if (tournaments[i].name === mode) {
                                 const lastMatchTime = tournaments[i].lastMatchTimestamp;
@@ -768,11 +790,9 @@
                     }
                 });
 
-                // Ordenar por timestamp final (mais recente)
                 return tournaments.sort((a, b) => b.lastMatchTimestamp - a.lastMatchTimestamp);
             }, [filteredLogs, activeTab]); 
 
-            // AGRUPAR TORNEIOS POR DATA PARA EXIBIÇÃO
             const tournamentsByDate = useMemo(() => {
                 const groups = {};
                 groupedTournaments.forEach(t => {
@@ -856,6 +876,41 @@
 
                 return players;
             }, [data.rankings, searchTerm, sortConfig, activeTab]);
+
+            // NOVAS ESTATÍSTICAS AGREGADAS PARA MAESTRIAS E VILAS
+            const groupedMasteries = useMemo(() => {
+                const stats = {};
+                filteredRankings.forEach(p => {
+                    // Contar para Maestria 1
+                    if (p.meta && p.meta.mastery_1) {
+                        const m1 = p.meta.mastery_1;
+                        if (!stats[m1]) stats[m1] = { name: m1, wins: 0, players: 0 };
+                        stats[m1].wins += p.wins;
+                        stats[m1].players += 1;
+                    }
+                    // Contar para Maestria 2
+                    if (p.meta && p.meta.mastery_2) {
+                        const m2 = p.meta.mastery_2;
+                        if (!stats[m2]) stats[m2] = { name: m2, wins: 0, players: 0 };
+                        stats[m2].wins += p.wins;
+                        stats[m2].players += 1;
+                    }
+                });
+                return Object.values(stats).sort((a, b) => b.wins - a.wins);
+            }, [filteredRankings]);
+
+            const groupedVillages = useMemo(() => {
+                const stats = {};
+                filteredRankings.forEach(p => {
+                    if (p.meta && p.meta.village) {
+                        const v = p.meta.village;
+                        if (!stats[v]) stats[v] = { name: v, wins: 0, players: 0 };
+                        stats[v].wins += p.wins;
+                        stats[v].players += 1;
+                    }
+                });
+                return Object.values(stats).sort((a, b) => b.wins - a.wins);
+            }, [filteredRankings]);
 
             const handleSort = (key) => {
                 let direction = 'desc';
@@ -1003,23 +1058,39 @@
                             </div>
                         </div>
 
-                        {/* Menu de Navegação Principal (Ranking / Torneios) */}
-                        <div className="flex gap-2">
+                        {/* Menu de Navegação Principal (Ranking / Torneios / Maestrias / Vilas) */}
+                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                             <button 
                                 onClick={() => setViewMode('ranking')}
-                                className={`px-6 py-3 rounded-lg font-bold text-base transition-colors flex items-center gap-2 ${
+                                className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${
                                     viewMode === 'ranking' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                                 }`}
                             >
-                                <Trophy className="w-5 h-5" /> Ranking
+                                <Trophy className="w-4 h-4" /> Ranking
                             </button>
                             <button 
                                 onClick={() => setViewMode('tournaments')}
-                                className={`px-6 py-3 rounded-lg font-bold text-base transition-colors flex items-center gap-2 ${
+                                className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${
                                     viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
                                 }`}
                             >
-                                <GitBranch className="w-5 h-5" /> Torneios
+                                <GitBranch className="w-4 h-4" /> Torneios
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('masteries')}
+                                className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${
+                                    viewMode === 'masteries' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                }`}
+                            >
+                                <BookOpen className="w-4 h-4" /> Maestrias
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('villages')}
+                                className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${
+                                    viewMode === 'villages' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                }`}
+                            >
+                                <Map className="w-4 h-4" /> Vilas
                             </button>
                         </div>
 
@@ -1131,8 +1202,9 @@
                             </div>
                         </div>
 
-                        {/* CONTEÚDO PRINCIPAL (ALTERNÁVEL) */}
-                        {viewMode === 'ranking' ? (
+                        {/* --- RENDERIZAÇÃO CONDICIONAL POR VIEW --- */}
+                        
+                        {viewMode === 'ranking' && (
                             <>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <Card title="Jogadores Ativos" value={filteredRankings.length} icon={Users} colorClass="text-blue-400 bg-blue-500" />
@@ -1164,10 +1236,38 @@
                                                     if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
                                                     if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
 
+                                                    // Verificar se há dados
+                                                    const hasData = player.meta && (player.meta.village || player.meta.mastery_1);
+
                                                     return (
                                                         <tr key={player.name} onClick={() => setSelectedPlayer(player)} className="hover:bg-slate-800/50 cursor-pointer transition-colors group">
                                                             <td className={`p-5 text-center font-bold ${rankColor} text-lg`}>{rankIcon || `#${rank}`}</td>
-                                                            <td className="p-5 font-semibold text-white group-hover:text-yellow-400 transition-colors">{player.name}</td>
+                                                            <td className="p-5">
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">{player.name}</span>
+                                                                    {hasData ? (
+                                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                                            {player.meta.village && (
+                                                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/50 uppercase tracking-wide ${STYLE_MAP[player.meta.village] || 'text-slate-400'}`}>
+                                                                                    {player.meta.village}
+                                                                                </span>
+                                                                            )}
+                                                                            {player.meta.mastery_1 && (
+                                                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_1] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                                                    {player.meta.mastery_1}
+                                                                                </span>
+                                                                            )}
+                                                                            {player.meta.mastery_2 && (
+                                                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_2] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                                                    {player.meta.mastery_2}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="text-[10px] text-slate-600 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800 w-fit mt-1">Sem Registro</span>
+                                                                    )}
+                                                                </div>
+                                                            </td>
                                                             <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
                                                             <td className="p-5 text-center font-medium text-slate-500">{player.losses}</td>
                                                             <td className="p-5 text-center text-slate-400">{player.battles}</td>
@@ -1198,7 +1298,9 @@
                                     </div>
                                 </div>
                             </>
-                        ) : (
+                        )}
+
+                        {viewMode === 'tournaments' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
@@ -1213,7 +1315,6 @@
                                         <tbody className="divide-y divide-slate-800">
                                             {Object.entries(tournamentsByDate).map(([date, tournaments]) => (
                                                 <React.Fragment key={date}>
-                                                    {/* LINHA DE CABEÇALHO PARA A DATA */}
                                                     <tr className="bg-slate-900/80 border-b border-slate-800">
                                                         <td colSpan="4" className="p-3 px-5 text-yellow-500 font-bold text-xs uppercase tracking-wider sticky top-0 bg-slate-950/90 backdrop-blur-sm z-10">
                                                             {date}
@@ -1264,6 +1365,83 @@
                                 </div>
                             </div>
                         )}
+
+                        {/* RANKING DE MAESTRIAS */}
+                        {viewMode === 'masteries' && (
+                            <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="p-6 border-b border-slate-800">
+                                    <h3 className="text-xl font-bold text-white">Ranking de Maestrias</h3>
+                                    <p className="text-slate-400 text-sm">Estatísticas acumuladas por maestria.</p>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                                <th className="p-5">#</th>
+                                                <th className="p-5">Maestria</th>
+                                                <th className="p-5 text-center">Jogadores Ativos</th>
+                                                <th className="p-5 text-center">Total Vitórias</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800">
+                                            {groupedMasteries.map((m, idx) => (
+                                                <tr key={m.name} className="hover:bg-slate-800/50 transition-colors">
+                                                    <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
+                                                    <td className="p-5">
+                                                        <span className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide ${STYLE_MAP[m.name] || 'text-slate-200'}`}>
+                                                            {m.name}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-5 text-center text-slate-300 font-bold">{m.players}</td>
+                                                    <td className="p-5 text-center text-yellow-500 font-bold">{m.wins}</td>
+                                                </tr>
+                                            ))}
+                                            {groupedMasteries.length === 0 && (
+                                                <tr><td colSpan="4" className="p-8 text-center text-slate-500">Nenhum dado de maestria encontrado.</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* RANKING DE VILAS */}
+                        {viewMode === 'villages' && (
+                            <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="p-6 border-b border-slate-800">
+                                    <h3 className="text-xl font-bold text-white">Ranking de Vilas</h3>
+                                    <p className="text-slate-400 text-sm">Estatísticas acumuladas por vila.</p>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                                <th className="p-5">#</th>
+                                                <th className="p-5">Vila</th>
+                                                <th className="p-5 text-center">Jogadores Ativos</th>
+                                                <th className="p-5 text-center">Total Vitórias</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800">
+                                            {groupedVillages.map((v, idx) => (
+                                                <tr key={v.name} className="hover:bg-slate-800/50 transition-colors">
+                                                    <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
+                                                    <td className="p-5 font-bold text-lg">
+                                                        <span className={STYLE_MAP[v.name] || 'text-white'}>{v.name}</span>
+                                                    </td>
+                                                    <td className="p-5 text-center text-slate-300 font-bold">{v.players}</td>
+                                                    <td className="p-5 text-center text-yellow-500 font-bold">{v.wins}</td>
+                                                </tr>
+                                            ))}
+                                            {groupedVillages.length === 0 && (
+                                                <tr><td colSpan="4" className="p-8 text-center text-slate-500">Nenhum dado de vila encontrado.</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </div>
             );
