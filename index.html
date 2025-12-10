@@ -1000,6 +1000,7 @@
                 return players;
             }, [data.rankings, searchTerm, sortConfig, activeTab]);
 
+            // NOVAS ESTATÍSTICAS AGREGADAS PARA MAESTRIAS E VILAS (ATUALIZADA COM MODO INDIVIDUAL/COMBINADO)
             const groupedMasteries = useMemo(() => {
                 const stats = {};
                 
@@ -1009,14 +1010,18 @@
                     sourceData.forEach(p => {
                         if (p.meta && p.meta.mastery_1) {
                             const m1 = p.meta.mastery_1;
-                            if (!stats[m1]) stats[m1] = { name: m1, parts: [m1], wins: 0, players: 0 };
+                            if (!stats[m1]) stats[m1] = { name: m1, parts: [m1], wins: 0, losses: 0, battles: 0, players: 0 };
                             stats[m1].wins += p.wins;
+                            stats[m1].losses += p.losses;
+                            stats[m1].battles += p.battles;
                             stats[m1].players += 1;
                         }
                         if (p.meta && p.meta.mastery_2) {
                             const m2 = p.meta.mastery_2;
-                            if (!stats[m2]) stats[m2] = { name: m2, parts: [m2], wins: 0, players: 0 };
+                            if (!stats[m2]) stats[m2] = { name: m2, parts: [m2], wins: 0, losses: 0, battles: 0, players: 0 };
                             stats[m2].wins += p.wins;
+                            stats[m2].losses += p.losses;
+                            stats[m2].battles += p.battles;
                             stats[m2].players += 1;
                         }
                     });
@@ -1037,14 +1042,20 @@
                                 displayParts = [key];
                             }
                             
-                            if (!stats[key]) stats[key] = { name: key, parts: displayParts, wins: 0, players: 0 };
+                            if (!stats[key]) stats[key] = { name: key, parts: displayParts, wins: 0, losses: 0, battles: 0, players: 0 };
                             stats[key].wins += p.wins;
+                            stats[key].losses += p.losses;
+                            stats[key].battles += p.battles;
                             stats[key].players += 1;
                         }
                     });
                 }
                 
-                return Object.values(stats).sort((a, b) => b.wins - a.wins);
+                // Calculate Win Rate and sort
+                return Object.values(stats).map(stat => ({
+                    ...stat,
+                    winRate: stat.battles > 0 ? ((stat.wins / stat.battles) * 100).toFixed(1) : 0
+                })).sort((a, b) => b.wins - a.wins);
             }, [filteredRankings, masteryViewMode]);
 
             const groupedVillages = useMemo(() => {
@@ -1052,12 +1063,17 @@
                 filteredRankings.forEach(p => {
                     if (p.meta && p.meta.village) {
                         const v = p.meta.village;
-                        if (!stats[v]) stats[v] = { name: v, wins: 0, players: 0 };
+                        if (!stats[v]) stats[v] = { name: v, wins: 0, losses: 0, battles: 0, players: 0 };
                         stats[v].wins += p.wins;
+                        stats[v].losses += p.losses;
+                        stats[v].battles += p.battles;
                         stats[v].players += 1;
                     }
                 });
-                return Object.values(stats).sort((a, b) => b.wins - a.wins);
+                return Object.values(stats).map(stat => ({
+                    ...stat,
+                    winRate: stat.battles > 0 ? ((stat.wins / stat.battles) * 100).toFixed(1) : 0
+                })).sort((a, b) => b.wins - a.wins);
             }, [filteredRankings]);
 
             const handleSort = (key) => {
@@ -1392,8 +1408,6 @@
                         </div>
 
                         {/* --- RENDERIZAÇÃO CONDICIONAL POR VIEW --- */}
-
-                        {/* REMOVIDO: Bloco antigo de filtro por maestria no topo do ranking */}
                         
                         {viewMode === 'ranking' && (
                             <>
@@ -1598,6 +1612,9 @@
                                                 <th className="p-5">Maestria</th>
                                                 <th className="p-5 text-center">Jogadores Ativos</th>
                                                 <th className="p-5 text-center">Total Vitórias</th>
+                                                <th className="p-5 text-center">Derrotas</th>
+                                                <th className="p-5 text-center">Partidas</th>
+                                                <th className="p-5 text-center">Win Rate</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
@@ -1621,10 +1638,19 @@
                                                     </td>
                                                     <td className="p-5 text-center text-slate-300 font-bold group-hover:text-white">{m.players}</td>
                                                     <td className="p-5 text-center text-yellow-500 font-bold">{m.wins}</td>
+                                                    <td className="p-5 text-center text-red-500 font-bold">{m.losses}</td>
+                                                    <td className="p-5 text-center text-blue-400 font-bold">{m.battles}</td>
+                                                    <td className="p-5 text-center">
+                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                                        parseFloat(m.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
+                                                        parseFloat(m.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                                        'bg-red-500/20 text-red-400'
+                                                    }`}>{m.winRate}%</span>
+                                                    </td>
                                                 </tr>
                                             ))}
                                             {groupedMasteries.length === 0 && (
-                                                <tr><td colSpan="4" className="p-8 text-center text-slate-500">Nenhum dado de maestria encontrado.</td></tr>
+                                                <tr><td colSpan="7" className="p-8 text-center text-slate-500">Nenhum dado de maestria encontrado.</td></tr>
                                             )}
                                         </tbody>
                                     </table>
@@ -1647,6 +1673,9 @@
                                                 <th className="p-5">Vila</th>
                                                 <th className="p-5 text-center">Jogadores Ativos</th>
                                                 <th className="p-5 text-center">Total Vitórias</th>
+                                                <th className="p-5 text-center">Derrotas</th>
+                                                <th className="p-5 text-center">Partidas</th>
+                                                <th className="p-5 text-center">Win Rate</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
@@ -1658,10 +1687,19 @@
                                                     </td>
                                                     <td className="p-5 text-center text-slate-300 font-bold">{v.players}</td>
                                                     <td className="p-5 text-center text-yellow-500 font-bold">{v.wins}</td>
+                                                    <td className="p-5 text-center text-red-500 font-bold">{v.losses}</td>
+                                                    <td className="p-5 text-center text-blue-400 font-bold">{v.battles}</td>
+                                                    <td className="p-5 text-center">
+                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                                        parseFloat(v.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
+                                                        parseFloat(v.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                                        'bg-red-500/20 text-red-400'
+                                                    }`}>{v.winRate}%</span>
+                                                    </td>
                                                 </tr>
                                             ))}
                                             {groupedVillages.length === 0 && (
-                                                <tr><td colSpan="4" className="p-8 text-center text-slate-500">Nenhum dado de vila encontrado.</td></tr>
+                                                <tr><td colSpan="7" className="p-8 text-center text-slate-500">Nenhum dado de vila encontrado.</td></tr>
                                             )}
                                         </tbody>
                                     </table>
