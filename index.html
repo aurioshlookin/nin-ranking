@@ -380,6 +380,105 @@
             );
         };
 
+        // --- NOVO COMPONENTE: MasteryDetailsModal ---
+        const MasteryDetailsModal = ({ mastery, players, onClose, onPlayerClick }) => {
+            return (
+                <div 
+                    className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200"
+                    onClick={onClose}
+                >
+                    <div 
+                        className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                            <div>
+                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                                    <BookOpen className="text-blue-400 w-6 h-6" />
+                                    Jogadores com: {mastery}
+                                </h2>
+                                <p className="text-slate-400 text-sm mt-1">
+                                    Listando {players.length} jogadores encontrados
+                                </p>
+                            </div>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
+                                <XIcon className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-0 scrollbar-thin bg-slate-950/50">
+                             <table className="w-full text-left border-collapse">
+                                <thead className="sticky top-0 bg-slate-900 z-10 shadow-md">
+                                    <tr className="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                        <th className="p-5">#</th>
+                                        <th className="p-5">Jogador</th>
+                                        <th className="p-5 text-center">Vitórias</th>
+                                        <th className="p-5 text-center">Win Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800">
+                                    {players.map((player, index) => {
+                                        let rankColor = "text-slate-500";
+                                        let rankIcon = null;
+                                        const rank = index + 1;
+                                        if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
+                                        if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                        if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+
+                                        return (
+                                            <tr 
+                                                key={player.name} 
+                                                onClick={() => onPlayerClick(player)}
+                                                className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                                            >
+                                                <td className={`p-5 text-center font-bold ${rankColor} text-lg w-16`}>
+                                                    {rankIcon || `#${rank}`}
+                                                </td>
+                                                <td className="p-5">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">
+                                                            {player.name}
+                                                        </span>
+                                                        {player.meta && (player.meta.village || player.meta.mastery_1) && (
+                                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                                {player.meta.village && (
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/50 uppercase tracking-wide ${STYLE_MAP[player.meta.village] || 'text-slate-400'}`}>
+                                                                        {player.meta.village}
+                                                                    </span>
+                                                                )}
+                                                                {player.meta.mastery_1 && (
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_1] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                                        {player.meta.mastery_1}
+                                                                    </span>
+                                                                )}
+                                                                {player.meta.mastery_2 && (
+                                                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_2] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                                        {player.meta.mastery_2}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
+                                                <td className="p-5 text-center">
+                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                                        parseFloat(player.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
+                                                        parseFloat(player.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
+                                                        'bg-red-500/20 text-red-400'
+                                                    }`}>{player.winRate}%</span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const InfoModal = ({ onClose }) => (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
                 <div className="bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
@@ -591,12 +690,9 @@
             const [selectedTournament, setSelectedTournament] = useState(null);
             const [showInfoModal, setShowInfoModal] = useState(false);
             
-            // ADICIONADO: Estado para o modo de visualização das maestrias (Combined vs Individual)
             const [masteryViewMode, setMasteryViewMode] = useState('combined');
-            // ADICIONADO: Estado para filtro de maestria selecionada
-            const [selectedMasteryFilter, setSelectedMasteryFilter] = useState(null);
+            const [selectedMastery, setSelectedMastery] = useState(null);
             
-            // ADICIONADO: Estado para contar arquivos carregados
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
             useEffect(() => {
@@ -623,24 +719,21 @@
                     const loadedData = [];
                     let page = 1;
                     let foundEnd = false;
-                    const MAX_PAGES = 50; // Limite de segurança
+                    const MAX_PAGES = 50; 
 
                     try {
-                        // 1. Carregar Logs de Batalha (Sequencial)
                         while (!foundEnd && page <= MAX_PAGES) {
                             const url = `./servidor_page_${page}.json`;
                             try {
                                 const response = await fetch(url);
-                                // Verificar se é JSON válido e status 200
                                 if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
                                     const json = await response.json();
                                     if (Array.isArray(json)) {
                                         loadedData.push(...json);
-                                        setLoadedFilesCount(prev => prev + 1); // Atualiza contador
+                                        setLoadedFilesCount(prev => prev + 1);
                                     }
                                     page++;
                                 } else {
-                                    // Se não for JSON ou der erro, assume fim da lista
                                     foundEnd = true;
                                 }
                             } catch (err) {
@@ -650,7 +743,6 @@
                         
                         setRawData(loadedData);
 
-                        // 2. Carregar Players Metadata
                         try {
                             const playersResp = await fetch(PLAYERS_FILE);
                             if (playersResp.ok) {
@@ -836,31 +928,6 @@
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
 
-                // FILTRO DE MAESTRIA SELECIONADA
-                if (selectedMasteryFilter) {
-                    players = players.filter(p => 
-                        (p.meta && (p.meta.mastery_1 === selectedMasteryFilter || p.meta.mastery_2 === selectedMasteryFilter))
-                        // Se for combinado (string com "+"), precisamos checar se ambas estão presentes ou se a string bate
-                        || (p.meta && `${p.meta.mastery_1} + ${p.meta.mastery_2}` === selectedMasteryFilter)
-                        || (p.meta && `${p.meta.mastery_2} + ${p.meta.mastery_1}` === selectedMasteryFilter)
-                        // Para permitir clicar em "Água + Médico" e filtrar quem tem EXATAMENTE ou PARCIALMENTE? 
-                        // A lógica simples: Se cliquei em "Fogo", mostro quem tem Fogo.
-                        // Se cliquei em "Fogo + Água", mostro quem tem Fogo E Água.
-                    );
-                    
-                    // Refinando o filtro para suportar o clique na linha combinada
-                    if (selectedMasteryFilter.includes(' + ')) {
-                        const parts = selectedMasteryFilter.split(' + ');
-                        players = players.filter(p => {
-                            const pMasteries = [p.meta?.mastery_1, p.meta?.mastery_2].filter(Boolean);
-                            return parts.every(part => pMasteries.includes(part));
-                        });
-                    } else {
-                        // Filtro simples
-                        players = players.filter(p => p.meta?.mastery_1 === selectedMasteryFilter || p.meta?.mastery_2 === selectedMasteryFilter);
-                    }
-                }
-
                 if (activeTab === 'Geral') {
                 } else if (activeTab === 'Ranked') {
                     players = players.map(p => {
@@ -931,22 +998,14 @@
                 });
 
                 return players;
-            }, [data.rankings, searchTerm, sortConfig, activeTab, selectedMasteryFilter]);
+            }, [data.rankings, searchTerm, sortConfig, activeTab]);
 
-            // NOVAS ESTATÍSTICAS AGREGADAS PARA MAESTRIAS E VILAS (ATUALIZADA COM MODO INDIVIDUAL/COMBINADO)
             const groupedMasteries = useMemo(() => {
                 const stats = {};
                 
-                // Calculamos sobre data.rankings (todos os jogadores) ou filteredRankings (filtrados)? 
-                // Geralmente maestrias é global ou respeita o filtro de tempo. 
-                // Vamos usar data.rankings mas filtrado pelo tempo (que já está em data via processBattleLogs com filteredLogs)
-                // Mas filteredRankings aplica filtro de 'Ranked'/'Geral'. Se quisermos ver maestrias DO MODO SELECIONADO, usamos filteredRankings.
-                // Vou usar filteredRankings para consistência.
-
-                const sourceData = filteredRankings; // Ou data.rankings se quiser global.
+                const sourceData = filteredRankings; 
 
                 if (masteryViewMode === 'individual') {
-                    // MODO INDIVIDUAL: Conta cada maestria separadamente
                     sourceData.forEach(p => {
                         if (p.meta && p.meta.mastery_1) {
                             const m1 = p.meta.mastery_1;
@@ -962,7 +1021,6 @@
                         }
                     });
                 } else {
-                    // MODO COMBINADO: Conta a combinação única
                     sourceData.forEach(p => {
                         if (p.meta && (p.meta.mastery_1 || p.meta.mastery_2)) {
                             const m1 = p.meta.mastery_1;
@@ -1011,9 +1069,31 @@
             };
 
             const handleMasteryClick = (masteryName) => {
-                setSelectedMasteryFilter(masteryName);
-                setViewMode('ranking'); // Volta para o ranking para mostrar a lista filtrada
+                setSelectedMastery(masteryName);
             };
+
+            // NOVO: Cálculo dos jogadores filtrados pela maestria para o modal
+            const selectedMasteryPlayers = useMemo(() => {
+                if (!selectedMastery) return [];
+                
+                // Filtramos 'filteredRankings' para manter consistência com o filtro de tempo e modo
+                return filteredRankings.filter(p => {
+                     if (masteryViewMode === 'individual') {
+                         return p.meta?.mastery_1 === selectedMastery || p.meta?.mastery_2 === selectedMastery;
+                     } else {
+                         const m1 = p.meta?.mastery_1;
+                         const m2 = p.meta?.mastery_2;
+                         let key;
+                         if (m1 && m2) {
+                             key = [m1, m2].sort().join(' + ');
+                         } else {
+                             key = m1 || m2;
+                         }
+                         return key === selectedMastery;
+                     }
+                }).sort((a,b) => b.wins - a.wins);
+            }, [selectedMastery, filteredRankings, masteryViewMode]);
+
 
             const totalBattles = filteredRankings.reduce((acc, curr) => acc + curr.wins, 0); 
 
@@ -1068,7 +1148,7 @@
             }
 
             return (
-                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8 pb-16"> {/* Added padding bottom for footer */}
+                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8 pb-16"> 
                     {/* Modais */}
                     {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
                     
@@ -1085,6 +1165,20 @@
                         <TournamentBracketModal
                             tournament={selectedTournament}
                             onClose={() => setSelectedTournament(null)}
+                        />
+                    )}
+                    
+                    {/* NOVO MODAL DE MAESTRIA */}
+                    {selectedMastery && (
+                        <MasteryDetailsModal 
+                            mastery={selectedMastery}
+                            players={selectedMasteryPlayers}
+                            onClose={() => setSelectedMastery(null)}
+                            onPlayerClick={(player) => {
+                                setSelectedPlayer(player); // Abre o modal do jogador
+                                // Opcional: fechar o modal de maestria ou mantê-lo aberto por baixo?
+                                // Manter aberto permite voltar ao fechar o jogador.
+                            }}
                         />
                     )}
 
@@ -1299,20 +1393,7 @@
 
                         {/* --- RENDERIZAÇÃO CONDICIONAL POR VIEW --- */}
 
-                        {selectedMasteryFilter && viewMode === 'ranking' && (
-                            <div className="bg-blue-900/30 border border-blue-500/30 text-blue-200 px-4 py-3 rounded-xl flex items-center justify-between mb-4 animate-in fade-in slide-in-from-top-2">
-                                <div className="flex items-center gap-2">
-                                    <BookOpen className="w-5 h-5 text-blue-400" />
-                                    <span>Filtrando por Maestria: <strong>{selectedMasteryFilter}</strong></span>
-                                </div>
-                                <button 
-                                    onClick={() => setSelectedMasteryFilter(null)}
-                                    className="p-1 hover:bg-blue-500/20 rounded-full transition-colors"
-                                >
-                                    <XIcon className="w-5 h-5" />
-                                </button>
-                            </div>
-                        )}
+                        {/* REMOVIDO: Bloco antigo de filtro por maestria no topo do ranking */}
                         
                         {viewMode === 'ranking' && (
                             <>
