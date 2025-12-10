@@ -291,8 +291,14 @@
             };
 
             return (
-                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-                    <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
+                <div 
+                    className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50"
+                    onClick={onClose} // Fecha ao clicar fora
+                >
+                    <div 
+                        className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
+                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
+                    >
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                             <div>
                                 <h2 className="text-2xl font-bold text-white flex items-center gap-3">
@@ -375,8 +381,14 @@
             }, {});
 
             return (
-                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50">
-                    <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]">
+                <div 
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50"
+                    onClick={onClose} // Fecha ao clicar fora
+                >
+                    <div 
+                        className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
+                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
+                    >
                         
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
                             <div>
@@ -524,6 +536,16 @@
                     favicon.href = CUSTOM_ICON_URL;
                 }
             }, []);
+
+            // FUNÇÃO DE ARREDONDAMENTO DE HORÁRIO
+            const getRoundedTime = (timestamp) => {
+                const date = new Date(timestamp);
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes();
+                // Arredonda para baixo para o múltiplo de 10 mais próximo
+                const roundedMinutes = (Math.floor(minutes / 10) * 10).toString().padStart(2, '0');
+                return `${hours}:${roundedMinutes}`;
+            };
 
             // 1. CARREGAMENTO DINÂMICO DE ARQUIVOS (WHILE LOOP RESTAURADO)
             useEffect(() => {
@@ -1143,7 +1165,7 @@
                                                 <th className="p-5">Data</th>
                                                 <th className="p-5">Torneio</th>
                                                 <th className="p-5 text-center">Partidas</th>
-                                                <th className="p-5 text-right">Ação</th>
+                                                <th className="p-5 text-right">Horário</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
@@ -1176,7 +1198,10 @@
                                                                 </span>
                                                             </td>
                                                             <td className="p-5 text-right text-slate-500 group-hover:text-white transition-colors">
-                                                                <ArrowRight className="w-5 h-5 ml-auto" />
+                                                                <div className="flex items-center justify-end gap-2 font-mono text-sm">
+                                                                    <Clock className="w-4 h-4 text-slate-600" />
+                                                                    {getRoundedTime(tournament.timestamp)}
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     ))}
