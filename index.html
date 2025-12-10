@@ -593,6 +593,11 @@
             
             // ADICIONADO: Estado para o modo de visualização das maestrias (Combined vs Individual)
             const [masteryViewMode, setMasteryViewMode] = useState('combined');
+            // ADICIONADO: Estado para filtro de maestria selecionada
+            const [selectedMasteryFilter, setSelectedMasteryFilter] = useState(null);
+            
+            // ADICIONADO: Estado para contar arquivos carregados
+            const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
             useEffect(() => {
                 const favicon = document.getElementById('dynamic-favicon');
@@ -618,19 +623,24 @@
                     const loadedData = [];
                     let page = 1;
                     let foundEnd = false;
+                    const MAX_PAGES = 50; // Limite de segurança
 
                     try {
-                        while (!foundEnd) {
+                        // 1. Carregar Logs de Batalha (Sequencial)
+                        while (!foundEnd && page <= MAX_PAGES) {
                             const url = `./servidor_page_${page}.json`;
                             try {
                                 const response = await fetch(url);
-                                if (response.ok) {
+                                // Verificar se é JSON válido e status 200
+                                if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
                                     const json = await response.json();
                                     if (Array.isArray(json)) {
                                         loadedData.push(...json);
+                                        setLoadedFilesCount(prev => prev + 1); // Atualiza contador
                                     }
                                     page++;
                                 } else {
+                                    // Se não for JSON ou der erro, assume fim da lista
                                     foundEnd = true;
                                 }
                             } catch (err) {
@@ -640,6 +650,7 @@
                         
                         setRawData(loadedData);
 
+                        // 2. Carregar Players Metadata
                         try {
                             const playersResp = await fetch(PLAYERS_FILE);
                             if (playersResp.ok) {
@@ -825,6 +836,31 @@
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
 
+                // FILTRO DE MAESTRIA SELECIONADA
+                if (selectedMasteryFilter) {
+                    players = players.filter(p => 
+                        (p.meta && (p.meta.mastery_1 === selectedMasteryFilter || p.meta.mastery_2 === selectedMasteryFilter))
+                        // Se for combinado (string com "+"), precisamos checar se ambas estão presentes ou se a string bate
+                        || (p.meta && `${p.meta.mastery_1} + ${p.meta.mastery_2}` === selectedMasteryFilter)
+                        || (p.meta && `${p.meta.mastery_2} + ${p.meta.mastery_1}` === selectedMasteryFilter)
+                        // Para permitir clicar em "Água + Médico" e filtrar quem tem EXATAMENTE ou PARCIALMENTE? 
+                        // A lógica simples: Se cliquei em "Fogo", mostro quem tem Fogo.
+                        // Se cliquei em "Fogo + Água", mostro quem tem Fogo E Água.
+                    );
+                    
+                    // Refinando o filtro para suportar o clique na linha combinada
+                    if (selectedMasteryFilter.includes(' + ')) {
+                        const parts = selectedMasteryFilter.split(' + ');
+                        players = players.filter(p => {
+                            const pMasteries = [p.meta?.mastery_1, p.meta?.mastery_2].filter(Boolean);
+                            return parts.every(part => pMasteries.includes(part));
+                        });
+                    } else {
+                        // Filtro simples
+                        players = players.filter(p => p.meta?.mastery_1 === selectedMasteryFilter || p.meta?.mastery_2 === selectedMasteryFilter);
+                    }
+                }
+
                 if (activeTab === 'Geral') {
                 } else if (activeTab === 'Ranked') {
                     players = players.map(p => {
@@ -895,23 +931,29 @@
                 });
 
                 return players;
-            }, [data.rankings, searchTerm, sortConfig, activeTab]);
+            }, [data.rankings, searchTerm, sortConfig, activeTab, selectedMasteryFilter]);
 
             // NOVAS ESTATÍSTICAS AGREGADAS PARA MAESTRIAS E VILAS (ATUALIZADA COM MODO INDIVIDUAL/COMBINADO)
             const groupedMasteries = useMemo(() => {
                 const stats = {};
                 
+                // Calculamos sobre data.rankings (todos os jogadores) ou filteredRankings (filtrados)? 
+                // Geralmente maestrias é global ou respeita o filtro de tempo. 
+                // Vamos usar data.rankings mas filtrado pelo tempo (que já está em data via processBattleLogs com filteredLogs)
+                // Mas filteredRankings aplica filtro de 'Ranked'/'Geral'. Se quisermos ver maestrias DO MODO SELECIONADO, usamos filteredRankings.
+                // Vou usar filteredRankings para consistência.
+
+                const sourceData = filteredRankings; // Ou data.rankings se quiser global.
+
                 if (masteryViewMode === 'individual') {
                     // MODO INDIVIDUAL: Conta cada maestria separadamente
-                    filteredRankings.forEach(p => {
-                        // Contar para Maestria 1
+                    sourceData.forEach(p => {
                         if (p.meta && p.meta.mastery_1) {
                             const m1 = p.meta.mastery_1;
                             if (!stats[m1]) stats[m1] = { name: m1, parts: [m1], wins: 0, players: 0 };
                             stats[m1].wins += p.wins;
                             stats[m1].players += 1;
                         }
-                        // Contar para Maestria 2
                         if (p.meta && p.meta.mastery_2) {
                             const m2 = p.meta.mastery_2;
                             if (!stats[m2]) stats[m2] = { name: m2, parts: [m2], wins: 0, players: 0 };
@@ -920,8 +962,8 @@
                         }
                     });
                 } else {
-                    // MODO COMBINADO: Conta a combinação única (ex: Água + Médico)
-                    filteredRankings.forEach(p => {
+                    // MODO COMBINADO: Conta a combinação única
+                    sourceData.forEach(p => {
                         if (p.meta && (p.meta.mastery_1 || p.meta.mastery_2)) {
                             const m1 = p.meta.mastery_1;
                             const m2 = p.meta.mastery_2;
@@ -929,7 +971,6 @@
                             let displayParts = [];
                             
                             if (m1 && m2) {
-                                // Ordenar alfabeticamente para consistência (Água + Médico == Médico + Água)
                                 const parts = [m1, m2].sort();
                                 key = parts.join(' + ');
                                 displayParts = parts;
@@ -967,6 +1008,11 @@
                     direction = 'asc';
                 }
                 setSortConfig({ key, direction });
+            };
+
+            const handleMasteryClick = (masteryName) => {
+                setSelectedMasteryFilter(masteryName);
+                setViewMode('ranking'); // Volta para o ranking para mostrar a lista filtrada
             };
 
             const totalBattles = filteredRankings.reduce((acc, curr) => acc + curr.wins, 0); 
@@ -1022,7 +1068,7 @@
             }
 
             return (
-                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8">
+                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8 pb-16"> {/* Added padding bottom for footer */}
                     {/* Modais */}
                     {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
                     
@@ -1252,6 +1298,21 @@
                         </div>
 
                         {/* --- RENDERIZAÇÃO CONDICIONAL POR VIEW --- */}
+
+                        {selectedMasteryFilter && viewMode === 'ranking' && (
+                            <div className="bg-blue-900/30 border border-blue-500/30 text-blue-200 px-4 py-3 rounded-xl flex items-center justify-between mb-4 animate-in fade-in slide-in-from-top-2">
+                                <div className="flex items-center gap-2">
+                                    <BookOpen className="w-5 h-5 text-blue-400" />
+                                    <span>Filtrando por Maestria: <strong>{selectedMasteryFilter}</strong></span>
+                                </div>
+                                <button 
+                                    onClick={() => setSelectedMasteryFilter(null)}
+                                    className="p-1 hover:bg-blue-500/20 rounded-full transition-colors"
+                                >
+                                    <XIcon className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
                         
                         {viewMode === 'ranking' && (
                             <>
@@ -1460,19 +1521,24 @@
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedMasteries.map((m, idx) => (
-                                                <tr key={m.name} className="hover:bg-slate-800/50 transition-colors">
+                                                // MUDANÇA: onClick para filtrar o ranking
+                                                <tr 
+                                                    key={m.name} 
+                                                    className="hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                                                    onClick={() => handleMasteryClick(m.name)}
+                                                    title="Clique para ver os jogadores com esta maestria"
+                                                >
                                                     <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
                                                     <td className="p-5">
-                                                        {/* Renderização condicional para partes de maestria */}
                                                         <div className="flex flex-wrap gap-2">
                                                             {m.parts.map((part, i) => (
-                                                                <span key={i} className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide ${STYLE_MAP[part] || 'text-slate-200 border-slate-700'}`}>
+                                                                <span key={i} className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide group-hover:brightness-110 ${STYLE_MAP[part] || 'text-slate-200 border-slate-700'}`}>
                                                                     {part}
                                                                 </span>
                                                             ))}
                                                         </div>
                                                     </td>
-                                                    <td className="p-5 text-center text-slate-300 font-bold">{m.players}</td>
+                                                    <td className="p-5 text-center text-slate-300 font-bold group-hover:text-white">{m.players}</td>
                                                     <td className="p-5 text-center text-yellow-500 font-bold">{m.wins}</td>
                                                 </tr>
                                             ))}
@@ -1521,6 +1587,11 @@
                                 </div>
                             </div>
                         )}
+                        
+                        {/* FOOTER DISCRETO PARA DEBUG */}
+                        <div className="text-center text-[10px] text-slate-700 mt-8 pb-4">
+                            Arquivos carregados: {loadedFilesCount}
+                        </div>
 
                     </div>
                 </div>
