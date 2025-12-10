@@ -58,11 +58,10 @@
         const GitBranch = (props) => <IconBase {...props}><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></IconBase>;
 
         // --- CONFIGURAÇÃO ---
-        // REMOVIDO DATA_FILES fixo. Agora é dinâmico.
         const CUSTOM_ICON_URL = './icon.png'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
         
-        // Descrições para cada categoria (ATUALIZADA)
+        // Descrições para cada categoria
         const MODE_DESCRIPTIONS = {
             'Geral': 'Visão completa de todas as partidas registradas no servidor, incluindo eventos e ranqueadas.',
             'Ranked': 'Soma exclusiva das filas ranqueadas automáticas (Auto1v1, Auto2v2 e Auto3v3).',
@@ -1110,34 +1109,56 @@
                                 </div>
                             </>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {groupedTournaments.map(tournament => (
-                                    <div 
-                                        key={tournament.id}
-                                        onClick={() => setSelectedTournament(tournament)}
-                                        className="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:bg-slate-800/80 hover:border-slate-600 transition-all cursor-pointer group shadow-lg"
-                                    >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="bg-slate-800 p-3 rounded-full group-hover:bg-slate-700 transition-colors">
-                                                <Trophy className="w-6 h-6 text-yellow-500" />
-                                            </div>
-                                            <span className="text-xs font-bold text-slate-500 bg-slate-950 px-2 py-1 rounded">{tournament.date}</span>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">{tournament.name}</h3>
-                                        <div className="flex items-center gap-2 text-slate-400 text-sm">
-                                            <Swords className="w-4 h-4" />
-                                            <span>{tournament.matches.length} Partidas</span>
-                                        </div>
-                                    </div>
-                                ))}
-                                {groupedTournaments.length === 0 && (
-                                    <div className="col-span-full text-center py-20 text-slate-500">
-                                        <div className="flex flex-col items-center gap-4">
-                                            <Trophy className="w-16 h-16 opacity-20" />
-                                            <p className="text-lg">Nenhum torneio encontrado para este filtro.</p>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                                <th className="p-5">Data</th>
+                                                <th className="p-5">Torneio</th>
+                                                <th className="p-5 text-center">Partidas</th>
+                                                <th className="p-5 text-right">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-800">
+                                            {groupedTournaments.map(tournament => (
+                                                <tr 
+                                                    key={tournament.id} 
+                                                    onClick={() => setSelectedTournament(tournament)}
+                                                    className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                                                >
+                                                    <td className="p-5 text-slate-400 font-mono text-sm">
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar className="w-4 h-4 text-slate-600" />
+                                                            {tournament.date}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-5 font-bold text-white group-hover:text-yellow-400 transition-colors text-lg">
+                                                        {tournament.name}
+                                                    </td>
+                                                    <td className="p-5 text-center text-slate-400">
+                                                        <span className="bg-slate-800 px-3 py-1 rounded-full text-xs font-bold border border-slate-700">
+                                                            {tournament.matches.length} partidas
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-5 text-right text-slate-500 group-hover:text-white transition-colors">
+                                                        <ArrowRight className="w-5 h-5 ml-auto" />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {groupedTournaments.length === 0 && (
+                                                <tr>
+                                                    <td colSpan="4" className="p-12 text-center text-slate-500">
+                                                        <div className="flex flex-col items-center gap-3">
+                                                            <Trophy className="w-12 h-12 text-slate-700 opacity-50" />
+                                                            <p>Nenhum torneio encontrado para este filtro.</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         )}
                     </div>
