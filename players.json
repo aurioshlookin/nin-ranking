@@ -54,33 +54,9 @@
     "village": "Folha"
   },
   {
-    "name": "Dellzito",
-    "mastery_1": "Médico",
-    "mastery_2": "Punho Gentil",
-    "village": "Folha"
-  },
-  {
     "name": "Ofxt",
     "mastery_1": "Arma",
     "mastery_2": "Água",
-    "village": "Folha"
-  },
-  {
-    "name": "Yara",
-    "mastery_1": "Médico",
-    "mastery_2": "Punho Gentil",
-    "village": "Folha"
-  },
-  {
-    "name": "Bilbo Bolado",
-    "mastery_1": "Vento",
-    "mastery_2": "Água",
-    "village": "Areia"
-  },
-  {
-    "name": "Murky",
-    "mastery_1": "Médico",
-    "mastery_2": "Punho Gentil",
     "village": "Folha"
   },
   {
@@ -90,45 +66,9 @@
     "village": "Renegado Areia"
   },
   {
-    "name": "Havaneki",
-    "mastery_1": "Vento",
-    "mastery_2": "Água",
-    "village": "Renegado Areia"
-  },
-  {
-    "name": "Saryn",
-    "mastery_1": "Médico",
-    "mastery_2": "Água",
-    "village": "Renegado Névoa"
-  },
-  {
-    "name": "Al Habibi",
-    "mastery_1": "Médico",
-    "mastery_2": "Punho Gentil",
-    "village": "Folha"
-  },
-  {
     "name": "Yohki",
     "mastery_1": "Fogo",
     "mastery_2": "Água",
-    "village": "Areia"
-  },
-  {
-    "name": "Yukihiro",
-    "mastery_1": "Vento",
-    "mastery_2": "Água",
-    "village": "Névoa"
-  },
-  {
-    "name": "Caim",
-    "mastery_1": "Arma",
-    "mastery_2": "Água",
-    "village": "Renegado Névoa"
-  },
-  {
-    "name": "Hipnos",
-    "mastery_1": "Vento",
-    "mastery_2": "Raio",
     "village": "Areia"
   },
   {
@@ -162,3 +102,4 @@
     "village": "Névoa"
   }
 ]
+
