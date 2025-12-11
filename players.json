@@ -250,8 +250,27 @@
     "mastery_1": "Terra",
     "mastery_2": "Médico",
     "village": "Renegado Areia"
+  },
+  {
+    "name": "Kyo",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Fogo",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Not Tuc",
+    "mastery_1": "Arma",
+    "mastery_2": "Terra",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "lGHl",
+    "mastery_1": "Arma",
+    "mastery_2": "Raio",
+    "village": "Névoa"
   }
 ]
+
 
 
 
