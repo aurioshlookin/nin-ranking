@@ -73,6 +73,10 @@
         // Ícone de Estrela (Elite)
         const Star = (props) => <IconBase {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fillOpacity="0.2" /></IconBase>;
 
+        // NOVOS ÍCONES NINJA
+        const ShurikenIcon = (props) => <IconBase {...props}><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" fillOpacity="0.2" /></IconBase>;
+        const ScrollIcon = (props) => <IconBase {...props}><path d="M19 4H9C7.89543 4 7 4.89543 7 6V20C7 21.1046 7.89543 22 9 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" /><path d="M5 15H4C3.44772 15 3 14.5523 3 14V8C3 7.44772 3.44772 7 4 7H5" /><path d="M15 12H19" /><path d="M15 16H19" /><path d="M15 8H19" /></IconBase>;
+
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
@@ -217,8 +221,8 @@
 
                 // Badges Logic
                 const badges = [];
-                if (player.battles >= 1000) badges.push({ id: 'veteran', icon: Award, label: 'Veterano', color: 'text-purple-400' });
-                else if (player.battles >= 100) badges.push({ id: 'warrior', icon: Award, label: 'Guerreiro', color: 'text-blue-400' });
+                if (player.battles >= 1000) badges.push({ id: 'master', icon: ScrollIcon, label: 'Ninja Mestre', color: 'text-purple-400' });
+                else if (player.battles >= 100) badges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
                 
                 const wr = player.battles > 0 ? (player.wins / player.battles) * 100 : 0;
                 // ÍCONE ALTERADO PARA STAR
@@ -324,7 +328,8 @@
                         className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800/50"
                         onMouseMove={handleMouseMove}
                     >
-                        <div className="flex items-end gap-3 h-48 px-2 min-w-max">
+                        {/* ALTURA REDUZIDA DE h-48 PARA h-32 */}
+                        <div className="flex items-end gap-3 h-32 px-2 min-w-max">
                             {statsByDate.map((stat, idx) => {
                                 const winHeight = stat.wins > 0 ? Math.max((stat.wins / maxVal) * 100, 5) : 0;
                                 const lossHeight = stat.losses > 0 ? Math.max((stat.losses / maxVal) * 100, 5) : 0;
@@ -697,13 +702,19 @@
                                     <Skull className="w-4 h-4 text-slate-500" /> <span>3+ Derrotas Seguidas</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Award className="w-4 h-4 text-purple-400" /> <span>Veterano (1000+ partidas)</span>
+                                    <ScrollIcon className="w-4 h-4 text-purple-400" /> <span>Ninja Mestre (1000+ partidas)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Award className="w-4 h-4 text-blue-400" /> <span>Guerreiro (100+ partidas)</span>
+                                    <ShurikenIcon className="w-4 h-4 text-blue-400" /> <span>Ninja Veterano (100+ partidas)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Star className="w-4 h-4 text-yellow-400" /> <span>Elite (WR >= 70%)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Skull className="w-4 h-4 text-red-500" /> <span>Nêmesis (Quem mais te venceu)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Swords className="w-4 h-4 text-green-500" /> <span>Vítima (Quem você mais venceu)</span>
                                 </div>
                             </div>
                         </div>
@@ -772,6 +783,20 @@
                                     <span className={parseFloat(player.winRate) >= 50 ? 'text-green-400' : 'text-red-400'}>
                                         {player.winRate}% WR
                                     </span>
+
+                                    {/* INDICADORES DE STREAK NO CABEÇALHO */}
+                                    {player.streak >= 3 && (
+                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-orange-900/30 border border-orange-500/30 shadow-sm ml-2" title="Sequência de Vitórias">
+                                            <Flame className="w-3.5 h-3.5 text-orange-500" />
+                                            <span className="text-[10px] font-bold text-orange-300 uppercase tracking-wide hidden sm:inline-block">Win Streak</span>
+                                        </div>
+                                    )}
+                                    {player.streak <= -3 && (
+                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2" title="Sequência de Derrotas">
+                                            <Skull className="w-3.5 h-3.5 text-red-500" />
+                                            <span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">Loss Streak</span>
+                                        </div>
+                                    )}
 
                                     {/* LEGENDA DE CONQUISTAS (MOVIDA PARA LADO DO WR) */}
                                     {player.badges && player.badges.length > 0 && (
