@@ -60,6 +60,8 @@
         const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconBase>;
         const MapIcon = (props) => <IconBase {...props}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></IconBase>;
         const Layers = (props) => <IconBase {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></IconBase>;
+        const AlertTriangle = (props) => <IconBase {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>;
+
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
@@ -179,6 +181,7 @@
             const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
             const scrollRef = useRef(null);
 
+            // Agrupar partidas por data (Ordenação Cronológica: Antigo -> Recente)
             const statsByDate = useMemo(() => {
                 const groups = {};
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -194,6 +197,7 @@
                 return Object.values(groups); 
             }, [matches]);
 
+            // Rolagem automática para o final (direita) ao carregar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
@@ -204,6 +208,7 @@
                 }
             }, [statsByDate]);
 
+            // Handler para o mouse
             const handleMouseMove = (e) => {
                 setTooltipPos({ x: e.clientX, y: e.clientY });
             };
@@ -214,6 +219,7 @@
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col relative" >
+                    {/* TOOLTIP FLUTUANTE (FIXO NA TELA PARA EVITAR CORTES) */}
                     {hoveredStat && (
                         <div 
                             className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]"
@@ -258,6 +264,7 @@
                                         onMouseLeave={() => setHoveredStat(null)}
                                     >
                                         <div className="w-full flex items-end justify-center gap-1 h-full px-1">
+                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                  <div 
                                                     style={{ height: `${winHeight}%` }} 
@@ -267,6 +274,7 @@
                                                 ></div>
                                             </div>
 
+                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
                                                 <div 
                                                     style={{ height: `${lossHeight}%` }} 
@@ -292,7 +300,15 @@
         const TournamentBracketModal = ({ tournament, onClose }) => {
             if (!tournament) return null;
 
+            // Organizar partidas em "Rounds" (Chaves)
+            // Assumindo que a ordem é cronológica inversa (última = final)
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            // Agrupamento heurístico simples:
+            // Índice 0: Final
+            // Índice 1-2: Semifinais
+            // Índice 3-6: Quartas
+            // Índice 7+: Classificatórias
             
             const rounds = {
                 'Final': [matches[0]].filter(Boolean),
@@ -304,11 +320,11 @@
             return (
                 <div 
                     className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50"
-                    onClick={onClose} 
+                    onClick={onClose} // Fecha ao clicar fora
                 >
                     <div 
                         className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} 
+                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
                     >
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                             <div>
@@ -337,6 +353,7 @@
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                                             {roundMatches.map((match, idx) => (
                                                 <div key={idx} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col items-center justify-center relative overflow-hidden group hover:border-slate-600 transition-colors">
+                                                    {/* Vencedor */}
                                                     <div className="w-full flex justify-between items-center mb-2">
                                                         <span className="text-green-400 font-bold truncate flex-1">{match.winners.join(', ')}</span>
                                                         <Trophy className="w-4 h-4 text-yellow-500 ml-2" />
@@ -344,6 +361,7 @@
                                                     
                                                     <div className="w-full h-px bg-slate-800 my-1"></div>
                                                     
+                                                    {/* Perdedor */}
                                                     <div className="w-full flex justify-between items-center mt-2 opacity-60">
                                                         <span className="text-red-400 font-medium truncate flex-1">{match.losers.join(', ')}</span>
                                                     </div>
@@ -445,9 +463,10 @@
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
-                                                <td className="p-5 text-center font-medium text-slate-500">{player.losses}</td>
-                                                <td className="p-5 text-center text-slate-400">{player.battles}</td>
+                                                {/* Cores Ajustadas: Amarelo, Vermelho, Azul */}
+                                                <td className="p-5 text-center font-bold text-yellow-500">{player.wins}</td>
+                                                <td className="p-5 text-center font-medium text-red-500">{player.losses}</td>
+                                                <td className="p-5 text-center text-blue-400 font-bold">{player.battles}</td>
                                                 <td className="p-5 text-center">
                                                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                                                         parseFloat(player.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
@@ -548,9 +567,10 @@
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
-                                                <td className="p-5 text-center font-medium text-slate-500">{player.losses}</td>
-                                                <td className="p-5 text-center text-slate-400">{player.battles}</td>
+                                                {/* Cores Ajustadas: Amarelo, Vermelho, Azul */}
+                                                <td className="p-5 text-center font-bold text-yellow-500">{player.wins}</td>
+                                                <td className="p-5 text-center font-medium text-red-500">{player.losses}</td>
+                                                <td className="p-5 text-center text-blue-400 font-bold">{player.battles}</td>
                                                 <td className="p-5 text-center">
                                                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                                                         parseFloat(player.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
@@ -1686,13 +1706,24 @@
                         {/* RANKING DE MAESTRIAS */}
                         {viewMode === 'masteries' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                
+                                {/* ADICIONADO: Disclaimer sobre dados manuais */}
+                                <div className="bg-slate-900/50 border-b border-yellow-500/20 px-6 py-3 flex items-start gap-3">
+                                    <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                                    <p className="text-xs text-slate-400 leading-relaxed">
+                                        <strong className="text-yellow-500 block mb-1">Atenção: Dados Manuais</strong>
+                                        Os dados desta seção são atualizados manualmente consultando o Bingo Book. 
+                                        Podem ocorrer desatualizações devido a resets de conta ou confusões visuais (ex: Bolha/Água, Leque/Vento, Punho Gentil/Taijutsu). 
+                                        Caso encontre erros, avise no Discord. A lista será atualizada com o tempo.
+                                    </p>
+                                </div>
+
                                 <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                                     <div>
                                         <h3 className="text-xl font-bold text-white">Ranking de Maestrias</h3>
                                         <p className="text-slate-400 text-sm">Estatísticas acumuladas por maestria.</p>
                                     </div>
                                     
-                                    {/* MUDANÇA: TOGGLE DE VISUALIZAÇÃO */}
                                     <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
                                         <button
                                             onClick={() => setMasteryViewMode('combined')}
@@ -1731,7 +1762,6 @@
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedMasteries.map((m, idx) => (
-                                                // MUDANÇA: onClick para filtrar o ranking
                                                 <tr 
                                                     key={m.name} 
                                                     className="hover:bg-slate-800/50 transition-colors cursor-pointer group"
@@ -1773,6 +1803,18 @@
                         {/* RANKING DE VILAS */}
                         {viewMode === 'villages' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                
+                                {/* ADICIONADO: Disclaimer sobre dados manuais */}
+                                <div className="bg-slate-900/50 border-b border-yellow-500/20 px-6 py-3 flex items-start gap-3">
+                                    <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                                    <p className="text-xs text-slate-400 leading-relaxed">
+                                        <strong className="text-yellow-500 block mb-1">Atenção: Dados Manuais</strong>
+                                        Os dados desta seção são atualizados manualmente consultando o Bingo Book. 
+                                        Podem ocorrer desatualizações devido a resets de conta ou mudanças de vila. 
+                                        Caso encontre erros, avise no Discord. A lista será atualizada com o tempo.
+                                    </p>
+                                </div>
+
                                 <div className="p-6 border-b border-slate-800">
                                     <h3 className="text-xl font-bold text-white">Ranking de Vilas</h3>
                                     <p className="text-slate-400 text-sm">Estatísticas acumuladas por vila.</p>
