@@ -268,8 +268,81 @@
     "mastery_1": "Arma",
     "mastery_2": "Raio",
     "village": "Névoa"
+  },
+  {
+    "name": "Tinick",
+    "mastery_1": "Arma",
+    "mastery_2": "Terra",
+    "village": "Areia"
+  },
+  {
+    "name": "Rin Akeboshi",
+    "mastery_1": "Arma",
+    "mastery_2": "Fogo",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "ListerHugo",
+    "mastery_1": "Arma",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Tekomo",
+    "mastery_1": "Médico",
+    "mastery_2": "Leque",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Quavo",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Sakia",
+    "mastery_1": "Médico",
+    "mastery_2": "Vento",
+    "village": "Névoa"
+  },
+  {
+    "name": "Tita",
+    "mastery_1": "Fogo",
+    "mastery_2": "Vento",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "kyara",
+    "mastery_1": "Médico",
+    "mastery_2": "Água",
+    "village": "Areia"
+  },
+  {
+    "name": "LostStar",
+    "mastery_1": "Médico",
+    "mastery_2": "Terra",
+    "village": "Folha"
+  },
+  {
+    "name": "AlnVctr",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "Brenesquinha",
+    "mastery_1": "Fogo",
+    "mastery_2": "Raio",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Nikong",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Névoa"
   }
 ]
+
 
 
 
