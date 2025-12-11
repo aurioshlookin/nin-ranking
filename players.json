@@ -118,8 +118,59 @@
     "mastery_1": "Água",
     "mastery_2": "Vento",
     "village": "Névoa"
+  },
+  {
+    "name": "Suyou",
+    "mastery_1": "Bolha",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "pjeul",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "saki amemiya",
+    "mastery_1": "Água",
+    "mastery_2": "Vento",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "get jinxed",
+    "mastery_1": "Arma",
+    "mastery_2": "Água",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Assassino",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "GuinhoHenriq",
+    "mastery_1": "Raio",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "rafa",
+    "mastery_1": "Raio",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "Agony",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Fogo",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Alvesrd",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Folha"
   }
 ]
-
-
-
