@@ -67,8 +67,8 @@
         const Skull = (props) => <IconBase {...props}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></IconBase>;
         const Award = (props) => <IconBase {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></IconBase>;
         
-        // Ícone de Fogo Atualizado (Preenchido)
-        const Flame = (props) => <IconBase {...props} fill="currentColor"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-2.246-3.646-2.5-5.243C6.56 5.27 7.873 5 9 5c3.224 0 5 3.166 5 7a2.5 2.5 0 0 0 2.5 2.5c2.31 0 3-2.486 3-5.23 0-2.454-2-6-5.23-6-2.677 0-4.8 1.55-5.932 3.65C7.456 8.527 6 10 5.5 13c-.155 1.745.5 4.5 3 4.5"/><path d="M12 10a2 2 0 0 0 2 2c1.8 0 2.2-1.2 2-2.5"/></IconBase>;
+        // Ícone de Fogo Atualizado (Visual mais realista)
+        const Flame = (props) => <IconBase {...props} fill="currentColor"><path d="M12 2c0 0-3 2.5-3 6 0 2 1.5 3 1.5 5S9 19 12 19s4.5-3.5 4.5-6-1.5-3-1.5-5-3-6-3-6zm0 15c-1.5 0-2.5-1.5-2.5-3.5S10.5 11 12 11s2.5 1.5 2.5 2.5S13.5 17 12 17z" /><path d="M12 22c4.97 0 9-4.03 9-9 0-4-3-8-3-8s-1 3-2 4c0 0-1-2-2-4 0 0-1 3-3 5-1.5 1.5-3 1.5-3 1.5s-1.5 0-3-1.5c-2-2-3-5-3-5 0 0-2 2-2 4 0 4.97 4.03 9 9 9z" opacity="0.4"/></IconBase>;
         
         // Ícone de Estrela (Elite)
         const Star = (props) => <IconBase {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fillOpacity="0.2" /></IconBase>;
@@ -221,7 +221,8 @@
 
                 // Badges Logic
                 const badges = [];
-                if (player.battles >= 1000) badges.push({ id: 'master', icon: ScrollIcon, label: 'Ninja Mestre', color: 'text-purple-400' });
+                // Ícone Shuriken Dourada para Ninja Mestre
+                if (player.battles >= 1000) badges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
                 else if (player.battles >= 100) badges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
                 
                 const wr = player.battles > 0 ? (player.wins / player.battles) * 100 : 0;
@@ -702,7 +703,7 @@
                                     <Skull className="w-4 h-4 text-slate-500" /> <span>3+ Derrotas Seguidas</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <ScrollIcon className="w-4 h-4 text-purple-400" /> <span>Ninja Mestre (1000+ partidas)</span>
+                                    <ShurikenIcon className="w-4 h-4 text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.8)]" /> <span>Ninja Mestre (1000+ partidas)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <ShurikenIcon className="w-4 h-4 text-blue-400" /> <span>Ninja Veterano (100+ partidas)</span>
@@ -746,6 +747,32 @@
 
             const sortedMatches = [...playerMatches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
+            // CÁLCULO DE NEMESIS E VÍTIMA ESPECÍFICO DO MODO SELECIONADO (ActiveTab)
+            const { localNemesis, localVictim } = useMemo(() => {
+                const rivalryStats = {};
+                
+                playerMatches.forEach(match => {
+                    const opp = match.opponent;
+                    if (!rivalryStats[opp]) rivalryStats[opp] = { wins: 0, losses: 0 };
+                    
+                    if (match.result === 'win') rivalryStats[opp].wins++;
+                    else rivalryStats[opp].losses++;
+                });
+
+                let bestVictim = { name: null, count: 0 };
+                let worstNemesis = { name: null, count: 0 };
+
+                Object.entries(rivalryStats).forEach(([name, stats]) => {
+                    if (stats.wins > bestVictim.count) bestVictim = { name, count: stats.wins };
+                    if (stats.losses > worstNemesis.count) worstNemesis = { name, count: stats.losses };
+                });
+
+                return { 
+                    localNemesis: worstNemesis.count > 0 ? worstNemesis : null, 
+                    localVictim: bestVictim.count > 0 ? bestVictim : null 
+                };
+            }, [playerMatches]);
+
             const matchesByDate = sortedMatches.reduce((groups, match) => {
                 const date = match.timestamp 
                     ? new Date(match.timestamp).toLocaleDateString('pt-BR') 
@@ -788,13 +815,13 @@
                                     {player.streak >= 3 && (
                                         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-orange-900/30 border border-orange-500/30 shadow-sm ml-2" title="Sequência de Vitórias">
                                             <Flame className="w-3.5 h-3.5 text-orange-500" />
-                                            <span className="text-[10px] font-bold text-orange-300 uppercase tracking-wide hidden sm:inline-block">Win Streak</span>
+                                            <span className="text-[10px] font-bold text-orange-300 uppercase tracking-wide hidden sm:inline-block">Win Streak x{player.streak}</span>
                                         </div>
                                     )}
                                     {player.streak <= -3 && (
                                         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2" title="Sequência de Derrotas">
                                             <Skull className="w-3.5 h-3.5 text-red-500" />
-                                            <span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">Loss Streak</span>
+                                            <span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">Loss Streak x{Math.abs(player.streak)}</span>
                                         </div>
                                     )}
 
@@ -836,26 +863,26 @@
                                             </div>
                                             <div className="h-px bg-slate-800 my-1"></div>
                                             
-                                            {/* Nêmesis e Vítima - Com Truncate para evitar quebra de layout */}
-                                            {player.nemesis && (
+                                            {/* Nêmesis e Vítima - USANDO CÁLCULO LOCAL (localNemesis/localVictim) */}
+                                            {localNemesis && (
                                                 <div className="flex justify-between items-center gap-4">
                                                     <span className="text-slate-400 flex items-center gap-1.5 flex-shrink-0">
                                                         <Skull className="w-3.5 h-3.5 text-red-500"/> Nêmesis
                                                     </span>
                                                     <div className="text-right overflow-hidden">
-                                                        <span className="text-red-400 font-bold block leading-tight truncate" title={player.nemesis.name}>{player.nemesis.name}</span>
-                                                        <span className="text-[10px] text-slate-600 whitespace-nowrap">{player.nemesis.count} derrotas</span>
+                                                        <span className="text-red-400 font-bold block leading-tight truncate" title={localNemesis.name}>{localNemesis.name}</span>
+                                                        <span className="text-[10px] text-slate-600 whitespace-nowrap">{localNemesis.count} derrotas</span>
                                                     </div>
                                                 </div>
                                             )}
-                                            {player.victim && (
+                                            {localVictim && (
                                                 <div className="flex justify-between items-center gap-4">
                                                     <span className="text-slate-400 flex items-center gap-1.5 flex-shrink-0">
                                                         <Swords className="w-3.5 h-3.5 text-green-500"/> Vítima
                                                     </span>
                                                     <div className="text-right overflow-hidden">
-                                                        <span className="text-green-400 font-bold block leading-tight truncate" title={player.victim.name}>{player.victim.name}</span>
-                                                        <span className="text-[10px] text-slate-600 whitespace-nowrap">{player.victim.count} vitórias</span>
+                                                        <span className="text-green-400 font-bold block leading-tight truncate" title={localVictim.name}>{localVictim.name}</span>
+                                                        <span className="text-[10px] text-slate-600 whitespace-nowrap">{localVictim.count} vitórias</span>
                                                     </div>
                                                 </div>
                                             )}
