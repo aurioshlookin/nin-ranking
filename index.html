@@ -817,6 +817,26 @@
                                             )}
                                         </div>
                                     </div>
+
+                                    {/* SEÇÃO DE CONQUISTAS (MEDALHAS) ADICIONADA AQUI */}
+                                    {player.badges && player.badges.length > 0 && (
+                                        <div className="mt-4 bg-slate-950/30 p-4 rounded-xl border border-slate-800 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                            <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
+                                                <Award className="w-4 h-4 text-purple-500"/> Conquistas
+                                            </h4>
+                                            <div className="space-y-2">
+                                                {player.badges.map((badge, idx) => (
+                                                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-lg bg-slate-900/50 border border-slate-800/50 hover:bg-slate-800 hover:border-slate-700 transition-colors">
+                                                        <div className="p-1.5 bg-slate-950 rounded-md border border-slate-800">
+                                                            <badge.icon className={`w-4 h-4 ${badge.color}`} />
+                                                        </div>
+                                                        <span className="text-sm font-bold text-slate-300">{badge.label}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                 </div>
 
                                 <div className="w-full lg:w-[55%] flex flex-col h-full bg-slate-950/20">
@@ -830,7 +850,8 @@
                                         {Object.keys(matchesByDate).length > 0 ? (
                                             Object.entries(matchesByDate).map(([date, matches]) => (
                                                 <div key={date} className="mb-6 last:mb-0 relative">
-                                                    <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md sticky top-0 z-10">
+                                                    {/* DATA ESTÁTICA: Adicionado z-30 e garantido o sticky */}
+                                                    <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md sticky top-0 z-30">
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-yellow-500" />
                                                             <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
