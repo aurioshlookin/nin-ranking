@@ -172,5 +172,12 @@
     "mastery_1": "Vento",
     "mastery_2": "Água",
     "village": "Folha"
+  },
+  {
+    "name": "Artista Generico",
+    "mastery_1": "Médico",
+    "mastery_2": "Punho Gentil",
+    "village": "Renegado Folha"
   }
 ]
+
