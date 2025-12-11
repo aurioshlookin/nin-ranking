@@ -65,9 +65,10 @@
 
         // --- CONFIGURAÇÃO ---
         const CUSTOM_ICON_URL = './icon.png'; 
-        const PLAYERS_FILE = './players.json'; 
+        const PLAYERS_FILE = './players.json'; // Arquivo de metadados dos jogadores
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
         
+        // Cores e Estilos para Vilas e Maestrias
         const STYLE_MAP = {
             'Fogo': 'bg-red-500/20 text-red-400 border-red-500/30',
             'Água': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -650,7 +651,7 @@
 
             return (
                 <div 
-                    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50"
+                    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-[60]"
                     onClick={onClose} // Fecha ao clicar fora
                 >
                     <div 
@@ -1724,6 +1725,7 @@
                                         <p className="text-slate-400 text-sm">Estatísticas acumuladas por maestria.</p>
                                     </div>
                                     
+                                    {/* MUDANÇA: TOGGLE DE VISUALIZAÇÃO */}
                                     <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
                                         <button
                                             onClick={() => setMasteryViewMode('combined')}
@@ -1762,6 +1764,7 @@
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedMasteries.map((m, idx) => (
+                                                // MUDANÇA: onClick para filtrar o ranking
                                                 <tr 
                                                     key={m.name} 
                                                     className="hover:bg-slate-800/50 transition-colors cursor-pointer group"
