@@ -106,7 +106,20 @@
     "mastery_1": "Vento",
     "mastery_2": "Raio",
     "village": "Renegado Folha"
+  },
+  {
+    "name": "Hisuy",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Folha"
+  },
+  {
+    "name": "why so silent",
+    "mastery_1": "Água",
+    "mastery_2": "Vento",
+    "village": "Névoa"
   }
 ]
+
 
 
