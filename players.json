@@ -226,8 +226,33 @@
     "mastery_1": "Terra",
     "mastery_2": "Fogo",
     "village": "Folha"
+  },
+  {
+    "name": "MaCiel",
+    "mastery_1": "Água",
+    "mastery_2": "Fogo",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "tucson-",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "vilao",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "Urso",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Renegado Areia"
   }
 ]
+
 
 
 
