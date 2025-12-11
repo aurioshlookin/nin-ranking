@@ -364,49 +364,6 @@
             );
         };
 
-        // --- COMPONENTE: Heatmap ---
-        const PlayerActivityHeatmap = ({ matches }) => {
-            const heatmapData = useMemo(() => {
-                const hours = Array(24).fill(0);
-                matches.forEach(m => {
-                    if (m.timestamp) {
-                        const h = new Date(m.timestamp).getHours();
-                        hours[h]++;
-                    }
-                });
-                return hours;
-            }, [matches]);
-
-            const maxActivity = Math.max(...heatmapData, 1);
-
-            return (
-                <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800 mb-4">
-                    <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-blue-500"/> Atividade por Horário
-                    </h4>
-                    <div className="flex items-end gap-1 h-24">
-                        {heatmapData.map((count, i) => (
-                            <div key={i} className="flex-1 flex flex-col justify-end group relative">
-                                <div 
-                                    style={{ height: `${(count / maxActivity) * 100}%` }} 
-                                    className={`w-full min-h-[4px] rounded-sm transition-all ${count > 0 ? 'bg-blue-500/60 group-hover:bg-blue-400' : 'bg-slate-800'}`}
-                                ></div>
-                                {/* Tooltip simples */}
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-slate-800 text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 border border-slate-700">
-                                    {i}h: {count} jogos
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
-                        <span>00h</span>
-                        <span>12h</span>
-                        <span>23h</span>
-                    </div>
-                </div>
-            );
-        };
-
         const TournamentBracketModal = ({ tournament, onClose }) => {
             if (!tournament) return null;
 
@@ -721,6 +678,30 @@
                                 <li><strong>Versus:</strong> Compare o desempenho direto entre dois jogadores.</li>
                             </ul>
                         </div>
+                        
+                        <div className="h-px bg-slate-800 w-full"></div>
+
+                        <div className="space-y-2">
+                            <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Legenda de Ícones</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                <div className="flex items-center gap-2">
+                                    <Flame className="w-4 h-4 text-orange-500" /> <span>3+ Vitórias Seguidas</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Skull className="w-4 h-4 text-slate-500" /> <span>3+ Derrotas Seguidas</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Award className="w-4 h-4 text-purple-400" /> <span>Veterano (1000+ partidas)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Award className="w-4 h-4 text-blue-400" /> <span>Guerreiro (100+ partidas)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Trophy className="w-4 h-4 text-yellow-400" /> <span>Elite (WR >= 70%)</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="h-px bg-slate-800 w-full"></div>
                         <div className="space-y-2">
                             <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Sobre o Projeto</h3>
@@ -795,7 +776,6 @@
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 <div className="w-full lg:w-[45%] p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
                                     <PlayerPerformanceChart matches={playerMatches} />
-                                    <PlayerActivityHeatmap matches={playerMatches} />
 
                                     <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800">
                                         <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
