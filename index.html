@@ -841,7 +841,8 @@
 
                     try {
                         while (!foundEnd && page <= MAX_PAGES) {
-                            const url = `./servidor_page_${page}.json`;
+                            // Adicionado timestamp para evitar cache nos logs de batalha também
+                            const url = `./servidor_page_${page}.json?v=${Date.now()}`;
                             try {
                                 const response = await fetch(url);
                                 if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
@@ -862,7 +863,8 @@
                         setRawData(loadedData);
 
                         try {
-                            const playersResp = await fetch(PLAYERS_FILE);
+                            // Adicionado timestamp (?v=...) para forçar o navegador a baixar a versão mais recente e ignorar o cache
+                            const playersResp = await fetch(`${PLAYERS_FILE}?v=${Date.now()}`);
                             if (playersResp.ok) {
                                 const playersJson = await playersResp.json();
                                 const playersMap = {};
