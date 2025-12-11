@@ -47,6 +47,8 @@
         const XIcon = (props) => <IconBase {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
         const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
         const ChevronDown = (props) => <IconBase {...props}><path d="m6 9 6 6 6-6"/></IconBase>;
+        const ChevronLeft = (props) => <IconBase {...props}><path d="m15 18-6-6 6-6"/></IconBase>;
+        const ChevronRight = (props) => <IconBase {...props}><path d="m9 18 6-6-6-6"/></IconBase>;
         const ArrowRight = (props) => <IconBase {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></IconBase>;
         const Loader2 = (props) => <IconBase {...props}><path d="M21 12a9 9 0 1 1-6.219-8.56"/></IconBase>;
         const AlertCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
@@ -62,6 +64,9 @@
         const Layers = (props) => <IconBase {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></IconBase>;
         const AlertTriangle = (props) => <IconBase {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>;
         const Crosshair = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></IconBase>;
+        const Flame = (props) => <IconBase {...props}><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-2.246-3.646-2.5-5.243C6.56 5.27 7.873 5 9 5c3.224 0 5 3.166 5 7a2.5 2.5 0 0 0 2.5 2.5c2.31 0 3-2.486 3-5.23 0-2.454-2-6-5.23-6-2.677 0-4.8 1.55-5.932 3.65C7.456 8.527 6 10 5.5 13c-.155 1.745.5 4.5 3 4.5"/><path d="M12 10a2 2 0 0 0 2 2c1.8 0 2.2-1.2 2-2.5"/></IconBase>;
+        const Skull = (props) => <IconBase {...props}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></IconBase>;
+        const Award = (props) => <IconBase {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></IconBase>;
 
 
         // --- CONFIGURAÇÃO ---
@@ -102,16 +107,31 @@
             'Default': 'Estatísticas detalhadas para este modo de jogo específico.'
         };
 
+        // --- COMPONENTE Skeleton ---
+        const Skeleton = ({ className }) => <div className={`animate-pulse bg-slate-800 rounded ${className}`}></div>;
+
         // --- LÓGICA DO APLICATIVO ---
 
         const processBattleLogs = (data) => {
             const stats = {};
             const history = {};
-
+            const rivalry = {}; // Armazena { Player: { Opponent: { wins: 0, losses: 0 } } }
+            
             const initPlayer = (name) => {
                 if (!stats[name]) {
-                    stats[name] = { name, wins: 0, losses: 0, battles: 0, winRate: 0, modes: {} };
+                    stats[name] = { 
+                        name, 
+                        wins: 0, 
+                        losses: 0, 
+                        battles: 0, 
+                        winRate: 0, 
+                        modes: {},
+                        streak: 0, // > 0 win streak, < 0 loss streak
+                        maxStreak: 0,
+                        badges: []
+                    };
                     history[name] = [];
+                    rivalry[name] = {};
                 }
             };
 
@@ -124,9 +144,18 @@
                 else stats[playerName].modes[mode].losses += 1;
             };
 
-            if (!Array.isArray(data)) return { rankings: [], history: {} };
+            const updateRivalry = (player, opponent, result) => {
+                if (!rivalry[player][opponent]) rivalry[player][opponent] = { wins: 0, losses: 0 };
+                if (result === 'win') rivalry[player][opponent].wins += 1;
+                else rivalry[player][opponent].losses += 1;
+            }
 
-            data.forEach(log => {
+            if (!Array.isArray(data)) return { rankings: [], history: {} };
+            
+            // Ordenar por data para calcular Streak corretamente (Antigo -> Recente)
+            const sortedData = [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            sortedData.forEach(log => {
                 const content = log.content || "";
                 const match = content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
 
@@ -145,6 +174,12 @@
                         stats[winner].battles += 1;
                         updateModeStats(winner, mode, 'win');
                         history[winner].push({ opponent: losers.join(', '), result: 'win', timestamp: timestamp, mode: mode });
+                        
+                        // Streak Logic
+                        if (stats[winner].streak >= 0) stats[winner].streak += 1;
+                        else stats[winner].streak = 1;
+
+                        losers.forEach(loser => updateRivalry(winner, loser, 'win'));
                     });
 
                     losers.forEach(loser => {
@@ -153,14 +188,44 @@
                         stats[loser].battles += 1;
                         updateModeStats(loser, mode, 'loss');
                         history[loser].push({ opponent: winners.join(', '), result: 'loss', timestamp: timestamp, mode: mode });
+                        
+                        // Streak Logic
+                        if (stats[loser].streak <= 0) stats[loser].streak -= 1;
+                        else stats[loser].streak = -1;
+
+                        winners.forEach(winner => updateRivalry(loser, winner, 'loss'));
                     });
                 }
             });
 
-            const rankings = Object.values(stats).map(player => ({
-                ...player,
-                winRate: player.battles > 0 ? ((player.wins / player.battles) * 100).toFixed(1) : 0
-            })).sort((a, b) => b.wins - a.wins);
+            const rankings = Object.values(stats).map(player => {
+                // Calcular Nemesis e Vítima
+                let nemesis = { name: null, count: 0 };
+                let victim = { name: null, count: 0 };
+                
+                if (rivalry[player.name]) {
+                    Object.entries(rivalry[player.name]).forEach(([opp, s]) => {
+                        if (s.losses > nemesis.count) nemesis = { name: opp, count: s.losses };
+                        if (s.wins > victim.count) victim = { name: opp, count: s.wins };
+                    });
+                }
+
+                // Badges Logic
+                const badges = [];
+                if (player.battles >= 1000) badges.push({ id: 'veteran', icon: Award, label: 'Veterano', color: 'text-purple-400' });
+                else if (player.battles >= 100) badges.push({ id: 'warrior', icon: Award, label: 'Guerreiro', color: 'text-blue-400' });
+                
+                const wr = player.battles > 0 ? (player.wins / player.battles) * 100 : 0;
+                if (player.battles >= 20 && wr >= 70) badges.push({ id: 'elite', icon: Trophy, label: 'Elite', color: 'text-yellow-400' });
+
+                return {
+                    ...player,
+                    winRate: wr.toFixed(1),
+                    nemesis: nemesis.count > 0 ? nemesis : null,
+                    victim: victim.count > 0 ? victim : null,
+                    badges
+                };
+            }).sort((a, b) => b.wins - a.wins);
 
             return { rankings, history };
         };
@@ -294,6 +359,49 @@
                                 )
                             })}
                         </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // --- COMPONENTE: Heatmap ---
+        const PlayerActivityHeatmap = ({ matches }) => {
+            const heatmapData = useMemo(() => {
+                const hours = Array(24).fill(0);
+                matches.forEach(m => {
+                    if (m.timestamp) {
+                        const h = new Date(m.timestamp).getHours();
+                        hours[h]++;
+                    }
+                });
+                return hours;
+            }, [matches]);
+
+            const maxActivity = Math.max(...heatmapData, 1);
+
+            return (
+                <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800 mb-4">
+                    <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-blue-500"/> Atividade por Horário
+                    </h4>
+                    <div className="flex items-end gap-1 h-24">
+                        {heatmapData.map((count, i) => (
+                            <div key={i} className="flex-1 flex flex-col justify-end group relative">
+                                <div 
+                                    style={{ height: `${(count / maxActivity) * 100}%` }} 
+                                    className={`w-full min-h-[4px] rounded-sm transition-all ${count > 0 ? 'bg-blue-500/60 group-hover:bg-blue-400' : 'bg-slate-800'}`}
+                                ></div>
+                                {/* Tooltip simples */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block bg-slate-800 text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 border border-slate-700">
+                                    {i}h: {count} jogos
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
+                        <span>00h</span>
+                        <span>12h</span>
+                        <span>23h</span>
                     </div>
                 </div>
             );
@@ -687,11 +795,13 @@
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 <div className="w-full lg:w-[45%] p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
                                     <PlayerPerformanceChart matches={playerMatches} />
+                                    <PlayerActivityHeatmap matches={playerMatches} />
+
                                     <div className="bg-slate-950/30 p-4 rounded-xl border border-slate-800">
                                         <h4 className="text-slate-400 text-xs font-bold uppercase mb-3 flex items-center gap-2">
                                             <InfoIcon className="w-4 h-4 text-blue-500"/> Estatísticas Rápidas
                                         </h4>
-                                        <div className="space-y-2 text-sm">
+                                        <div className="space-y-3 text-sm">
                                             <div className="flex justify-between text-slate-300">
                                                 <span>Total Partidas</span>
                                                 <span className="font-bold">{playerMatches.length}</span>
@@ -700,12 +810,31 @@
                                                 <span>Taxa de Vitória</span>
                                                 <span className={parseFloat(player.winRate) >= 50 ? 'text-green-400 font-bold' : 'text-red-400 font-bold'}>{player.winRate}%</span>
                                             </div>
-                                            <div className="flex justify-between text-slate-300">
-                                                <span>Melhor Modo</span>
-                                                <span className="text-yellow-500 font-medium">
-                                                    {Object.entries(player.modes).sort((a,b) => b[1].wins - a[1].wins)[0]?.[0] || '-'}
-                                                </span>
-                                            </div>
+                                            <div className="h-px bg-slate-800 my-1"></div>
+                                            
+                                            {/* Nêmesis e Vítima */}
+                                            {player.nemesis && (
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-slate-400 flex items-center gap-1.5">
+                                                        <Skull className="w-3.5 h-3.5 text-red-500"/> Nêmesis
+                                                    </span>
+                                                    <div className="text-right">
+                                                        <span className="text-red-400 font-bold block leading-tight">{player.nemesis.name}</span>
+                                                        <span className="text-[10px] text-slate-600">{player.nemesis.count} derrotas</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {player.victim && (
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-slate-400 flex items-center gap-1.5">
+                                                        <Swords className="w-3.5 h-3.5 text-green-500"/> Vítima
+                                                    </span>
+                                                    <div className="text-right">
+                                                        <span className="text-green-400 font-bold block leading-tight">{player.victim.name}</span>
+                                                        <span className="text-[10px] text-slate-600">{player.victim.count} vitórias</span>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -721,7 +850,7 @@
                                         {Object.keys(matchesByDate).length > 0 ? (
                                             Object.entries(matchesByDate).map(([date, matches]) => (
                                                 <div key={date} className="mb-6 last:mb-0 relative">
-                                                    <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
+                                                    <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md sticky top-0 z-10">
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="w-4 h-4 text-yellow-500" />
                                                             <h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4>
@@ -783,7 +912,7 @@
 
         const App = () => {
             const [rawData, setRawData] = useState([]);
-            const [playersMetadata, setPlayersMetadata] = useState({}); // Novo estado para metadados
+            const [playersMetadata, setPlayersMetadata] = useState({});
             const [data, setData] = useState({ rankings: [], history: {} });
             const [isLoading, setIsLoading] = useState(true);
             const [error, setError] = useState(null);
@@ -793,13 +922,17 @@
             const [activeTab, setActiveTab] = useState('Geral');
             const [selectedPlayer, setSelectedPlayer] = useState(null);
             
+            // PAGINAÇÃO
+            const [currentPage, setCurrentPage] = useState(1);
+            const ITEMS_PER_PAGE = 50;
+
             const [timeFilter, setTimeFilter] = useState('current_month');
             const [availableMonths, setAvailableMonths] = useState([]);
             const [targetMonth, setTargetMonth] = useState('');
             const [dateRange, setDateRange] = useState({ start: null, end: null });
             
             const [showOtherModes, setShowOtherModes] = useState(false);
-            const [viewMode, setViewMode] = useState('ranking'); // 'ranking' | 'tournaments' | 'masteries' | 'villages' | 'versus'
+            const [viewMode, setViewMode] = useState('ranking'); 
             const [selectedTournament, setSelectedTournament] = useState(null);
             const [showInfoModal, setShowInfoModal] = useState(false);
             
@@ -828,7 +961,7 @@
                 return `${hours}:${roundedMinutes}`;
             };
 
-            // CARREGAMENTO DOS DADOS (LOGS E PLAYERS.JSON)
+            // CARREGAMENTO DOS DADOS (LOGS E PLAYERS.JSON) - Otimizado em Paralelo
             useEffect(() => {
                 const fetchData = async () => {
                     setIsLoading(true);
@@ -838,32 +971,11 @@
                     let page = 1;
                     let foundEnd = false;
                     const MAX_PAGES = 50; 
+                    const BATCH_SIZE = 5; // Baixa 5 arquivos por vez
 
                     try {
-                        while (!foundEnd && page <= MAX_PAGES) {
-                            // Adicionado timestamp para evitar cache nos logs de batalha também
-                            const url = `./servidor_page_${page}.json?v=${Date.now()}`;
-                            try {
-                                const response = await fetch(url);
-                                if (response.ok && response.headers.get('content-type')?.includes('application/json')) {
-                                    const json = await response.json();
-                                    if (Array.isArray(json)) {
-                                        loadedData.push(...json);
-                                        setLoadedFilesCount(prev => prev + 1);
-                                    }
-                                    page++;
-                                } else {
-                                    foundEnd = true;
-                                }
-                            } catch (err) {
-                                foundEnd = true;
-                            }
-                        }
-                        
-                        setRawData(loadedData);
-
+                        // 1. Carregar Players Metadata
                         try {
-                            // Adicionado timestamp (?v=...) para forçar o navegador a baixar a versão mais recente e ignorar o cache
                             const playersResp = await fetch(`${PLAYERS_FILE}?v=${Date.now()}`);
                             if (playersResp.ok) {
                                 const playersJson = await playersResp.json();
@@ -877,6 +989,48 @@
                             console.warn("Erro ao carregar players.json:", err);
                         }
 
+                        // 2. Carregar Logs em Paralelo
+                        while (!foundEnd && page <= MAX_PAGES) {
+                            const promises = [];
+                            
+                            // Cria lote de requisições
+                            for (let i = 0; i < BATCH_SIZE; i++) {
+                                const currentP = page + i;
+                                if (currentP > MAX_PAGES) break;
+                                
+                                const url = `./servidor_page_${currentP}.json?v=${Date.now()}`;
+                                promises.push(
+                                    fetch(url)
+                                    .then(res => {
+                                        if (res.ok && res.headers.get('content-type')?.includes('application/json')) {
+                                            return res.json();
+                                        }
+                                        return null;
+                                    })
+                                    .catch(() => null)
+                                );
+                            }
+
+                            const results = await Promise.all(promises);
+                            
+                            let batchSuccessCount = 0;
+                            results.forEach(json => {
+                                if (Array.isArray(json)) {
+                                    loadedData.push(...json);
+                                    batchSuccessCount++;
+                                } else {
+                                    foundEnd = true; // Se um falhar no meio do lote, assumimos que acabou
+                                }
+                            });
+
+                            if (batchSuccessCount === 0) foundEnd = true;
+                            setLoadedFilesCount(prev => prev + batchSuccessCount);
+                            
+                            page += BATCH_SIZE;
+                        }
+                        
+                        setRawData(loadedData);
+
                     } catch (err) {
                         console.error("Fetch error:", err);
                         setError(`Erro ao carregar dados: ${err.message}`);
@@ -887,6 +1041,22 @@
                 };
                 fetchData();
             }, []);
+
+            // Deep Linking Effect
+            useEffect(() => {
+                if (!isLoading && data.rankings.length > 0) {
+                    const params = new URLSearchParams(window.location.search);
+                    const playerParam = params.get('player');
+                    if (playerParam) {
+                        const found = data.rankings.find(p => p.name.toLowerCase() === playerParam.toLowerCase());
+                        if (found) {
+                            setSelectedPlayer(found);
+                            // Limpar URL sem recarregar para não ficar preso no player
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }
+                    }
+                }
+            }, [isLoading, data.rankings]);
 
             useEffect(() => {
                 if (rawData.length === 0) {
@@ -959,6 +1129,7 @@
                     meta: playersMetadata[r.name] || {}
                 }));
                 setData({ ...processed, rankings: enrichedRankings });
+                setCurrentPage(1); // Resetar página ao filtrar
             }, [filteredLogs, playersMetadata]);
 
             const modeGroups = useMemo(() => {
@@ -1171,6 +1342,15 @@
                 return players;
             }, [data.rankings, searchTerm, sortConfig, activeTab]);
 
+            // Paginação
+            const paginatedRankings = useMemo(() => {
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                return filteredRankings.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            }, [filteredRankings, currentPage]);
+
+            const totalPages = Math.ceil(filteredRankings.length / ITEMS_PER_PAGE);
+
+
             const groupedMasteries = useMemo(() => {
                 const stats = {};
                 
@@ -1306,10 +1486,23 @@
 
             if (isLoading) {
                 return (
-                    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400">
-                        <Loader2 className="w-12 h-12 animate-spin text-yellow-500 mb-4" />
-                        <p className="text-lg font-medium">Buscando dados do servidor...</p>
-                        <p className="text-sm mt-2 text-slate-600">Procurando arquivos servidor_page_X.json...</p>
+                    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8">
+                        <div className="w-full max-w-md space-y-4">
+                            <div className="flex justify-between items-end">
+                                <div className="space-y-2">
+                                    <Skeleton className="h-8 w-48" />
+                                    <Skeleton className="h-4 w-32" />
+                                </div>
+                                <Loader2 className="w-8 h-8 animate-spin text-yellow-500" />
+                            </div>
+                            <Skeleton className="h-32 w-full rounded-xl" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-12 w-full" />
+                                <Skeleton className="h-12 w-full" />
+                            </div>
+                            <div className="text-center text-xs text-slate-500 pt-4">Carregando dados em paralelo... {loadedFilesCount} arquivos</div>
+                        </div>
                     </div>
                 );
             }
@@ -1472,7 +1665,7 @@
                                     placeholder="Buscar jogador..." 
                                     className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-lg text-lg"
                                     value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                 />
                             </div>
                         </div>
@@ -1683,6 +1876,19 @@
 
                                 {versusMatches.length > 0 ? (
                                     <>
+                                        {/* Comparativo Visual */}
+                                        <div className="mb-8 space-y-4">
+                                            {/* Wins Bar */}
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-xs text-blue-400 font-bold w-12 text-right">{((versusStats.p1Wins/versusStats.total)*100).toFixed(0)}%</span>
+                                                <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden flex">
+                                                    <div style={{ width: `${(versusStats.p1Wins/versusStats.total)*100}%` }} className="h-full bg-blue-500"></div>
+                                                    <div style={{ width: `${(versusStats.p2Wins/versusStats.total)*100}%` }} className="h-full bg-red-500"></div>
+                                                </div>
+                                                <span className="text-xs text-red-400 font-bold w-12">{((versusStats.p2Wins/versusStats.total)*100).toFixed(0)}%</span>
+                                            </div>
+                                        </div>
+
                                         {/* Placar */}
                                         <div className="flex justify-center items-center gap-8 mb-8">
                                             <div className="text-center">
@@ -1699,8 +1905,6 @@
                                         {/* Lista de Partidas */}
                                         <div className="space-y-3">
                                             {versusMatches.map((match, idx) => {
-                                                const p1Won = match.content.includes(`${versusPlayer1} derrotou`) || (match.content.includes(versusPlayer1) && !match.content.includes(`${versusPlayer2} derrotou`)); // Simplificação, idealmente parsear winners
-                                                // Melhor parsing:
                                                 const m = match.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
                                                 const winners = m ? m[2].split(',').map(n => n.trim()) : [];
                                                 const isP1Winner = winners.includes(versusPlayer1);
@@ -1762,24 +1966,37 @@
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-800">
-                                                {filteredRankings.map((player, index) => {
+                                                {paginatedRankings.map((player, index) => {
                                                     let rankColor = "text-slate-500";
                                                     let rankIcon = null;
-                                                    const rank = index + 1;
+                                                    // Ajuste do Rank para considerar a página
+                                                    const realRank = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
 
-                                                    if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
-                                                    if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
-                                                    if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
 
                                                     // Verificar se há dados
                                                     const hasData = player.meta && (player.meta.village || player.meta.mastery_1);
 
                                                     return (
                                                         <tr key={player.name} onClick={() => setSelectedPlayer(player)} className="hover:bg-slate-800/50 cursor-pointer transition-colors group">
-                                                            <td className={`p-5 text-center font-bold ${rankColor} text-lg`}>{rankIcon || `#${rank}`}</td>
+                                                            <td className={`p-5 text-center font-bold ${rankColor} text-lg`}>{rankIcon || `#${realRank}`}</td>
                                                             <td className="p-5">
                                                                 <div className="flex flex-col">
-                                                                    <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">{player.name}</span>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">{player.name}</span>
+                                                                        
+                                                                        {/* Streak Icons */}
+                                                                        {player.streak >= 3 && <span title={`${player.streak} vitórias seguidas`}><Flame className="w-4 h-4 text-orange-500 animate-pulse" /></span>}
+                                                                        {player.streak <= -3 && <span title={`${Math.abs(player.streak)} derrotas seguidas`}><Skull className="w-4 h-4 text-slate-500" /></span>}
+                                                                        
+                                                                        {/* Badges */}
+                                                                        {player.badges.map(b => (
+                                                                            <b.icon key={b.id} className={`w-3.5 h-3.5 ${b.color}`} title={b.label} />
+                                                                        ))}
+                                                                    </div>
+
                                                                     {hasData ? (
                                                                         <div className="flex flex-wrap gap-1 mt-1">
                                                                             {player.meta.village && (
@@ -1831,10 +2048,35 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    
+                                    {/* CONTROLES DE PAGINAÇÃO */}
+                                    {totalPages > 1 && (
+                                        <div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900">
+                                            <button 
+                                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                                disabled={currentPage === 1}
+                                                className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"
+                                            >
+                                                <ChevronLeft className="w-5 h-5" />
+                                            </button>
+                                            <span className="text-sm text-slate-400 font-medium">
+                                                Página <span className="text-white font-bold">{currentPage}</span> de {totalPages}
+                                            </span>
+                                            <button 
+                                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                                disabled={currentPage === totalPages}
+                                                className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"
+                                            >
+                                                <ChevronRight className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </>
                         )}
-
+                        
+                        {/* (Manter outros views: tournaments, masteries, villages inalterados exceto a parte lógica que já foi atualizada nos useMemos) */}
+                        {/* Código das outras views (Tournaments, Masteries, Villages) permanece o mesmo pois usam useMemos que se atualizam automaticamente com os novos dados */}
                         {viewMode === 'tournaments' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="overflow-x-auto">
@@ -1901,11 +2143,8 @@
                             </div>
                         )}
 
-                        {/* RANKING DE MAESTRIAS */}
                         {viewMode === 'masteries' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                
-                                {/* ADICIONADO: Disclaimer sobre dados manuais */}
                                 <div className="bg-slate-900/50 border-b border-yellow-500/20 px-6 py-3 flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
                                     <p className="text-xs text-slate-400 leading-relaxed">
@@ -1915,35 +2154,14 @@
                                         Caso encontre erros, avise no Discord. A lista será atualizada com o tempo.
                                     </p>
                                 </div>
-
                                 <div className="p-6 border-b border-slate-800 flex justify-between items-center">
                                     <div>
                                         <h3 className="text-xl font-bold text-white">Ranking de Maestrias</h3>
                                         <p className="text-slate-400 text-sm">Estatísticas acumuladas por maestria.</p>
                                     </div>
-                                    
-                                    {/* MUDANÇA: TOGGLE DE VISUALIZAÇÃO */}
                                     <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-                                        <button
-                                            onClick={() => setMasteryViewMode('combined')}
-                                            className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
-                                                masteryViewMode === 'combined' 
-                                                    ? 'bg-blue-600 text-white shadow-sm' 
-                                                    : 'text-slate-400 hover:text-white'
-                                            }`}
-                                        >
-                                            Combinadas
-                                        </button>
-                                        <button
-                                            onClick={() => setMasteryViewMode('individual')}
-                                            className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${
-                                                masteryViewMode === 'individual' 
-                                                    ? 'bg-blue-600 text-white shadow-sm' 
-                                                    : 'text-slate-400 hover:text-white'
-                                            }`}
-                                        >
-                                            Individuais
-                                        </button>
+                                        <button onClick={() => setMasteryViewMode('combined')} className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${masteryViewMode === 'combined' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Combinadas</button>
+                                        <button onClick={() => setMasteryViewMode('individual')} className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${masteryViewMode === 'individual' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>Individuais</button>
                                     </div>
                                 </div>
                                 <div className="overflow-x-auto">
@@ -1961,20 +2179,12 @@
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedMasteries.map((m, idx) => (
-                                                // MUDANÇA: onClick para filtrar o ranking
-                                                <tr 
-                                                    key={m.name} 
-                                                    className="hover:bg-slate-800/50 transition-colors cursor-pointer group"
-                                                    onClick={() => handleMasteryClick(m.name)}
-                                                    title="Clique para ver os jogadores com esta maestria"
-                                                >
+                                                <tr key={m.name} className="hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => handleMasteryClick(m.name)} title="Clique para ver os jogadores com esta maestria">
                                                     <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
                                                     <td className="p-5">
                                                         <div className="flex flex-wrap gap-2">
                                                             {m.parts.map((part, i) => (
-                                                                <span key={i} className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide group-hover:brightness-110 ${STYLE_MAP[part] || 'text-slate-200 border-slate-700'}`}>
-                                                                    {part}
-                                                                </span>
+                                                                <span key={i} className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide group-hover:brightness-110 ${STYLE_MAP[part] || 'text-slate-200 border-slate-700'}`}>{part}</span>
                                                             ))}
                                                         </div>
                                                     </td>
@@ -1983,38 +2193,23 @@
                                                     <td className="p-5 text-center text-red-500 font-bold">{m.losses}</td>
                                                     <td className="p-5 text-center text-blue-400 font-bold">{m.battles}</td>
                                                     <td className="p-5 text-center">
-                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                                        parseFloat(m.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
-                                                        parseFloat(m.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
-                                                        'bg-red-500/20 text-red-400'
-                                                    }`}>{m.winRate}%</span>
+                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${parseFloat(m.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : parseFloat(m.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>{m.winRate}%</span>
                                                     </td>
                                                 </tr>
                                             ))}
-                                            {groupedMasteries.length === 0 && (
-                                                <tr><td colSpan="7" className="p-8 text-center text-slate-500">Nenhum dado de maestria encontrado.</td></tr>
-                                            )}
+                                            {groupedMasteries.length === 0 && (<tr><td colSpan="7" className="p-8 text-center text-slate-500">Nenhum dado de maestria encontrado.</td></tr>)}
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         )}
 
-                        {/* RANKING DE VILAS */}
                         {viewMode === 'villages' && (
                             <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                
-                                {/* ADICIONADO: Disclaimer sobre dados manuais */}
                                 <div className="bg-slate-900/50 border-b border-yellow-500/20 px-6 py-3 flex items-start gap-3">
                                     <AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                                    <p className="text-xs text-slate-400 leading-relaxed">
-                                        <strong className="text-yellow-500 block mb-1">Atenção: Dados Manuais</strong>
-                                        Os dados desta seção são atualizados manualmente consultando o Bingo Book. 
-                                        Podem ocorrer desatualizações devido a resets de conta ou mudanças de vila. 
-                                        Caso encontre erros, avise no Discord. A lista será atualizada com o tempo.
-                                    </p>
+                                    <p className="text-xs text-slate-400 leading-relaxed"><strong className="text-yellow-500 block mb-1">Atenção: Dados Manuais</strong>Os dados desta seção são atualizados manualmente consultando o Bingo Book. Podem ocorrer desatualizações devido a resets de conta ou mudanças de vila. Caso encontre erros, avise no Discord. A lista será atualizada com o tempo.</p>
                                 </div>
-
                                 <div className="p-6 border-b border-slate-800">
                                     <h3 className="text-xl font-bold text-white">Ranking de Vilas</h3>
                                     <p className="text-slate-400 text-sm">Estatísticas acumuladas por vila.</p>
@@ -2034,32 +2229,17 @@
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedVillages.map((v, idx) => (
-                                                <tr 
-                                                    key={v.name} 
-                                                    className="hover:bg-slate-800/50 transition-colors cursor-pointer group"
-                                                    onClick={() => handleVillageClick(v.name)}
-                                                    title="Clique para ver os jogadores desta vila"
-                                                >
+                                                <tr key={v.name} className="hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => handleVillageClick(v.name)} title="Clique para ver os jogadores desta vila">
                                                     <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
-                                                    <td className="p-5 font-bold text-lg">
-                                                        <span className={STYLE_MAP[v.name] || 'text-white'}>{v.name}</span>
-                                                    </td>
+                                                    <td className="p-5 font-bold text-lg"><span className={STYLE_MAP[v.name] || 'text-white'}>{v.name}</span></td>
                                                     <td className="p-5 text-center text-slate-300 font-bold">{v.players}</td>
                                                     <td className="p-5 text-center text-yellow-500 font-bold">{v.wins}</td>
                                                     <td className="p-5 text-center text-red-500 font-bold">{v.losses}</td>
                                                     <td className="p-5 text-center text-blue-400 font-bold">{v.battles}</td>
-                                                    <td className="p-5 text-center">
-                                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                                        parseFloat(v.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : 
-                                                        parseFloat(v.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 
-                                                        'bg-red-500/20 text-red-400'
-                                                    }`}>{v.winRate}%</span>
-                                                    </td>
+                                                    <td className="p-5 text-center"><span className={`text-xs font-bold px-2 py-1 rounded-full ${parseFloat(v.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : parseFloat(v.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>{v.winRate}%</span></td>
                                                 </tr>
                                             ))}
-                                            {groupedVillages.length === 0 && (
-                                                <tr><td colSpan="7" className="p-8 text-center text-slate-500">Nenhum dado de vila encontrado.</td></tr>
-                                            )}
+                                            {groupedVillages.length === 0 && (<tr><td colSpan="7" className="p-8 text-center text-slate-500">Nenhum dado de vila encontrado.</td></tr>)}
                                         </tbody>
                                     </table>
                                 </div>
