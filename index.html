@@ -219,11 +219,8 @@
                     });
                 }
 
-                // Badges Logic
+                // Badges Logic (APENAS ELITE AQUI - VETERANO/MESTRE MOVIDO PARA O GLOBAL)
                 const badges = [];
-                // Ícone Shuriken Dourada para Ninja Mestre
-                if (player.battles >= 1000) badges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
-                else if (player.battles >= 100) badges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
                 
                 const wr = player.battles > 0 ? (player.wins / player.battles) * 100 : 0;
                 // ÍCONE ALTERADO PARA STAR
@@ -1002,6 +999,31 @@
             
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
+            // --- ESTATÍSTICAS GLOBAIS (INDEPENDENTE DE TEMPO) ---
+            const globalPlayerStats = useMemo(() => {
+                const stats = {};
+                if (!rawData || rawData.length === 0) return stats;
+
+                rawData.forEach(log => {
+                    const content = log.content || "";
+                    const match = content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+                    if (match) {
+                        const mode = match[1];
+                        const winners = match[2].split(',').map(n => n.trim()).filter(n => n);
+                        const losers = match[3].split(',').map(n => n.trim()).filter(n => n);
+                        const participants = [...winners, ...losers];
+                        
+                        participants.forEach(p => {
+                            if (!stats[p]) stats[p] = { total: 0, modes: {} };
+                            stats[p].total += 1;
+                            if (!stats[p].modes[mode]) stats[p].modes[mode] = 0;
+                            stats[p].modes[mode] += 1;
+                        });
+                    }
+                });
+                return stats;
+            }, [rawData]);
+
             useEffect(() => {
                 const favicon = document.getElementById('dynamic-favicon');
                 if (favicon && CUSTOM_ICON_URL) {
@@ -1324,7 +1346,9 @@
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
 
+                // 1. FILTRAGEM POR MODO (Lógica existente)
                 if (activeTab === 'Geral') {
+                    // Mantém como está (já processado em processBattleLogs com filtro de tempo)
                 } else if (activeTab === 'Ranked') {
                     players = players.map(p => {
                         let wins = 0, losses = 0, battles = 0;
@@ -1363,6 +1387,33 @@
                     }).filter(p => p !== null);
                 }
 
+                // 2. INJEÇÃO DE BADGES GLOBAIS (Veterano/Mestre) e FILTRO DE BUSCA
+                players = players.map(p => {
+                    const gStats = globalPlayerStats[p.name];
+                    let globalBattles = 0;
+
+                    if (gStats) {
+                        if (activeTab === 'Geral') {
+                            globalBattles = gStats.total;
+                        } else if (activeTab === 'Ranked') {
+                            globalBattles = (gStats.modes['Auto1v1'] || 0) + (gStats.modes['Auto2v2'] || 0) + (gStats.modes['Auto3v3'] || 0);
+                        } else {
+                            globalBattles = gStats.modes[activeTab] || 0;
+                        }
+                    }
+
+                    // Preserva badges existentes (Elite) e adiciona as novas baseadas no global
+                    const newBadges = [...(p.badges || [])];
+                    
+                    if (globalBattles >= 1000) {
+                        newBadges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
+                    } else if (globalBattles >= 100) {
+                        newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
+                    }
+
+                    return { ...p, badges: newBadges };
+                });
+
                 if (searchTerm) {
                     players = players.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
                 }
@@ -1394,7 +1445,7 @@
                 });
 
                 return players;
-            }, [data.rankings, searchTerm, sortConfig, activeTab]);
+            }, [data.rankings, searchTerm, sortConfig, activeTab, globalPlayerStats]);
 
             // Paginação
             const paginatedRankings = useMemo(() => {
