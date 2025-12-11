@@ -32,6 +32,20 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef, useLayoutEffect } = React;
 
+        // --- HOOK PERSONALIZADO: BLOQUEAR SCROLL DO BODY ---
+        const useLockBodyScroll = () => {
+            useLayoutEffect(() => {
+                // Salva o estilo original
+                const originalStyle = window.getComputedStyle(document.body).overflow;
+                // Bloqueia o scroll
+                document.body.style.overflow = 'hidden';
+                // Restaura ao desmontar
+                return () => {
+                    document.body.style.overflow = originalStyle;
+                };
+            }, []);
+        };
+
         // --- ÍCONES SVG INTEGRADOS ---
         const IconBase = ({ children, className, ...props }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
@@ -373,6 +387,7 @@
         };
 
         const TournamentBracketModal = ({ tournament, onClose, onPlayerClick }) => {
+            useLockBodyScroll(); // Bloqueia scroll
             if (!tournament) return null;
 
             // Organizar partidas em "Rounds" (Chaves)
@@ -478,6 +493,7 @@
 
         // --- COMPONENTE: MasteryDetailsModal (Atualizado com colunas extras) ---
         const MasteryDetailsModal = ({ mastery, players, onClose, onPlayerClick }) => {
+            useLockBodyScroll(); // Bloqueia scroll
             return (
                 <div 
                     className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200"
@@ -582,6 +598,7 @@
 
         // --- NOVO COMPONENTE: VillageDetailsModal ---
         const VillageDetailsModal = ({ village, players, onClose, onPlayerClick }) => {
+            useLockBodyScroll(); // Bloqueia scroll
             return (
                 <div 
                     className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200"
@@ -684,71 +701,75 @@
             );
         };
 
-        const InfoModal = ({ onClose }) => (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
-                <div className="bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-                    <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                            <HelpCircle className="w-5 h-5 text-blue-400" />
-                            Como usar o site
-                        </h2>
-                        <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
-                            <XIcon className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="p-6 text-slate-300 text-sm leading-relaxed space-y-4">
-                        <div className="space-y-2">
-                            <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Funcionalidades</h3>
-                            <ul className="list-disc pl-5 space-y-1 marker:text-slate-600">
-                                <li><strong>Ranking:</strong> Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.</li>
-                                <li><strong>Torneios:</strong> Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.</li>
-                                <li><strong>Filtros:</strong> Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.</li>
-                                <li><strong>Versus:</strong> Compare o desempenho direto entre dois jogadores.</li>
-                            </ul>
+        const InfoModal = ({ onClose }) => {
+            useLockBodyScroll(); // Bloqueia scroll
+            return (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
+                    <div className="bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <HelpCircle className="w-5 h-5 text-blue-400" />
+                                Como usar o site
+                            </h2>
+                            <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
+                                <XIcon className="w-5 h-5" />
+                            </button>
                         </div>
-                        
-                        <div className="h-px bg-slate-800 w-full"></div>
+                        <div className="p-6 text-slate-300 text-sm leading-relaxed space-y-4">
+                            <div className="space-y-2">
+                                <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Funcionalidades</h3>
+                                <ul className="list-disc pl-5 space-y-1 marker:text-slate-600">
+                                    <li><strong>Ranking:</strong> Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.</li>
+                                    <li><strong>Torneios:</strong> Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.</li>
+                                    <li><strong>Filtros:</strong> Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.</li>
+                                    <li><strong>Versus:</strong> Compare o desempenho direto entre dois jogadores.</li>
+                                </ul>
+                            </div>
+                            
+                            <div className="h-px bg-slate-800 w-full"></div>
 
-                        <div className="space-y-2">
-                            <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Legenda de Ícones</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                <div className="flex items-center gap-2">
-                                    <Flame className="w-4 h-4 text-orange-500" /> <span>3+ Vitórias Seguidas</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Skull className="w-4 h-4 text-slate-500" /> <span>3+ Derrotas Seguidas</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <ShurikenIcon className="w-4 h-4 text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.8)]" /> <span>Ninja Mestre (1000+ partidas)</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <ShurikenIcon className="w-4 h-4 text-blue-400" /> <span>Ninja Veterano (100+ partidas)</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Star className="w-4 h-4 text-yellow-400" /> <span>Elite (WR >= 70%)</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Skull className="w-4 h-4 text-red-500" /> <span>Nêmesis (Quem mais te venceu)</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Swords className="w-4 h-4 text-green-500" /> <span>Vítima (Quem você mais venceu)</span>
+                            <div className="space-y-2">
+                                <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Legenda de Ícones</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <div className="flex items-center gap-2">
+                                        <Flame className="w-4 h-4 text-orange-500" /> <span>3+ Vitórias Seguidas</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Skull className="w-4 h-4 text-slate-500" /> <span>3+ Derrotas Seguidas</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <ShurikenIcon className="w-4 h-4 text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.8)]" /> <span>Ninja Mestre (1000+ partidas)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <ShurikenIcon className="w-4 h-4 text-blue-400" /> <span>Ninja Veterano (100+ partidas)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Star className="w-4 h-4 text-yellow-400" /> <span>Elite (WR >= 70%)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Skull className="w-4 h-4 text-red-500" /> <span>Nêmesis (Quem mais te venceu)</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Swords className="w-4 h-4 text-green-500" /> <span>Vítima (Quem você mais venceu)</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="h-px bg-slate-800 w-full"></div>
-                        <div className="space-y-2">
-                            <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Sobre o Projeto</h3>
-                            <p>Este painel foi desenvolvido por <strong className="text-white">Auriosh</strong>.</p>
-                            <p className="text-xs text-slate-500">É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.</p>
-                            <p className="text-xs text-slate-500">A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial <span className="text-blue-400 bg-blue-900/30 px-1 rounded">Servidor</span> do Discord.</p>
+                            <div className="h-px bg-slate-800 w-full"></div>
+                            <div className="space-y-2">
+                                <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Sobre o Projeto</h3>
+                                <p>Este painel foi desenvolvido por <strong className="text-white">Auriosh</strong>.</p>
+                                <p className="text-xs text-slate-500">É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.</p>
+                                <p className="text-xs text-slate-500">A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial <span className="text-blue-400 bg-blue-900/30 px-1 rounded">Servidor</span> do Discord.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        );
+            );
+        };
 
-        const PlayerModal = ({ player, history, onClose, activeTab }) => {
+        const PlayerModal = ({ player, history, onClose, activeTab, onNavigateToPlayer }) => {
+            useLockBodyScroll(); // Bloqueia scroll
             if (!player) return null;
 
             const allMatches = history[player.name] || [];
@@ -831,6 +852,28 @@
                                         {player.winRate}% WR
                                     </span>
 
+                                    {/* EXIBIÇÃO DE VILA E MAESTRIA NO CABEÇALHO - AGORA SEMPRE MOSTRA, MESMO SE META ESTIVER VAZIO, PARA MANTER LAYOUT SE NECESSÁRIO, MAS AQUI SÓ SE TIVER DADOS */}
+                                    {player.meta && (player.meta.village || player.meta.mastery_1) && (
+                                        <div className="flex items-center gap-2 px-2 border-l border-r border-slate-700">
+                                             {player.meta.village && (
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/50 uppercase tracking-wide ${STYLE_MAP[player.meta.village] || 'text-slate-400'}`}>
+                                                    {player.meta.village}
+                                                </span>
+                                            )}
+                                            {player.meta.mastery_1 && (
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_1] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                    {player.meta.mastery_1}
+                                                </span>
+                                            )}
+                                            {player.meta.mastery_2 && (
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wide ${STYLE_MAP[player.meta.mastery_2] || 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+                                                    {player.meta.mastery_2}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+
                                     {/* INDICADORES DE STREAK NO CABEÇALHO */}
                                     {/* Safety Check: player.streak default to 0 if undefined */}
                                     {(player.streak || 0) >= 3 && (
@@ -848,7 +891,7 @@
 
                                     {/* LEGENDA DE CONQUISTAS (MOVIDA PARA LADO DO WR) */}
                                     {player.badges && player.badges.length > 0 && (
-                                        <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
+                                        <div className="flex items-center gap-2 pl-2">
                                             {player.badges.map((badge, idx) => {
                                                 if (!badge || !badge.icon) return null; // SAFETY CHECK
                                                 const BadgeIcon = badge.icon;
@@ -895,7 +938,13 @@
                                                         <Skull className="w-3.5 h-3.5 text-red-500"/> Nêmesis
                                                     </span>
                                                     <div className="text-right overflow-hidden">
-                                                        <span className="text-red-400 font-bold block leading-tight truncate" title={localNemesis.name}>{localNemesis.name}</span>
+                                                        <span 
+                                                            className="text-red-400 font-bold block leading-tight truncate hover:underline cursor-pointer" 
+                                                            title={localNemesis.name}
+                                                            onClick={() => onNavigateToPlayer(localNemesis.name)}
+                                                        >
+                                                            {localNemesis.name}
+                                                        </span>
                                                         <span className="text-[10px] text-slate-600 whitespace-nowrap">{localNemesis.count} derrotas</span>
                                                     </div>
                                                 </div>
@@ -906,7 +955,13 @@
                                                         <Swords className="w-3.5 h-3.5 text-green-500"/> Vítima
                                                     </span>
                                                     <div className="text-right overflow-hidden">
-                                                        <span className="text-green-400 font-bold block leading-tight truncate" title={localVictim.name}>{localVictim.name}</span>
+                                                        <span 
+                                                            className="text-green-400 font-bold block leading-tight truncate hover:underline cursor-pointer" 
+                                                            title={localVictim.name}
+                                                            onClick={() => onNavigateToPlayer(localVictim.name)}
+                                                        >
+                                                            {localVictim.name}
+                                                        </span>
                                                         <span className="text-[10px] text-slate-600 whitespace-nowrap">{localVictim.count} vitórias</span>
                                                     </div>
                                                 </div>
@@ -949,12 +1004,26 @@
                                                                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">
                                                                         {match.mode}
                                                                     </span>
-                                                                    <div className="flex items-center gap-2 text-slate-200 text-sm font-medium">
+                                                                    <div className="flex items-center gap-2 text-slate-200 text-sm font-medium flex-wrap">
                                                                         <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>
                                                                             {match.result === 'win' ? 'V' : 'D'}
                                                                         </span>
                                                                         <span className="text-slate-600">vs</span>
-                                                                        <span>{match.opponent}</span>
+                                                                        {/* NOVO: Link clicável para adversários */}
+                                                                        {match.opponent.split(',').map((oppName, i, arr) => (
+                                                                            <React.Fragment key={i}>
+                                                                                <span 
+                                                                                    className="hover:text-yellow-400 hover:underline cursor-pointer transition-colors"
+                                                                                    onClick={(e) => {
+                                                                                        e.stopPropagation();
+                                                                                        onNavigateToPlayer(oppName.trim());
+                                                                                    }}
+                                                                                >
+                                                                                    {oppName.trim()}
+                                                                                </span>
+                                                                                {i < arr.length - 1 && <span className="text-slate-600 mr-1">,</span>}
+                                                                            </React.Fragment>
+                                                                        ))}
                                                                     </div>
                                                                 </div>
                                                                 
@@ -1349,7 +1418,7 @@
                                 name: mode,
                                 date: new Date(log.timestamp).toLocaleDateString('pt-BR'), 
                                 timestamp: logTime, 
-                                lastMatchTimestamp: logTime,
+                                lastMatchTimestamp: logTime, 
                                 matches: [matchData]
                             });
                         }
@@ -1371,9 +1440,9 @@
             const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
 
-                // 1. FILTRAGEM POR MODO (Lógica existente)
+                // 1. FILTRAGEM POR MODO
                 if (activeTab === 'Geral') {
-                    // Mantém como está (já processado em processBattleLogs com filtro de tempo)
+                    // Mantém como está
                 } else if (activeTab === 'Ranked') {
                     players = players.map(p => {
                         let wins = 0, losses = 0, battles = 0;
@@ -1412,7 +1481,7 @@
                     }).filter(p => p !== null);
                 }
 
-                // 2. INJEÇÃO DE BADGES GLOBAIS (Veterano/Mestre) e FILTRO DE BUSCA
+                // 2. INJEÇÃO DE BADGES GLOBAIS
                 players = players.map(p => {
                     const gStats = globalPlayerStats[p.name];
                     let globalBattles = 0;
@@ -1427,7 +1496,7 @@
                         }
                     }
 
-                    // Preserva badges existentes (Elite) e adiciona as novas baseadas no global
+                    // Preserva badges existentes (Elite)
                     const newBadges = [...(p.badges || [])];
                     
                     if (globalBattles >= 1000) {
@@ -1444,6 +1513,28 @@
                 }
 
                 players.sort((a, b) => {
+                    // LÓGICA ATUALIZADA PARA ORDENAÇÃO POR DERROTAS
+                    if (sortConfig.key === 'losses') {
+                        if (a.losses !== b.losses) {
+                            return sortConfig.direction === 'asc' ? a.losses - b.losses : b.losses - a.losses;
+                        }
+                        
+                        // EMPATE EM DERROTAS: Usar Win Rate como critério de desempate
+                        const wrA = parseFloat(a.winRate);
+                        const wrB = parseFloat(b.winRate);
+                        
+                        // Se a ordenação é DESCENDENTE (Quem perdeu mais primeiro),
+                        // queremos que quem tem MENOR Win Rate apareça ANTES (é "pior").
+                        // wrA - wrB => Se A for menor, resultado negativo, A vem antes. (Ascendente WR)
+                        if (sortConfig.direction === 'desc') {
+                            return wrA - wrB; 
+                        } else {
+                            // Se Ascendente (Quem perdeu menos), queremos o Maior WR primeiro? 
+                            // Normalmente inverte-se tudo.
+                            return wrB - wrA;
+                        }
+                    }
+
                     if (sortConfig.key === 'wins') {
                         if (a.wins !== b.wins) {
                             return sortConfig.direction === 'asc' ? a.wins - b.wins : b.wins - a.wins;
@@ -1717,6 +1808,7 @@
                             history={data.history} 
                             activeTab={activeTab}
                             onClose={() => setSelectedPlayer(null)} 
+                            onNavigateToPlayer={handlePlayerClick} // PASSANDO A FUNÇÃO DE NAVEGAÇÃO
                         />
                     )}
                     
