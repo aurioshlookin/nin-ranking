@@ -660,8 +660,10 @@
             );
         };
 
-        const PlayerModal = ({ player, history, onClose, activeTab, onNavigateToPlayer }) => {
+        const PlayerModal = ({ player, history, tournaments, activeTab, onClose, onNavigateToPlayer, onOpenTournament }) => {
             useLockBodyScroll(); // Bloqueia scroll
+            const [historyView, setHistoryView] = useState('matches'); // 'matches' or 'tournaments'
+
             if (!player) return null;
 
             const allMatches = history[player.name] || [];
@@ -704,6 +706,20 @@
                 groups[date].push(match);
                 return groups;
             }, {});
+
+            // Filter tournaments for this player
+            const playerTournaments = useMemo(() => {
+                if (!tournaments) return [];
+                return tournaments.filter(t => 
+                    t.matches.some(m => m.winners.includes(player.name) || m.losers.includes(player.name))
+                ).map(t => {
+                    // Determine placement/result
+                    const sortedMatches = [...t.matches].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    const lastMatch = sortedMatches[sortedMatches.length - 1];
+                    const isWinner = lastMatch && lastMatch.winners.includes(player.name);
+                    return { ...t, isWinner };
+                });
+            }, [tournaments, player.name]);
 
             return (
                 <div 
@@ -758,36 +774,87 @@
                                     </div>
                                 </div>
                                 <div className="w-full lg:w-[55%] flex flex-col h-full bg-slate-950/20">
-                                    <div className="p-4 lg:p-6 pb-2 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm z-20 flex-shrink-0">
-                                        <h3 className="text-lg font-bold text-white flex items-center gap-2"><Clock className="w-5 h-5 text-slate-500"/> Histórico de Batalhas</h3>
+                                    <div className="p-4 lg:p-6 pb-2 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm z-20 flex-shrink-0 flex justify-between items-center">
+                                        <h3 className="text-lg font-bold text-white flex items-center gap-2"><Clock className="w-5 h-5 text-slate-500"/> Histórico</h3>
+                                        <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
+                                            <button 
+                                                onClick={() => setHistoryView('matches')} 
+                                                className={`px-3 py-1 text-xs font-bold rounded transition-colors ${historyView === 'matches' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                                            >
+                                                Partidas
+                                            </button>
+                                            <button 
+                                                onClick={() => setHistoryView('tournaments')} 
+                                                className={`px-3 py-1 text-xs font-bold rounded transition-colors ${historyView === 'tournaments' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                                            >
+                                                Torneios
+                                            </button>
+                                        </div>
                                     </div>
                                     <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-0 scrollbar-thin relative">
-                                        {Object.keys(matchesByDate).length > 0 ? (
-                                            Object.entries(matchesByDate).map(([date, matches]) => (
-                                                <div key={date} className="mb-6 last:mb-0">
-                                                    <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
-                                                        <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-yellow-500" /><h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4><span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full border border-slate-700">{matches.length} partidas</span></div>
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        {matches.map((match, idx) => (
-                                                            <div key={idx} className={`p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${match.result === 'win' ? 'bg-green-900/5 border-green-500/10 hover:bg-green-900/10' : 'bg-red-900/5 border-red-500/10 hover:bg-red-900/10'}`}>
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">{match.mode}</span>
-                                                                    <div className="flex items-center gap-2 text-slate-200 text-sm font-medium flex-wrap">
-                                                                        <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>{match.result === 'win' ? 'V' : 'D'}</span>
-                                                                        <span className="text-slate-600">vs</span>
-                                                                        {match.opponent.split(',').map((oppName, i, arr) => (
-                                                                            <React.Fragment key={i}><span className="hover:text-yellow-400 hover:underline cursor-pointer transition-colors" onClick={(e) => { e.stopPropagation(); onNavigateToPlayer(oppName.trim()); }}>{oppName.trim()}</span>{i < arr.length - 1 && <span className="text-slate-600 mr-1">,</span>}</React.Fragment>
-                                                                        ))}
+                                        {historyView === 'matches' ? (
+                                            Object.keys(matchesByDate).length > 0 ? (
+                                                Object.entries(matchesByDate).map(([date, matches]) => (
+                                                    <div key={date} className="mb-6 last:mb-0">
+                                                        <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
+                                                            <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-yellow-500" /><h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4><span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full border border-slate-700">{matches.length} partidas</span></div>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            {matches.map((match, idx) => (
+                                                                <div key={idx} className={`p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${match.result === 'win' ? 'bg-green-900/5 border-green-500/10 hover:bg-green-900/10' : 'bg-red-900/5 border-red-500/10 hover:bg-red-900/10'}`}>
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">{match.mode}</span>
+                                                                        <div className="flex items-center gap-2 text-slate-200 text-sm font-medium flex-wrap">
+                                                                            <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>{match.result === 'win' ? 'V' : 'D'}</span>
+                                                                            <span className="text-slate-600">vs</span>
+                                                                            {match.opponent.split(',').map((oppName, i, arr) => (
+                                                                                <React.Fragment key={i}><span className="hover:text-yellow-400 hover:underline cursor-pointer transition-colors" onClick={(e) => { e.stopPropagation(); onNavigateToPlayer(oppName.trim()); }}>{oppName.trim()}</span>{i < arr.length - 1 && <span className="text-slate-600 mr-1">,</span>}</React.Fragment>
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
+                                                                    <div className="text-right flex items-center gap-2 text-slate-500 text-xs"><span>{match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}).replace(',', '') : '--:--'}</span></div>
                                                                 </div>
-                                                                <div className="text-right flex items-center gap-2 text-slate-500 text-xs"><span>{match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}).replace(',', '') : '--:--'}</span></div>
-                                                            </div>
-                                                        ))}
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))
-                                        ) : (<div className="text-center py-10 text-slate-500">Nenhuma partida registrada neste filtro.</div>)}
+                                                ))
+                                            ) : (<div className="text-center py-10 text-slate-500">Nenhuma partida registrada neste filtro.</div>)
+                                        ) : (
+                                            // Tournament View
+                                            <div className="space-y-3 mt-4">
+                                                {playerTournaments.length > 0 ? playerTournaments.map(t => (
+                                                    <div 
+                                                        key={t.id}
+                                                        onClick={() => onOpenTournament(t)}
+                                                        className={`p-3 rounded-lg border flex justify-between items-center cursor-pointer transition-all hover:shadow-md group ${
+                                                            t.isWinner 
+                                                            ? 'bg-yellow-900/10 border-yellow-500/30 hover:border-yellow-500/50' 
+                                                            : 'bg-slate-900 border-slate-800 hover:border-slate-600'
+                                                        }`}
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">{t.date}</span>
+                                                            <div className="font-bold text-white group-hover:text-yellow-400 transition-colors flex items-center gap-2">
+                                                                {t.name}
+                                                                {t.isWinner && <Trophy className="w-3 h-3 text-yellow-500" />}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className={`text-xs font-bold px-2 py-1 rounded border ${
+                                                                t.isWinner 
+                                                                ? 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20' 
+                                                                : 'text-slate-400 bg-slate-800 border-slate-700'
+                                                            }`}>
+                                                                {t.isWinner ? 'VENCEU' : 'PARTICIPOU'}
+                                                            </span>
+                                                            <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-white" />
+                                                        </div>
+                                                    </div>
+                                                )) : (
+                                                    <div className="text-center py-10 text-slate-500">Nenhum torneio encontrado neste período.</div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -1328,7 +1395,17 @@
             return (
                 <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8 pb-16"> 
                     {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} />}
-                    {selectedPlayer && <PlayerModal player={selectedPlayer} history={data.history} activeTab={activeTab} onClose={() => setSelectedPlayer(null)} onNavigateToPlayer={handlePlayerClick} />}
+                    {selectedPlayer && (
+                        <PlayerModal 
+                            player={selectedPlayer} 
+                            history={data.history} 
+                            tournaments={groupedTournaments}
+                            activeTab={activeTab} 
+                            onClose={() => setSelectedPlayer(null)} 
+                            onNavigateToPlayer={handlePlayerClick}
+                            onOpenTournament={(t) => setSelectedTournament(t)}
+                        />
+                    )}
                     {selectedTournament && <TournamentBracketModal tournament={selectedTournament} onClose={() => setSelectedTournament(null)} onPlayerClick={handlePlayerClick} />}
                     {selectedMastery && <MasteryDetailsModal mastery={selectedMastery} players={selectedMasteryPlayers} onClose={() => setSelectedMastery(null)} onPlayerClick={(player) => { setSelectedPlayer(player); }} />}
                     {selectedVillage && <VillageDetailsModal village={selectedVillage} players={selectedVillagePlayers} onClose={() => setSelectedVillage(null)} onPlayerClick={(player) => { setSelectedPlayer(player); }} />}
