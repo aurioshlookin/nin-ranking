@@ -340,8 +340,15 @@
     "mastery_1": "Fogo",
     "mastery_2": "Água",
     "village": "Névoa"
+  },
+  {
+    "name": "Segue o Lider",
+    "mastery_1": "Raio",
+    "mastery_2": "Terra",
+    "village": "Névoa"
   }
 ]
+
 
 
 
