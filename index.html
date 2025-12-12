@@ -4,19 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nin Online Tournaments - Hawk Server</title>
-    <!-- ADICIONADO ID para o script encontrar e alterar o favicon -->
     <link rel="icon" type="image/png" href="./icon.png" id="dynamic-favicon">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React Core -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel para traduzir JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -32,24 +24,16 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef, useLayoutEffect } = React;
 
-        // --- HOOK PERSONALIZADO: BLOQUEAR SCROLL DO BODY ---
         const useLockBodyScroll = () => {
             useLayoutEffect(() => {
-                // Salva o estilo original
                 const originalStyle = window.getComputedStyle(document.body).overflow;
-                // Bloqueia o scroll
                 document.body.style.overflow = 'hidden';
-                // Restaura ao desmontar
-                return () => {
-                    document.body.style.overflow = originalStyle;
-                };
+                return () => { document.body.style.overflow = originalStyle; };
             }, []);
         };
 
-        // --- ÍCONES SVG INTEGRADOS ---
-        const IconBase = ({ children, className, ...props }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
-        );
+        // --- ICONS ---
+        const IconBase = ({ children, className, ...props }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>);
         const Trophy = (props) => <IconBase {...props}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></IconBase>;
         const Swords = (props) => <IconBase {...props}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/></IconBase>;
         const Users = (props) => <IconBase {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></IconBase>;
@@ -81,24 +65,17 @@
         const Crosshair = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></IconBase>;
         const Skull = (props) => <IconBase {...props}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></IconBase>;
         const Award = (props) => <IconBase {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></IconBase>;
-        
-        // Ícone de Fogo Atualizado (Estilo Clássico)
+        const ShareIcon = (props) => <IconBase {...props}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></IconBase>;
         const Flame = (props) => <IconBase {...props} fill="currentColor"><path d="M12 2c0 0-3 2.5-3 6 0 2 1.5 3 1.5 5S9 19 12 19s4.5-3.5 4.5-6-1.5-3-1.5-5-3-6-3-6zm0 15c-1.5 0-2.5-1.5-2.5-3.5S10.5 11 12 11s2.5 1.5 2.5 2.5S13.5 17 12 17z" /><path d="M9.5 9c0 0-1.5 1.5-1.5 3.5S9 16 11 16s2.5-1.5 2.5-3-2-5-4-4z" opacity="0.6"/></IconBase>;
-        
-        // Ícone de Estrela (Elite)
         const Star = (props) => <IconBase {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fillOpacity="0.2" /></IconBase>;
-
-        // NOVOS ÍCONES NINJA
         const ShurikenIcon = (props) => <IconBase {...props}><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" fillOpacity="0.2" /></IconBase>;
         const ScrollIcon = (props) => <IconBase {...props}><path d="M19 4H9C7.89543 4 7 4.89543 7 6V20C7 21.1046 7.89543 22 9 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" /><path d="M5 15H4C3.44772 15 3 14.5523 3 14V8C3 7.44772 3.44772 7 4 7H5" /><path d="M15 12H19" /><path d="M15 16H19" /><path d="M15 8H19" /></IconBase>;
 
-
-        // --- CONFIGURAÇÃO ---
+        // --- CONFIG ---
         const CUSTOM_ICON_URL = './icon.png'; 
-        const PLAYERS_FILE = './players.json'; // Arquivo de metadados dos jogadores
+        const PLAYERS_FILE = './players.json'; 
         const PRIORITY_MODES = ['Auto1v1', 'Auto2v2', 'Auto3v3', 'DBE1v1', 'DBE2v2'];
         
-        // Cores e Estilos para Vilas e Maestrias
         const STYLE_MAP = {
             'Fogo': 'bg-red-500/20 text-red-400 border-red-500/30',
             'Água': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -111,7 +88,6 @@
             'Leque': 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
             'Bolha': 'bg-indigo-400/20 text-indigo-300 border-indigo-400/30',
             'Punho Gentil': 'bg-white/10 text-slate-200 border-white/20',
-            
             'Folha': 'text-green-400',
             'Areia': 'text-yellow-500',
             'Névoa': 'text-blue-400',
@@ -131,7 +107,6 @@
             'Default': 'Estatísticas detalhadas para este modo de jogo específico.'
         };
 
-        // --- COMPONENTE Skeleton ---
         const Skeleton = ({ className }) => <div className={`animate-pulse bg-slate-800 rounded ${className}`}></div>;
 
         const SortIndicator = ({ active, direction }) => {
@@ -141,25 +116,46 @@
                 : <ChevronDown className="w-3 h-3 inline ml-1 text-yellow-500" />;
         };
 
-        // --- LÓGICA DO APLICATIVO ---
+        const ShareButton = ({ generateUrl, className, label = "Compartilhar" }) => {
+            const handleShare = () => {
+                const url = generateUrl();
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert("Link copiado para a área de transferência!");
+                } catch (err) {
+                    console.error('Erro ao copiar link', err);
+                }
+                document.body.removeChild(textArea);
+            };
+
+            return (
+                <button 
+                    onClick={handleShare} 
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors ${className || 'bg-blue-600 hover:bg-blue-500 text-white'}`}
+                    title="Copiar link com filtros atuais"
+                >
+                    <ShareIcon className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{label}</span>
+                </button>
+            );
+        };
+
+        // --- APP LOGIC ---
 
         const processBattleLogs = (data) => {
             const stats = {};
             const history = {};
-            const rivalry = {}; // Armazena { Player: { Opponent: { wins: 0, losses: 0 } } }
+            const rivalry = {}; 
             
             const initPlayer = (name) => {
                 if (!stats[name]) {
                     stats[name] = { 
-                        name, 
-                        wins: 0, 
-                        losses: 0, 
-                        battles: 0, 
-                        winRate: 0, 
-                        modes: {},
-                        streak: 0, // > 0 win streak, < 0 loss streak
-                        maxStreak: 0,
-                        badges: []
+                        name, wins: 0, losses: 0, battles: 0, winRate: 0, modes: {},
+                        streak: 0, maxStreak: 0, badges: []
                     };
                     history[name] = [];
                     rivalry[name] = {};
@@ -183,7 +179,6 @@
 
             if (!Array.isArray(data)) return { rankings: [], history: {} };
             
-            // Ordenar por data para calcular Streak corretamente (Antigo -> Recente)
             const sortedData = [...data].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
 
             sortedData.forEach(log => {
@@ -205,11 +200,8 @@
                         stats[winner].battles += 1;
                         updateModeStats(winner, mode, 'win');
                         history[winner].push({ opponent: losers.join(', '), result: 'win', timestamp: timestamp, mode: mode });
-                        
-                        // Streak Logic
                         if (stats[winner].streak >= 0) stats[winner].streak += 1;
                         else stats[winner].streak = 1;
-
                         losers.forEach(loser => updateRivalry(winner, loser, 'win'));
                     });
 
@@ -219,18 +211,14 @@
                         stats[loser].battles += 1;
                         updateModeStats(loser, mode, 'loss');
                         history[loser].push({ opponent: winners.join(', '), result: 'loss', timestamp: timestamp, mode: mode });
-                        
-                        // Streak Logic
                         if (stats[loser].streak <= 0) stats[loser].streak -= 1;
                         else stats[loser].streak = -1;
-
                         winners.forEach(winner => updateRivalry(loser, winner, 'loss'));
                     });
                 }
             });
 
             const rankings = Object.values(stats).map(player => {
-                // Calcular Nemesis e Vítima
                 let nemesis = { name: null, count: 0 };
                 let victim = { name: null, count: 0 };
                 
@@ -241,11 +229,8 @@
                     });
                 }
 
-                // Badges Logic (APENAS ELITE AQUI - VETERANO/MESTRE MOVIDO PARA O GLOBAL)
                 const badges = [];
-                
                 const wr = player.battles > 0 ? (player.wins / player.battles) * 100 : 0;
-                // ÍCONE ALTERADO PARA STAR
                 if (player.battles >= 20 && wr >= 70) badges.push({ id: 'elite', icon: Star, label: 'Elite', color: 'text-yellow-400' });
 
                 return {
@@ -277,11 +262,9 @@
             const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
             const scrollRef = useRef(null);
 
-            // Agrupar partidas por data (Ordenação Cronológica: Antigo -> Recente)
             const statsByDate = useMemo(() => {
                 const groups = {};
                 const sortedMatches = [...matches].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                
                 sortedMatches.forEach(match => {
                     const date = new Date(match.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
                     if (!groups[date]) groups[date] = { date, wins: 0, losses: 0, total: 0 };
@@ -289,102 +272,54 @@
                     if (match.result === 'win') groups[date].wins += 1;
                     else groups[date].losses += 1;
                 });
-                
                 return Object.values(groups); 
             }, [matches]);
 
-            // Rolagem automática para o final (direita) ao carregar
             useLayoutEffect(() => {
                 if (scrollRef.current) {
                     setTimeout(() => {
-                        if (scrollRef.current) {
-                            scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-                        }
+                        if (scrollRef.current) scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
                     }, 50); 
                 }
             }, [statsByDate]);
 
-            // Handler para o mouse
             const handleMouseMove = (e) => {
                 setTooltipPos({ x: e.clientX, y: e.clientY });
             };
 
             if (statsByDate.length === 0) return null;
-
             const maxVal = Math.max(...statsByDate.map(d => Math.max(d.wins, d.losses))); 
 
             return (
                 <div className="bg-slate-950/50 rounded-xl p-4 border border-slate-800 mb-4 flex flex-col relative" >
-                    {/* TOOLTIP FLUTUANTE (FIXO NA TELA PARA EVITAR CORTES) */}
                     {hoveredStat && (
-                        <div 
-                            className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]"
-                            style={{ 
-                                left: tooltipPos.x + 15, 
-                                top: tooltipPos.y - 15,
-                            }}
-                        >
+                        <div className="fixed z-50 pointer-events-none bg-slate-800 border border-slate-600 text-slate-100 text-xs rounded px-3 py-2 shadow-xl flex flex-col gap-1 min-w-[100px]" style={{ left: tooltipPos.x + 15, top: tooltipPos.y - 15 }}>
                             <span className="font-bold border-b border-slate-700 pb-1 mb-1">{hoveredStat.date}</span>
-                            <div className="flex justify-between">
-                                <span className="text-green-400 font-bold">Vitórias:</span>
-                                <span>{hoveredStat.wins}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-red-400 font-bold">Derrotas:</span>
-                                <span>{hoveredStat.losses}</span>
-                            </div>
+                            <div className="flex justify-between"><span className="text-green-400 font-bold">Vitórias:</span><span>{hoveredStat.wins}</span></div>
+                            <div className="flex justify-between"><span className="text-red-400 font-bold">Derrotas:</span><span>{hoveredStat.losses}</span></div>
                         </div>
                     )}
-
                     <div className="flex justify-between items-start mb-4">
                         <h4 className="text-slate-400 text-xs font-bold uppercase flex items-center gap-2">
                             <TrendingUp className="w-4 h-4 text-yellow-500"/> Desempenho (Dia)
                         </h4>
                     </div>
-                    
-                    <div 
-                        ref={scrollRef}
-                        className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800/50"
-                        onMouseMove={handleMouseMove}
-                    >
-                        {/* ALTURA REDUZIDA DE h-48 PARA h-32 */}
+                    <div ref={scrollRef} className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-800/50" onMouseMove={handleMouseMove}>
                         <div className="flex items-end gap-3 h-32 px-2 min-w-max">
                             {statsByDate.map((stat, idx) => {
                                 const winHeight = stat.wins > 0 ? Math.max((stat.wins / maxVal) * 100, 5) : 0;
                                 const lossHeight = stat.losses > 0 ? Math.max((stat.losses / maxVal) * 100, 5) : 0;
-                                
                                 return (
-                                    <div 
-                                        key={idx} 
-                                        className="flex flex-col items-center justify-end h-full w-12 min-w-[48px] group relative flex-shrink-0 cursor-default hover:bg-white/5 rounded transition-colors"
-                                        onMouseEnter={() => setHoveredStat(stat)}
-                                        onMouseLeave={() => setHoveredStat(null)}
-                                    >
+                                    <div key={idx} className="flex flex-col items-center justify-end h-full w-12 min-w-[48px] group relative flex-shrink-0 cursor-default hover:bg-white/5 rounded transition-colors" onMouseEnter={() => setHoveredStat(stat)} onMouseLeave={() => setHoveredStat(null)}>
                                         <div className="w-full flex items-end justify-center gap-1 h-full px-1">
-                                            {/* Barra de Vitórias */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
-                                                 <div 
-                                                    style={{ height: `${winHeight}%` }} 
-                                                    className={`w-full transition-all duration-300 ${
-                                                        hoveredStat === stat ? 'bg-green-400' : 'bg-green-600'
-                                                    }`}
-                                                ></div>
+                                                 <div style={{ height: `${winHeight}%` }} className={`w-full transition-all duration-300 ${hoveredStat === stat ? 'bg-green-400' : 'bg-green-600'}`}></div>
                                             </div>
-
-                                            {/* Barra de Derrotas */}
                                             <div className="flex-1 bg-slate-800/30 rounded-t-sm h-full flex items-end relative overflow-hidden">
-                                                <div 
-                                                    style={{ height: `${lossHeight}%` }} 
-                                                    className={`w-full transition-all duration-300 ${
-                                                        hoveredStat === stat ? 'bg-red-400' : 'bg-red-600'
-                                                    }`}
-                                                ></div>
+                                                <div style={{ height: `${lossHeight}%` }} className={`w-full transition-all duration-300 ${hoveredStat === stat ? 'bg-red-400' : 'bg-red-600'}`}></div>
                                             </div>
                                         </div>
-                                        
-                                        <span className={`text-[10px] mt-2 font-mono whitespace-nowrap transition-colors ${
-                                            hoveredStat === stat ? 'text-white font-bold' : 'text-slate-500'
-                                        }`}>{stat.date}</span>
+                                        <span className={`text-[10px] mt-2 font-mono whitespace-nowrap transition-colors ${hoveredStat === stat ? 'text-white font-bold' : 'text-slate-500'}`}>{stat.date}</span>
                                     </div>
                                 )
                             })}
@@ -394,99 +329,40 @@
             );
         };
 
-        const TournamentBracketModal = ({ tournament, onClose, onPlayerClick }) => {
-            useLockBodyScroll(); // Bloqueia scroll
+        const TournamentBracketModal = ({ tournament, onClose, onPlayerClick, getShareLink }) => {
+            useLockBodyScroll();
             if (!tournament) return null;
 
-            // Organizar partidas em "Rounds" (Chaves)
-            // Assumindo que a ordem é cronológica inversa (última = final)
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            
-            // Agrupamento heurístico simples:
-            // Índice 0: Final
-            // Índice 1-2: Semifinais
-            // Índice 3-6: Quartas
-            // Índice 7+: Classificatórias
-            
-            const rounds = {
-                'Final': [matches[0]].filter(Boolean),
-                'Semifinais': matches.slice(1, 3),
-                'Quartas de Final': matches.slice(3, 7),
-                'Classificatórias': matches.slice(7)
-            };
+            const rounds = { 'Final': [matches[0]].filter(Boolean), 'Semifinais': matches.slice(1, 3), 'Quartas de Final': matches.slice(3, 7), 'Classificatórias': matches.slice(7) };
 
             return (
-                <div 
-                    className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-[70]"
-                    onClick={onClose} // Fecha ao clicar fora
-                >
-                    <div 
-                        className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()} // Impede o fechamento ao clicar dentro
-                    >
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-[70]" onClick={onClose}>
+                    <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                            <div>
-                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <Trophy className="text-yellow-500 w-6 h-6" />
-                                    {tournament.name}
-                                </h2>
-                                <p className="text-slate-400 text-sm mt-1">{tournament.date}</p>
+                            <div><h2 className="text-2xl font-bold text-white flex items-center gap-3"><Trophy className="text-yellow-500 w-6 h-6" />{tournament.name}</h2><p className="text-slate-400 text-sm mt-1">{tournament.date}</p></div>
+                            <div className="flex gap-2">
+                                <ShareButton generateUrl={() => getShareLink(tournament)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" />
+                                <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"><XIcon className="w-6 h-6" /></button>
                             </div>
-                            <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
-                                <XIcon className="w-6 h-6" />
-                            </button>
                         </div>
-
                         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin bg-slate-950/50">
                             {Object.entries(rounds).map(([roundName, roundMatches]) => {
                                 if (roundMatches.length === 0) return null;
                                 return (
                                     <div key={roundName} className="mb-8 last:mb-0">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <div className="h-px bg-slate-700 flex-1"></div>
-                                            <h3 className="text-yellow-500 font-bold uppercase tracking-widest text-sm">{roundName}</h3>
-                                            <div className="h-px bg-slate-700 flex-1"></div>
-                                        </div>
-                                        
+                                        <div className="flex items-center gap-4 mb-4"><div className="h-px bg-slate-700 flex-1"></div><h3 className="text-yellow-500 font-bold uppercase tracking-widest text-sm">{roundName}</h3><div className="h-px bg-slate-700 flex-1"></div></div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
                                             {roundMatches.map((match, idx) => (
                                                 <div key={idx} className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col items-center justify-center relative overflow-hidden group hover:border-slate-600 transition-colors">
-                                                    {/* Vencedor */}
                                                     <div className="w-full flex justify-between items-center mb-2">
-                                                        <div className="flex flex-wrap gap-1 flex-1">
-                                                            {match.winners.map((name, i) => (
-                                                                <span 
-                                                                    key={i}
-                                                                    onClick={(e) => { e.stopPropagation(); onPlayerClick(name); }}
-                                                                    className="text-green-400 font-bold hover:text-white hover:underline cursor-pointer transition-colors"
-                                                                >
-                                                                    {name}{i < match.winners.length - 1 ? ',' : ''}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                        <Trophy className="w-4 h-4 text-yellow-500 ml-2 flex-shrink-0" />
+                                                        <div className="flex flex-wrap gap-1 flex-1">{match.winners.map((name, i) => (<span key={i} onClick={(e) => { e.stopPropagation(); onPlayerClick(name); }} className="text-green-400 font-bold hover:text-white hover:underline cursor-pointer transition-colors">{name}{i < match.winners.length - 1 ? ',' : ''}</span>))}</div><Trophy className="w-4 h-4 text-yellow-500 ml-2 flex-shrink-0" />
                                                     </div>
-                                                    
                                                     <div className="w-full h-px bg-slate-800 my-1"></div>
-                                                    
-                                                    {/* Perdedor */}
                                                     <div className="w-full flex justify-between items-center mt-2 opacity-60">
-                                                        <div className="flex flex-wrap gap-1 flex-1">
-                                                            {match.losers.map((name, i) => (
-                                                                <span 
-                                                                    key={i}
-                                                                    onClick={(e) => { e.stopPropagation(); onPlayerClick(name); }}
-                                                                    className="text-red-400 font-medium hover:text-white hover:underline cursor-pointer transition-colors"
-                                                                >
-                                                                    {name}{i < match.losers.length - 1 ? ',' : ''}
-                                                                </span>
-                                                            ))}
-                                                        </div>
+                                                        <div className="flex flex-wrap gap-1 flex-1">{match.losers.map((name, i) => (<span key={i} onClick={(e) => { e.stopPropagation(); onPlayerClick(name); }} className="text-red-400 font-medium hover:text-white hover:underline cursor-pointer transition-colors">{name}{i < match.losers.length - 1 ? ',' : ''}</span>))}</div>
                                                     </div>
-
-                                                    <div className="absolute top-2 right-2 text-[10px] text-slate-600 bg-slate-950 px-1 rounded">
-                                                        {new Date(match.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                                    </div>
+                                                    <div className="absolute top-2 right-2 text-[10px] text-slate-600 bg-slate-900 px-1 rounded">{new Date(match.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                                                 </div>
                                             ))}
                                         </div>
@@ -502,52 +378,26 @@
         const MasteryDetailsModal = ({ mastery, players, onClose, onPlayerClick }) => {
             useLockBodyScroll(); 
             return (
-                <div 
-                    className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200"
-                    onClick={onClose}
-                >
-                    <div 
-                        className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
+                    <div className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                            <div>
-                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <BookOpen className="text-blue-400 w-6 h-6" />
-                                    Jogadores com: {mastery}
-                                </h2>
-                                <p className="text-slate-400 text-sm mt-1">
-                                    Listando {players.length} jogadores encontrados
-                                </p>
-                            </div>
-                            <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
-                                <XIcon className="w-6 h-6" />
-                            </button>
+                            <div><h2 className="text-2xl font-bold text-white flex items-center gap-3"><BookOpen className="text-blue-400 w-6 h-6" />Jogadores com: {mastery}</h2><p className="text-slate-400 text-sm mt-1">Listando {players.length} jogadores encontrados</p></div>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"><XIcon className="w-6 h-6" /></button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-0 scrollbar-thin bg-slate-950/50">
                              <table className="w-full text-left border-collapse">
                                 <thead className="sticky top-0 bg-slate-900 z-10 shadow-md">
-                                    <tr className="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                        <th className="p-5">#</th>
-                                        <th className="p-5">Jogador</th>
-                                        <th className="p-5 text-center">Vitórias</th>
-                                        <th className="p-5 text-center">Derrotas</th>
-                                        <th className="p-5 text-center">Partidas</th>
-                                        <th className="p-5 text-center">Win Rate</th>
-                                    </tr>
+                                    <tr className="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider"><th className="p-5">#</th><th className="p-5">Jogador</th><th className="p-5 text-center">Vitórias</th><th className="p-5 text-center">Derrotas</th><th className="p-5 text-center">Partidas</th><th className="p-5 text-center">Win Rate</th></tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800">
                                     {players.map((player, index) => {
-                                        let rankColor = "text-slate-500";
-                                        let rankIcon = null;
-                                        const rank = index + 1;
-                                        if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
-                                        if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
-                                        if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
-
+                                        let rankColor = "text-slate-500", rankIcon = null;
+                                        if (index === 0) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
+                                        if (index === 1) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                        if (index === 2) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
                                         return (
                                             <tr key={player.name} onClick={() => onPlayerClick(player)} className="hover:bg-slate-800/50 cursor-pointer transition-colors group">
-                                                <td className={`p-5 text-center font-bold ${rankColor} text-lg w-16`}>{rankIcon || `#${rank}`}</td>
+                                                <td className={`p-5 text-center font-bold ${rankColor} text-lg w-16`}>{rankIcon || `#${index + 1}`}</td>
                                                 <td className="p-5"><span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">{player.name}</span></td>
                                                 <td className="p-5 text-center font-bold text-yellow-500">{player.wins}</td>
                                                 <td className="p-5 text-center font-medium text-red-500">{player.losses}</td>
@@ -567,48 +417,26 @@
         const VillageDetailsModal = ({ village, players, onClose, onPlayerClick }) => {
             useLockBodyScroll();
             return (
-                <div 
-                    className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200"
-                    onClick={onClose}
-                >
-                    <div 
-                        className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
+                    <div className="bg-slate-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                            <div>
-                                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                                    <MapIcon className="text-yellow-500 w-6 h-6" />
-                                    Jogadores da Vila: <span className={STYLE_MAP[village] || ''}>{village}</span>
-                                </h2>
-                                <p className="text-slate-400 text-sm mt-1">Listando {players.length} jogadores encontrados</p>
-                            </div>
+                            <div><h2 className="text-2xl font-bold text-white flex items-center gap-3"><MapIcon className="text-yellow-500 w-6 h-6" />Jogadores da Vila: <span className={STYLE_MAP[village] || ''}>{village}</span></h2><p className="text-slate-400 text-sm mt-1">Listando {players.length} jogadores encontrados</p></div>
                             <button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"><XIcon className="w-6 h-6" /></button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-0 scrollbar-thin bg-slate-950/50">
                              <table className="w-full text-left border-collapse">
                                 <thead className="sticky top-0 bg-slate-900 z-10 shadow-md">
-                                    <tr className="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                        <th className="p-5">#</th>
-                                        <th className="p-5">Jogador</th>
-                                        <th className="p-5 text-center">Vitórias</th>
-                                        <th className="p-5 text-center">Derrotas</th>
-                                        <th className="p-5 text-center">Partidas</th>
-                                        <th className="p-5 text-center">Win Rate</th>
-                                    </tr>
+                                    <tr className="border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider"><th className="p-5">#</th><th className="p-5">Jogador</th><th className="p-5 text-center">Vitórias</th><th className="p-5 text-center">Derrotas</th><th className="p-5 text-center">Partidas</th><th className="p-5 text-center">Win Rate</th></tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800">
                                     {players.map((player, index) => {
-                                        let rankColor = "text-slate-500";
-                                        let rankIcon = null;
-                                        const rank = index + 1;
-                                        if (rank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
-                                        if (rank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
-                                        if (rank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
-
+                                        let rankColor = "text-slate-500", rankIcon = null;
+                                        if (index === 0) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
+                                        if (index === 1) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                        if (index === 2) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
                                         return (
                                             <tr key={player.name} onClick={() => onPlayerClick(player)} className="hover:bg-slate-800/50 cursor-pointer transition-colors group">
-                                                <td className={`p-5 text-center font-bold ${rankColor} text-lg w-16`}>{rankIcon || `#${rank}`}</td>
+                                                <td className={`p-5 text-center font-bold ${rankColor} text-lg w-16`}>{rankIcon || `#${index + 1}`}</td>
                                                 <td className="p-5"><span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">{player.name}</span></td>
                                                 <td className="p-5 text-center font-bold text-yellow-500">{player.wins}</td>
                                                 <td className="p-5 text-center font-medium text-red-500">{player.losses}</td>
@@ -626,20 +454,15 @@
         };
 
         const InfoModal = ({ onClose }) => {
-            useLockBodyScroll(); // Bloqueia scroll
+            useLockBodyScroll(); 
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-50 animate-in fade-in duration-200" onClick={onClose}>
                     <div className="bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <HelpCircle className="w-5 h-5 text-blue-400" />
-                                Como usar o site
-                            </h2>
-                            <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white">
-                                <XIcon className="w-5 h-5" />
-                            </button>
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2"><HelpCircle className="w-5 h-5 text-blue-400" />Como usar o site</h2>
+                            <button onClick={onClose} className="p-1.5 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"><XIcon className="w-5 h-5" /></button>
                         </div>
-                        <div className="p-6 text-slate-300 text-sm leading-relaxed space-y-4">
+                        <div className="p-6 text-slate-300 text-sm leading-relaxed space-y-4 max-h-[80vh] overflow-y-auto scrollbar-thin">
                             <div className="space-y-2">
                                 <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Funcionalidades</h3>
                                 <ul className="list-disc pl-5 space-y-1 marker:text-slate-600">
@@ -651,8 +474,23 @@
                             </div>
                             <div className="h-px bg-slate-800 w-full"></div>
                             <div className="space-y-2">
+                                <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Legenda de Ícones</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                    <div className="flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500" /> <span>3+ Vitórias Seguidas</span></div>
+                                    <div className="flex items-center gap-2"><Skull className="w-4 h-4 text-slate-500" /> <span>3+ Derrotas Seguidas</span></div>
+                                    <div className="flex items-center gap-2"><ShurikenIcon className="w-4 h-4 text-yellow-400 drop-shadow-[0_0_2px_rgba(250,204,21,0.8)]" /> <span>Ninja Mestre (1000+ partidas)</span></div>
+                                    <div className="flex items-center gap-2"><ShurikenIcon className="w-4 h-4 text-blue-400" /> <span>Ninja Veterano (100+ partidas)</span></div>
+                                    <div className="flex items-center gap-2"><Star className="w-4 h-4 text-yellow-400" /> <span>Elite (WR >= 70%)</span></div>
+                                    <div className="flex items-center gap-2"><Skull className="w-4 h-4 text-red-500" /> <span>Nêmesis (Quem mais te venceu)</span></div>
+                                    <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-green-500" /> <span>Vítima (Quem você mais venceu)</span></div>
+                                </div>
+                            </div>
+                            <div className="h-px bg-slate-800 w-full"></div>
+                            <div className="space-y-2">
                                 <h3 className="text-yellow-500 font-bold uppercase text-xs tracking-wider">Sobre o Projeto</h3>
                                 <p>Este painel foi desenvolvido por <strong className="text-white">Auriosh</strong>.</p>
+                                <p className="text-xs text-slate-500">É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.</p>
+                                <p className="text-xs text-slate-500">A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial <span className="text-blue-400 bg-blue-900/30 px-1 rounded">Servidor</span> do Discord.</p>
                             </div>
                         </div>
                     </div>
@@ -660,9 +498,9 @@
             );
         };
 
-        const PlayerModal = ({ player, history, tournaments, activeTab, onClose, onNavigateToPlayer, onOpenTournament }) => {
-            useLockBodyScroll(); // Bloqueia scroll
-            const [historyView, setHistoryView] = useState('matches'); // 'matches' or 'tournaments'
+        const PlayerModal = ({ player, history, tournaments, activeTab, onClose, onNavigateToPlayer, onOpenTournament, getShareLink }) => {
+            useLockBodyScroll();
+            const [historyView, setHistoryView] = useState('matches'); 
 
             if (!player) return null;
 
@@ -707,13 +545,11 @@
                 return groups;
             }, {});
 
-            // Filter tournaments for this player
             const playerTournaments = useMemo(() => {
                 if (!tournaments) return [];
                 return tournaments.filter(t => 
                     t.matches.some(m => m.winners.includes(player.name) || m.losers.includes(player.name))
                 ).map(t => {
-                    // Determine placement/result
                     const sortedMatches = [...t.matches].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
                     const lastMatch = sortedMatches[sortedMatches.length - 1];
                     const isWinner = lastMatch && lastMatch.winners.includes(player.name);
@@ -722,28 +558,17 @@
             }, [tournaments, player.name]);
 
             return (
-                <div 
-                    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-[80]"
-                    onClick={onClose}
-                >
-                    <div 
-                        className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]"
-                        onClick={(e) => e.stopPropagation()}
-                    >
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-[80]" onClick={onClose}>
+                    <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
                             <div className="flex flex-col gap-2">
-                                <h2 className="text-3xl font-bold text-white mb-0 flex items-center gap-2">
-                                    {player.name}
-                                    {parseFloat(player.winRate) >= 60 && <TrendingUp className="w-6 h-6 text-green-400" />}
-                                </h2>
+                                <h2 className="text-3xl font-bold text-white mb-0 flex items-center gap-2">{player.name}{parseFloat(player.winRate) >= 60 && <TrendingUp className="w-6 h-6 text-green-400" />}</h2>
                                 <div className="flex flex-wrap gap-4 text-sm text-slate-400 items-center mt-1">
                                     <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-xs text-yellow-500 font-bold uppercase tracking-wider">{activeTab}</span>
                                     <span>{player.wins} Vitórias</span>
                                     <span>{player.losses} Derrotas</span>
                                     <span className={parseFloat(player.winRate) >= 50 ? 'text-green-400' : 'text-red-400'}>{player.winRate}% WR</span>
-                                    {/* Exibição de Torneios no Modal */}
                                     <span className="text-yellow-500 font-bold">{player.tournamentWins || 0} T. Vencidos</span>
-
                                     {player.meta && (player.meta.village || player.meta.mastery_1) && (
                                         <div className="flex items-center gap-2 px-2 border-l border-r border-slate-700">
                                              {player.meta.village && (<span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/50 uppercase tracking-wide ${STYLE_MAP[player.meta.village] || 'text-slate-400'}`}>{player.meta.village}</span>)}
@@ -755,7 +580,10 @@
                                     {(player.streak || 0) <= -3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2"><Skull className="w-3.5 h-3.5 text-red-500" /><span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">Loss Streak x{Math.abs(player.streak)}</span></div>)}
                                 </div>
                             </div>
-                            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-700 rounded-full"><XIcon className="w-6 h-6" /></button>
+                            <div className="flex gap-2">
+                                <ShareButton generateUrl={() => getShareLink(player)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" />
+                                <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-700 rounded-full"><XIcon className="w-6 h-6" /></button>
+                            </div>
                         </div>
 
                         <div className="flex-1 overflow-hidden min-h-0">
@@ -777,18 +605,8 @@
                                     <div className="p-4 lg:p-6 pb-2 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm z-20 flex-shrink-0 flex justify-between items-center">
                                         <h3 className="text-lg font-bold text-white flex items-center gap-2"><Clock className="w-5 h-5 text-slate-500"/> Histórico</h3>
                                         <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-                                            <button 
-                                                onClick={() => setHistoryView('matches')} 
-                                                className={`px-3 py-1 text-xs font-bold rounded transition-colors ${historyView === 'matches' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-                                            >
-                                                Partidas
-                                            </button>
-                                            <button 
-                                                onClick={() => setHistoryView('tournaments')} 
-                                                className={`px-3 py-1 text-xs font-bold rounded transition-colors ${historyView === 'tournaments' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-                                            >
-                                                Torneios
-                                            </button>
+                                            <button onClick={() => setHistoryView('matches')} className={`px-3 py-1 text-xs font-bold rounded transition-colors ${historyView === 'matches' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>Partidas</button>
+                                            <button onClick={() => setHistoryView('tournaments')} className={`px-3 py-1 text-xs font-bold rounded transition-colors ${historyView === 'tournaments' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>Torneios</button>
                                         </div>
                                     </div>
                                     <div className="flex-1 overflow-y-auto p-4 lg:p-6 pt-0 scrollbar-thin relative">
@@ -796,22 +614,11 @@
                                             Object.keys(matchesByDate).length > 0 ? (
                                                 Object.entries(matchesByDate).map(([date, matches]) => (
                                                     <div key={date} className="mb-6 last:mb-0">
-                                                        <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md">
-                                                            <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-yellow-500" /><h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4><span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full border border-slate-700">{matches.length} partidas</span></div>
-                                                        </div>
+                                                        <div className="bg-slate-900 border-b border-slate-800 py-2 mb-3 shadow-md"><div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-yellow-500" /><h4 className="text-slate-300 text-sm font-bold uppercase tracking-wider">{date}</h4><span className="text-xs text-slate-600 font-medium bg-slate-800 px-2 rounded-full border border-slate-700">{matches.length} partidas</span></div></div>
                                                         <div className="space-y-2">
                                                             {matches.map((match, idx) => (
                                                                 <div key={idx} className={`p-3 rounded-lg border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 transition-all ${match.result === 'win' ? 'bg-green-900/5 border-green-500/10 hover:bg-green-900/10' : 'bg-red-900/5 border-red-500/10 hover:bg-red-900/10'}`}>
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">{match.mode}</span>
-                                                                        <div className="flex items-center gap-2 text-slate-200 text-sm font-medium flex-wrap">
-                                                                            <span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>{match.result === 'win' ? 'V' : 'D'}</span>
-                                                                            <span className="text-slate-600">vs</span>
-                                                                            {match.opponent.split(',').map((oppName, i, arr) => (
-                                                                                <React.Fragment key={i}><span className="hover:text-yellow-400 hover:underline cursor-pointer transition-colors" onClick={(e) => { e.stopPropagation(); onNavigateToPlayer(oppName.trim()); }}>{oppName.trim()}</span>{i < arr.length - 1 && <span className="text-slate-600 mr-1">,</span>}</React.Fragment>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
+                                                                    <div className="flex flex-col"><span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">{match.mode}</span><div className="flex items-center gap-2 text-slate-200 text-sm font-medium flex-wrap"><span className={match.result === 'win' ? 'text-green-500 font-bold' : 'text-red-500 font-bold'}>{match.result === 'win' ? 'V' : 'D'}</span><span className="text-slate-600">vs</span>{match.opponent.split(',').map((oppName, i, arr) => (<React.Fragment key={i}><span className="hover:text-yellow-400 hover:underline cursor-pointer transition-colors" onClick={(e) => { e.stopPropagation(); onNavigateToPlayer(oppName.trim()); }}>{oppName.trim()}</span>{i < arr.length - 1 && <span className="text-slate-600 mr-1">,</span>}</React.Fragment>))}</div></div>
                                                                     <div className="text-right flex items-center gap-2 text-slate-500 text-xs"><span>{match.timestamp ? new Date(match.timestamp).toLocaleTimeString('pt-BR', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}).replace(',', '') : '--:--'}</span></div>
                                                                 </div>
                                                             ))}
@@ -820,39 +627,13 @@
                                                 ))
                                             ) : (<div className="text-center py-10 text-slate-500">Nenhuma partida registrada neste filtro.</div>)
                                         ) : (
-                                            // Tournament View
                                             <div className="space-y-3 mt-4">
                                                 {playerTournaments.length > 0 ? playerTournaments.map(t => (
-                                                    <div 
-                                                        key={t.id}
-                                                        onClick={() => onOpenTournament(t)}
-                                                        className={`p-3 rounded-lg border flex justify-between items-center cursor-pointer transition-all hover:shadow-md group ${
-                                                            t.isWinner 
-                                                            ? 'bg-yellow-900/10 border-yellow-500/30 hover:border-yellow-500/50' 
-                                                            : 'bg-slate-900 border-slate-800 hover:border-slate-600'
-                                                        }`}
-                                                    >
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">{t.date}</span>
-                                                            <div className="font-bold text-white group-hover:text-yellow-400 transition-colors flex items-center gap-2">
-                                                                {t.name}
-                                                                {t.isWinner && <Trophy className="w-3 h-3 text-yellow-500" />}
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
-                                                            <span className={`text-xs font-bold px-2 py-1 rounded border ${
-                                                                t.isWinner 
-                                                                ? 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20' 
-                                                                : 'text-slate-400 bg-slate-800 border-slate-700'
-                                                            }`}>
-                                                                {t.isWinner ? 'VENCEU' : 'PARTICIPOU'}
-                                                            </span>
-                                                            <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-white" />
-                                                        </div>
+                                                    <div key={t.id} onClick={() => onOpenTournament(t)} className={`p-3 rounded-lg border flex justify-between items-center cursor-pointer transition-all hover:shadow-md group ${t.isWinner ? 'bg-yellow-900/10 border-yellow-500/30 hover:border-yellow-500/50' : 'bg-slate-900 border-slate-800 hover:border-slate-600'}`}>
+                                                        <div className="flex flex-col"><span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">{t.date}</span><div className="font-bold text-white group-hover:text-yellow-400 transition-colors flex items-center gap-2">{t.name}{t.isWinner && <Trophy className="w-3 h-3 text-yellow-500" />}</div></div>
+                                                        <div className="flex items-center gap-3"><span className={`text-xs font-bold px-2 py-1 rounded border ${t.isWinner ? 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20' : 'text-slate-400 bg-slate-800 border-slate-700'}`}>{t.isWinner ? 'VENCEU' : 'PARTICIPOU'}</span><ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-white" /></div>
                                                     </div>
-                                                )) : (
-                                                    <div className="text-center py-10 text-slate-500">Nenhum torneio encontrado neste período.</div>
-                                                )}
+                                                )) : (<div className="text-center py-10 text-slate-500">Nenhum torneio encontrado neste período.</div>)}
                                             </div>
                                         )}
                                     </div>
@@ -872,7 +653,6 @@
             const [error, setError] = useState(null);
             
             const [searchTerm, setSearchTerm] = useState('');
-            // MUDANÇA: Ordenação padrão alterada para 'tournamentWins' decrescente
             const [sortConfig, setSortConfig] = useState({ key: 'tournamentWins', direction: 'desc' });
             const [activeTab, setActiveTab] = useState('Geral');
             const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -923,9 +703,7 @@
 
             useEffect(() => {
                 const favicon = document.getElementById('dynamic-favicon');
-                if (favicon && CUSTOM_ICON_URL) {
-                    favicon.href = CUSTOM_ICON_URL;
-                }
+                if (favicon && CUSTOM_ICON_URL) favicon.href = CUSTOM_ICON_URL;
             }, []);
 
             const getRoundedTime = (timestamp) => {
@@ -936,15 +714,29 @@
                 return `${hours}:${roundedMinutes}`;
             };
 
+            const getShareLink = (target = null) => {
+                const params = new URLSearchParams();
+                params.set('view', viewMode);
+                params.set('mode', activeTab);
+                params.set('time', timeFilter);
+                if (targetMonth) params.set('month', targetMonth);
+
+                if (viewMode === 'versus') {
+                    if (versusPlayer1) params.set('p1', versusPlayer1);
+                    if (versusPlayer2) params.set('p2', versusPlayer2);
+                } else if (target && target.name && target.matches) {
+                    params.set('tournament', target.id);
+                } else if (target && target.name && !target.matches) {
+                    params.set('player', target.name);
+                }
+                return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+            };
+
             useEffect(() => {
                 const fetchData = async () => {
-                    setIsLoading(true);
-                    setError(null);
+                    setIsLoading(true); setError(null);
                     const loadedData = [];
-                    let page = 1;
-                    let foundEnd = false;
-                    const MAX_PAGES = 50; 
-                    const BATCH_SIZE = 5; 
+                    let page = 1; let foundEnd = false; const MAX_PAGES = 50; const BATCH_SIZE = 5; 
 
                     try {
                         try {
@@ -975,11 +767,7 @@
                             page += BATCH_SIZE;
                         }
                         setRawData(loadedData);
-                    } catch (err) {
-                        console.error("Fetch error:", err);
-                        setError(`Erro ao carregar dados: ${err.message}`);
-                        setRawData([]); 
-                    } finally { setIsLoading(false); }
+                    } catch (err) { setError(`Erro ao carregar dados: ${err.message}`); setRawData([]); } finally { setIsLoading(false); }
                 };
                 fetchData();
             }, []);
@@ -987,16 +775,46 @@
             useEffect(() => {
                 if (!isLoading && data.rankings.length > 0) {
                     const params = new URLSearchParams(window.location.search);
+                    
+                    const viewParam = params.get('view');
+                    if (viewParam && ['ranking', 'versus', 'tournaments', 'masteries', 'villages'].includes(viewParam)) setViewMode(viewParam);
+
+                    const modeParam = params.get('mode'); if (modeParam) setActiveTab(modeParam);
+                    const timeParam = params.get('time'); if (timeParam) setTimeFilter(timeParam);
+                    const monthParam = params.get('month'); if (monthParam) setTargetMonth(monthParam);
+
                     const playerParam = params.get('player');
-                    if (playerParam) {
-                        const found = data.rankings.find(p => p.name.toLowerCase() === playerParam.toLowerCase());
-                        if (found) {
-                            setSelectedPlayer(found);
-                            window.history.replaceState({}, document.title, window.location.pathname);
+                    const tournamentParam = params.get('tournament');
+                    const p1Param = params.get('p1');
+                    const p2Param = params.get('p2');
+
+                    if (tournamentParam) {
+                        const foundT = groupedTournaments.find(t => t.id === tournamentParam);
+                        if (foundT) { setSelectedTournament(foundT); setViewMode('tournaments'); }
+                    } else if (playerParam) {
+                        const foundP = data.rankings.find(p => p.name.toLowerCase() === playerParam.toLowerCase());
+                        if (foundP) {
+                            const gStats = globalPlayerStats[foundP.name];
+                            let globalBattles = 0;
+                            if (gStats) {
+                                if (modeParam === 'Geral' || !modeParam) globalBattles = gStats.total;
+                                else if (modeParam === 'Ranked') globalBattles = (gStats.modes['Auto1v1'] || 0) + (gStats.modes['Auto2v2'] || 0) + (gStats.modes['Auto3v3'] || 0);
+                                else globalBattles = gStats.modes[modeParam] || 0;
+                            }
+                            const currentBadges = foundP.badges ? foundP.badges.filter(b => b.id !== 'veteran' && b.id !== 'master') : [];
+                            const newBadges = [...currentBadges];
+                            if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
+                            else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
+                            
+                            setSelectedPlayer({ ...foundP, badges: newBadges });
                         }
                     }
+
+                    if (p1Param) setVersusPlayer1(p1Param);
+                    if (p2Param) setVersusPlayer2(p2Param);
+                    window.history.replaceState({}, document.title, window.location.pathname);
                 }
-            }, [isLoading, data.rankings]);
+            }, [isLoading, data.rankings, groupedTournaments]); 
 
             useEffect(() => {
                 if (rawData.length === 0) { setData({ rankings: [], history: {} }); return; }
@@ -1093,37 +911,18 @@
                 return tournaments.sort((a, b) => b.lastMatchTimestamp - a.lastMatchTimestamp);
             }, [filteredLogs, activeTab]);
 
-            // --- CÁLCULO DE ESTATÍSTICAS DE TORNEIO (Novo) ---
             const tournamentStats = useMemo(() => {
                 const stats = {};
                 groupedTournaments.forEach(t => {
-                    // Ordenar partidas por timestamp para encontrar a final
                     const sortedMatches = [...t.matches].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
                     const lastMatch = sortedMatches[sortedMatches.length - 1];
-                    
-                    // Participantes (Set para contar apenas uma vez por torneio)
                     const participants = new Set();
-                    t.matches.forEach(m => {
-                        m.winners.forEach(w => participants.add(w));
-                        m.losers.forEach(l => participants.add(l));
-                    });
-                    
-                    participants.forEach(p => {
-                        if (!stats[p]) stats[p] = { wins: 0, played: 0 };
-                        stats[p].played += 1;
-                    });
-                    
-                    // Vencedor do Torneio (Quem venceu a última partida)
-                    if (lastMatch) {
-                        lastMatch.winners.forEach(w => {
-                             if (!stats[w]) stats[w] = { wins: 0, played: 0 };
-                             stats[w].wins += 1;
-                        });
-                    }
+                    t.matches.forEach(m => { m.winners.forEach(w => participants.add(w)); m.losers.forEach(l => participants.add(l)); });
+                    participants.forEach(p => { if (!stats[p]) stats[p] = { wins: 0, played: 0 }; stats[p].played += 1; });
+                    if (lastMatch) { lastMatch.winners.forEach(w => { if (!stats[w]) stats[w] = { wins: 0, played: 0 }; stats[w].wins += 1; }); }
                 });
                 return stats;
             }, [groupedTournaments]);
-
 
             const tournamentsByDate = useMemo(() => {
                 const groups = {};
@@ -1136,29 +935,15 @@
 
              const filteredRankings = useMemo(() => {
                 let players = [...data.rankings];
-
-                // 1. FILTRAGEM E ATRIBUIÇÃO DE ESTATÍSTICAS
                 if (activeTab === 'Geral') {
-                    // Mantém como está, mas adiciona as stats de torneio
-                    players = players.map(p => {
-                        const tStats = tournamentStats[p.name] || { wins: 0, played: 0 };
-                        return { ...p, tournamentWins: tStats.wins, tournamentsPlayed: tStats.played };
-                    });
+                    players = players.map(p => { const tStats = tournamentStats[p.name] || { wins: 0, played: 0 }; return { ...p, tournamentWins: tStats.wins, tournamentsPlayed: tStats.played }; });
                 } else if (activeTab === 'Ranked') {
                     players = players.map(p => {
                         let wins = 0, losses = 0, battles = 0;
                         const rankedModes = ['Auto1v1', 'Auto2v2', 'Auto3v3'];
-                        rankedModes.forEach(m => {
-                            if (p.modes && p.modes[m]) {
-                                wins += p.modes[m].wins;
-                                losses += p.modes[m].losses;
-                                battles += p.modes[m].battles;
-                            }
-                        });
+                        rankedModes.forEach(m => { if (p.modes && p.modes[m]) { wins += p.modes[m].wins; losses += p.modes[m].losses; battles += p.modes[m].battles; } });
                         if (battles === 0) return null;
-                        
                         const tStats = tournamentStats[p.name] || { wins: 0, played: 0 };
-                        
                         return { ...p, wins, losses, battles, winRate: ((wins / battles) * 100).toFixed(1), tournamentWins: tStats.wins, tournamentsPlayed: tStats.played };
                     }).filter(p => p !== null);
                 } else {
@@ -1170,7 +955,6 @@
                     }).filter(p => p !== null);
                 }
 
-                // 2. BADGES
                 players = players.map(p => {
                     const gStats = globalPlayerStats[p.name];
                     let globalBattles = 0;
@@ -1187,7 +971,6 @@
 
                 if (searchTerm) players = players.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-                // 3. ORDENAÇÃO GENÉRICA
                 players.sort((a, b) => {
                     let aValue = a[sortConfig.key] || 0;
                     let bValue = b[sortConfig.key] || 0;
@@ -1199,8 +982,6 @@
 
                     if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
                     if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-                    
-                    // Critério de desempate (Padrão: Vitórias)
                     if (sortConfig.key !== 'wins') return b.wins - a.wins;
                     return 0;
                 });
@@ -1243,9 +1024,7 @@
                     ...stat, winRate: stat.battles > 0 ? ((stat.wins / stat.battles) * 100).toFixed(1) : 0
                 }));
 
-                // ORDENAÇÃO DAS MAESTRIAS
                 result.sort((a, b) => {
-                    // Se a chave de ordenação não for compatível (ex: tournamentWins), fallback para 'wins'
                     const validKeys = ['wins', 'losses', 'battles', 'winRate', 'players', 'name'];
                     const sortKey = validKeys.includes(sortConfig.key) ? sortConfig.key : 'wins';
                     
@@ -1278,7 +1057,6 @@
                     ...stat, winRate: stat.battles > 0 ? ((stat.wins / stat.battles) * 100).toFixed(1) : 0
                 }));
 
-                 // ORDENAÇÃO DAS VILAS
                  result.sort((a, b) => {
                     const validKeys = ['wins', 'losses', 'battles', 'winRate', 'players', 'name'];
                     const sortKey = validKeys.includes(sortConfig.key) ? sortConfig.key : 'wins';
@@ -1308,16 +1086,14 @@
             const handleMasteryClick = (masteryName) => { setSelectedMastery(masteryName); };
             const handleVillageClick = (villageName) => { setSelectedVillage(villageName); };
             
-            // --- ATUALIZADO: Fecha o player modal ao abrir torneio ---
             const handleOpenTournament = (mode, timestamp) => {
                 const found = groupedTournaments.find(t => t.name === mode && t.matches.some(m => m.timestamp === timestamp));
                 if (found) {
                     setSelectedTournament(found);
-                    setSelectedPlayer(null); // FECHA O JOGADOR PARA EVITAR CONFLITO
+                    setSelectedPlayer(null); 
                 }
             };
 
-            // ... (rest of helper functions: handlePlayerClick, selectedMasteryPlayers, etc.)
             const handlePlayerClick = (playerName) => {
                 if (!data.rankings) return;
                 let player = data.rankings.find(r => r.name === playerName);
@@ -1334,9 +1110,8 @@
                 if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
                 else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
                 
-                // --- ATUALIZADO: Fecha torneio ao abrir jogador ---
                 setSelectedPlayer({ ...player, badges: newBadges });
-                setSelectedTournament(null); // FECHA O TORNEIO PARA EVITAR CONFLITO
+                setSelectedTournament(null); 
             };
 
             const selectedMasteryPlayers = useMemo(() => {
@@ -1411,10 +1186,11 @@
                             activeTab={activeTab} 
                             onClose={() => setSelectedPlayer(null)} 
                             onNavigateToPlayer={handlePlayerClick}
-                            onOpenTournament={(t) => { setSelectedTournament(t); setSelectedPlayer(null); }} // Fecha player ao abrir torneio pelo botão
+                            onOpenTournament={(t) => { setSelectedTournament(t); setSelectedPlayer(null); }} 
+                            getShareLink={getShareLink}
                         />
                     )}
-                    {selectedTournament && <TournamentBracketModal tournament={selectedTournament} onClose={() => setSelectedTournament(null)} onPlayerClick={handlePlayerClick} />}
+                    {selectedTournament && <TournamentBracketModal tournament={selectedTournament} onClose={() => setSelectedTournament(null)} onPlayerClick={handlePlayerClick} getShareLink={getShareLink} />}
                     {selectedMastery && <MasteryDetailsModal mastery={selectedMastery} players={selectedMasteryPlayers} onClose={() => setSelectedMastery(null)} onPlayerClick={(player) => { setSelectedPlayer(player); }} />}
                     {selectedVillage && <VillageDetailsModal village={selectedVillage} players={selectedVillagePlayers} onClose={() => setSelectedVillage(null)} onPlayerClick={(player) => { setSelectedPlayer(player); }} />}
 
@@ -1425,7 +1201,7 @@
                                 <img src={CUSTOM_ICON_URL} alt="Logo" className="w-20 h-20 object-cover rounded-2xl" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
                                 <div className="hidden bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center w-20 h-20"><Trophy className="w-10 h-10 text-white" /></div>
                                 <div className="flex flex-col gap-1">
-                                    <div className="flex items-center gap-3"><h1 className="text-4xl font-black text-white tracking-tight">Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span></h1><button onClick={() => setShowInfoModal(true)} className="bg-slate-800 p-1.5 rounded-full hover:bg-slate-700 transition-colors text-slate-400 hover:text-blue-400 border border-slate-700" title="Como usar / Sobre"><HelpCircle className="w-5 h-5" /></button></div>
+                                    <div className="flex items-center gap-3"><h1 className="text-4xl font-black text-white tracking-tight">Nin Online <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500">Tournaments</span></h1><button onClick={() => setShowInfoModal(true)} className="bg-slate-800 p-1.5 rounded-full hover:bg-slate-700 transition-colors text-slate-400 hover:text-blue-400 border border-slate-700" title="Como usar / Sobre"><HelpCircle className="w-5 h-5" /></button><ShareButton generateUrl={() => getShareLink()} className="bg-slate-800 p-1.5 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700" label="" /></div>
                                     <div className="flex flex-wrap gap-2 mt-1">
                                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold text-slate-300"><ServerIcon className="w-3 h-3 text-blue-400" /><span>Servidor: Hawk</span></div>
                                         {dateRange.start && (<div className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-xs font-bold text-slate-300"><Calendar className="w-3 h-3 text-yellow-500" /><span>{dateRange.start} até {dateRange.end}</span></div>)}
@@ -1467,22 +1243,27 @@
                         {/* Views */}
                         {viewMode === 'versus' && (
                              <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500 p-6">
-                                <div className="flex flex-col md:flex-row gap-4 items-end mb-8">
+                                <div className="flex flex-col md:flex-row gap-4 items-end mb-8 relative">
+                                    <div className="absolute top-0 right-0">
+                                        <ShareButton generateUrl={() => getShareLink()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" label="" />
+                                    </div>
                                     <div className="flex-1 w-full"><label className="block text-slate-400 text-sm font-bold mb-2">Jogador 1</label><div className="relative"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-blue-400" /></div><input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder="Nome do Jogador 1" value={versusPlayer1} onChange={(e) => setVersusPlayer1(e.target.value)} /></div></div>
                                     <div className="flex items-center justify-center pb-3"><div className="bg-slate-800 p-2 rounded-full border border-slate-700"><Swords className="w-6 h-6 text-red-500" /></div></div>
                                     <div className="flex-1 w-full"><label className="block text-slate-400 text-sm font-bold mb-2">Jogador 2</label><div className="relative"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-red-400" /></div><input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50" placeholder="Nome do Jogador 2" value={versusPlayer2} onChange={(e) => setVersusPlayer2(e.target.value)} /></div></div>
                                     <datalist id="playerList">{data.rankings.map(p => <option key={p.name} value={p.name} />)}</datalist>
                                 </div>
                                 {versusMatches.length > 0 ? (
-                                    <><div className="mb-8 space-y-4"><div className="flex items-center gap-3"><span className="text-xs text-blue-400 font-bold w-12 text-right">{((versusStats.p1Wins/versusStats.total)*100).toFixed(0)}%</span><div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden flex"><div style={{ width: `${(versusStats.p1Wins/versusStats.total)*100}%` }} className="h-full bg-blue-500"></div><div style={{ width: `${(versusStats.p2Wins/versusStats.total)*100}%` }} className="h-full bg-red-500"></div></div><span className="text-xs text-red-400 font-bold w-12">{((versusStats.p2Wins/versusStats.total)*100).toFixed(0)}%</span></div></div>
-                                    <div className="flex justify-center items-center gap-8 mb-8"><div className="text-center"><div className="text-4xl font-black text-blue-500">{versusStats.p1Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer1}</div></div><div className="text-slate-600 text-2xl font-black">X</div><div className="text-center"><div className="text-4xl font-black text-red-500">{versusStats.p2Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer2}</div></div></div>
-                                    <div className="space-y-3">{versusMatches.map((match, idx) => { const m = match.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/); if (!m) return null; const mode = m[1]; const winners = m[2].split(',').map(n => n.trim()); const losers = m[3].split(',').map(n => n.trim()); const isP1Winner = winners.includes(versusPlayer1); return (<div key={idx} onClick={() => handleOpenTournament(mode, match.timestamp)} className={`p-4 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative group cursor-pointer transition-all hover:shadow-lg ${isP1Winner ? 'bg-blue-900/10 border-blue-500/20 hover:border-blue-500/40' : 'bg-red-900/10 border-red-500/20 hover:border-red-500/40'}`}><div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-yellow-500 text-[10px] font-bold px-3 py-1 rounded-full border border-yellow-500/30 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-xl z-10 flex items-center gap-1"><Trophy className="w-3 h-3" /> Ver Torneio</div><div className="flex flex-col gap-2 flex-1 w-full"><div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 w-fit">{mode}</div><div className="flex flex-col gap-1.5 w-full"><div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50"><span className="text-green-500 font-bold text-[10px] uppercase mr-1 bg-green-500/10 px-1 rounded border border-green-500/20">Vencedores</span>{winners.map((name, i) => { const isTarget = name === versusPlayer1 || name === versusPlayer2; const colorClass = name === versusPlayer1 ? 'text-blue-400' : name === versusPlayer2 ? 'text-red-400' : 'text-slate-400'; return (<span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`${colorClass} hover:underline hover:text-white cursor-pointer transition-colors ${isTarget ? 'font-black text-base border-b-2 border-current' : 'font-medium'}`} title="Ver histórico do jogador">{name}{i < winners.length - 1 ? ',' : ''}</span>); })}</div><div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50"><span className="text-red-500 font-bold text-[10px] uppercase mr-1 bg-red-500/10 px-1 rounded border border-red-500/20">Perdedores</span>{losers.map((name, i) => { const isTarget = name === versusPlayer1 || name === versusPlayer2; const colorClass = name === versusPlayer1 ? 'text-blue-400' : name === versusPlayer2 ? 'text-red-400' : 'text-slate-500'; return (<span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`${colorClass} hover:underline hover:text-white cursor-pointer transition-colors ${isTarget ? 'font-black text-base border-b-2 border-current' : 'font-medium'}`} title="Ver histórico do jogador">{name}{i < losers.length - 1 ? ',' : ''}</span>); })}</div></div></div><div className="text-right flex-shrink-0 flex md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-800 pt-2 md:pt-0"><div className={`text-sm font-black px-3 py-1 rounded border ${isP1Winner ? 'text-blue-400 bg-blue-500/10 border-blue-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}`}>{isP1Winner ? 'VITÓRIA J1' : 'DERROTA J1'}</div><div className="text-xs text-slate-500 mt-1 font-mono">{new Date(match.timestamp).toLocaleDateString('pt-BR')}</div></div></div>); })}</div></>
+                                    <React.Fragment>
+                                        <div className="mb-8 space-y-4"><div className="flex items-center gap-3"><span className="text-xs text-blue-400 font-bold w-12 text-right">{((versusStats.p1Wins/versusStats.total)*100).toFixed(0)}%</span><div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden flex"><div style={{ width: `${(versusStats.p1Wins/versusStats.total)*100}%` }} className="h-full bg-blue-500"></div><div style={{ width: `${(versusStats.p2Wins/versusStats.total)*100}%` }} className="h-full bg-red-500"></div></div><span className="text-xs text-red-400 font-bold w-12">{((versusStats.p2Wins/versusStats.total)*100).toFixed(0)}%</span></div></div>
+                                        <div className="flex justify-center items-center gap-8 mb-8"><div className="text-center"><div className="text-4xl font-black text-blue-500">{versusStats.p1Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer1}</div></div><div className="text-slate-600 text-2xl font-black">X</div><div className="text-center"><div className="text-4xl font-black text-red-500">{versusStats.p2Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer2}</div></div></div>
+                                        <div className="space-y-3">{versusMatches.map((match, idx) => { const m = match.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/); if (!m) return null; const mode = m[1]; const winners = m[2].split(',').map(n => n.trim()); const losers = m[3].split(',').map(n => n.trim()); const isP1Winner = winners.includes(versusPlayer1); return (<div key={idx} onClick={() => handleOpenTournament(mode, match.timestamp)} className={`p-4 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative group cursor-pointer transition-all hover:shadow-lg ${isP1Winner ? 'bg-blue-900/10 border-blue-500/20 hover:border-blue-500/40' : 'bg-red-900/10 border-red-500/20 hover:border-red-500/40'}`}><div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-yellow-500 text-[10px] font-bold px-3 py-1 rounded-full border border-yellow-500/30 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-xl z-10 flex items-center gap-1"><Trophy className="w-3 h-3" /> Ver Torneio</div><div className="flex flex-col gap-2 flex-1 w-full"><div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 w-fit">{mode}</div><div className="flex flex-col gap-1.5 w-full"><div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50"><span className="text-green-500 font-bold text-[10px] uppercase mr-1 bg-green-500/10 px-1 rounded border border-green-500/20">Vencedores</span>{winners.map((name, i) => { const isTarget = name === versusPlayer1 || name === versusPlayer2; const colorClass = name === versusPlayer1 ? 'text-blue-400' : name === versusPlayer2 ? 'text-red-400' : 'text-slate-400'; return (<span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`${colorClass} hover:underline hover:text-white cursor-pointer transition-colors ${isTarget ? 'font-black text-base border-b-2 border-current' : 'font-medium'}`} title="Ver histórico do jogador">{name}{i < winners.length - 1 ? ',' : ''}</span>); })}</div><div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50"><span className="text-red-500 font-bold text-[10px] uppercase mr-1 bg-red-500/10 px-1 rounded border border-red-500/20">Perdedores</span>{losers.map((name, i) => { const isTarget = name === versusPlayer1 || name === versusPlayer2; const colorClass = name === versusPlayer1 ? 'text-blue-400' : name === versusPlayer2 ? 'text-red-400' : 'text-slate-500'; return (<span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`${colorClass} hover:underline hover:text-white cursor-pointer transition-colors ${isTarget ? 'font-black text-base border-b-2 border-current' : 'font-medium'}`} title="Ver histórico do jogador">{name}{i < losers.length - 1 ? ',' : ''}</span>); })}</div></div></div><div className="text-right flex-shrink-0 flex md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-800 pt-2 md:pt-0"><div className={`text-sm font-black px-3 py-1 rounded border ${isP1Winner ? 'text-blue-400 bg-blue-500/10 border-blue-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}`}>{isP1Winner ? 'VITÓRIA J1' : 'DERROTA J1'}</div><div className="text-xs text-slate-500 mt-1 font-mono">{new Date(match.timestamp).toLocaleDateString('pt-BR')}</div></div></div>); })}</div>
+                                    </React.Fragment>
                                 ) : ((versusPlayer1 && versusPlayer2) && (<div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl"><Swords className="w-12 h-12 mx-auto mb-3 opacity-20" /><p>Nenhum confronto encontrado entre estes jogadores.</p></div>))}
                             </div>
                         )}
                         
                         {viewMode === 'ranking' && (
-                            <>
+                            <React.Fragment>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                     <Card title="Jogadores Ativos" value={filteredRankings.length} icon={Users} colorClass="text-blue-400 bg-blue-500" />
                                     <Card title="Batalhas Totais" value={totalBattles} icon={Swords} colorClass="text-red-400 bg-red-500" />
@@ -1496,10 +1277,8 @@
                                                 <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
                                                     <th className="p-5 w-20 text-center">#</th>
                                                     <th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>Jogador <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th>
-                                                    {/* NOVAS COLUNAS DE TORNEIO */}
                                                     <th className="p-5 text-center cursor-pointer hover:text-yellow-400 transition-colors" onClick={() => handleSort('tournamentWins')}>T. Vencidos <SortIndicator active={sortConfig.key === 'tournamentWins'} direction={sortConfig.direction} /></th>
                                                     <th className="p-5 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('tournamentsPlayed')}>T. Jogados <SortIndicator active={sortConfig.key === 'tournamentsPlayed'} direction={sortConfig.direction} /></th>
-                                                    
                                                     <th className="p-5 text-center cursor-pointer hover:text-green-400 transition-colors" onClick={() => handleSort('wins')}>Vitórias <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th>
                                                     <th className="p-5 text-center cursor-pointer hover:text-red-400 transition-colors" onClick={() => handleSort('losses')}>Derrotas <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th>
                                                     <th className="p-5 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('battles')}>Partidas <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th>
@@ -1508,8 +1287,7 @@
                                             </thead>
                                             <tbody className="divide-y divide-slate-800">
                                                 {paginatedRankings.map((player, index) => {
-                                                    let rankColor = "text-slate-500";
-                                                    let rankIcon = null;
+                                                    let rankColor = "text-slate-500", rankIcon = null;
                                                     const realRank = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
                                                     if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
                                                     if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
@@ -1536,10 +1314,8 @@
                                                                     ) : (<span className="text-[10px] text-slate-600 bg-slate-900/50 px-2 py-0.5 rounded border border-slate-800 w-fit mt-1">Sem Registro</span>)}
                                                                 </div>
                                                             </td>
-                                                            {/* DADOS DE TORNEIO */}
                                                             <td className="p-5 text-center font-bold text-yellow-500 text-lg">{player.tournamentWins}</td>
                                                             <td className="p-5 text-center text-slate-400">{player.tournamentsPlayed}</td>
-
                                                             <td className="p-5 text-center font-bold text-slate-200">{player.wins}</td>
                                                             <td className="p-5 text-center font-medium text-slate-500">{player.losses}</td>
                                                             <td className="p-5 text-center text-slate-400">{player.battles}</td>
@@ -1553,7 +1329,7 @@
                                     </div>
                                     {totalPages > 1 && (<div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900"><button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button><span className="text-sm text-slate-400 font-medium">Página <span className="text-white font-bold">{currentPage}</span> de {totalPages}</span><button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button></div>)}
                                 </div>
-                            </>
+                            </React.Fragment>
                         )}
                         
                         {viewMode === 'tournaments' && (
@@ -1582,15 +1358,7 @@
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                                <th className="p-5">#</th>
-                                                <th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>Maestria <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('players')}>Jogadores Ativos <SortIndicator active={sortConfig.key === 'players'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('wins')}>Total Vitórias <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('losses')}>Derrotas <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('battles')}>Partidas <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('winRate')}>Win Rate <SortIndicator active={sortConfig.key === 'winRate'} direction={sortConfig.direction} /></th>
-                                            </tr>
+                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider"><th className="p-5">#</th><th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>Maestria <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('players')}>Jogadores Ativos <SortIndicator active={sortConfig.key === 'players'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('wins')}>Total Vitórias <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('losses')}>Derrotas <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('battles')}>Partidas <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('winRate')}>Win Rate <SortIndicator active={sortConfig.key === 'winRate'} direction={sortConfig.direction} /></th></tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedMasteries.map((m, idx) => (
@@ -1618,15 +1386,7 @@
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-collapse">
                                         <thead>
-                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
-                                                <th className="p-5">#</th>
-                                                <th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>Vila <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('players')}>Jogadores Ativos <SortIndicator active={sortConfig.key === 'players'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('wins')}>Total Vitórias <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('losses')}>Derrotas <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('battles')}>Partidas <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th>
-                                                <th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('winRate')}>Win Rate <SortIndicator active={sortConfig.key === 'winRate'} direction={sortConfig.direction} /></th>
-                                            </tr>
+                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider"><th className="p-5">#</th><th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>Vila <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('players')}>Jogadores Ativos <SortIndicator active={sortConfig.key === 'players'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('wins')}>Total Vitórias <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('losses')}>Derrotas <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('battles')}>Partidas <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('winRate')}>Win Rate <SortIndicator active={sortConfig.key === 'winRate'} direction={sortConfig.direction} /></th></tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-800">
                                             {groupedVillages.map((v, idx) => (
