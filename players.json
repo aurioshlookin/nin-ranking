@@ -352,8 +352,15 @@
     "mastery_1": "Raio",
     "mastery_2": "Vento",
     "village": "Areia"
+  },
+  {
+    "name": "Prodigina",
+    "mastery_1": "Raio",
+    "mastery_2": "Arma",
+    "village": "Renegado Folha"
   }
 ]
+
 
 
 
