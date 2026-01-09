@@ -546,6 +546,23 @@
             
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
+            // Helper to calculate ranking month based on custom rule (Day 2 to Day 1 of next month)
+            const getRankingMonth = (dateObj) => {
+                const day = dateObj.getDate();
+                let month = dateObj.getMonth();
+                let year = dateObj.getFullYear();
+                
+                // If day is 1, it belongs to the previous month
+                if (day === 1) {
+                    month--;
+                    if (month < 0) {
+                        month = 11;
+                        year--;
+                    }
+                }
+                return { month, year };
+            };
+
             const globalPlayerStats = useMemo(() => {
                 const stats = {};
                 if (!rawData || rawData.length === 0) return stats;
@@ -686,39 +703,67 @@
             useEffect(() => {
                 if (rawData.length === 0) { setData({ rankings: [], history: {} }); return; }
                 const timestamps = rawData.map(l => l.timestamp ? new Date(l.timestamp).getTime() : 0).filter(t => t > 0);
+                
                 if (timestamps.length > 0) {
                     const minTime = Math.min(...timestamps);
                     const maxTime = Math.max(...timestamps);
                     setDateRange({ start: new Date(minTime).toLocaleDateString('pt-BR'), end: new Date(maxTime).toLocaleDateString('pt-BR') });
+                    
                     const uniqueMonths = new Set();
-                    timestamps.forEach(ts => {
-                        const d = new Date(ts);
-                        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                        uniqueMonths.add(key);
+                    rawData.forEach(log => {
+                        if (log.timestamp) {
+                            const d = new Date(log.timestamp);
+                            const { month, year } = getRankingMonth(d);
+                            const key = `${year}-${String(month + 1).padStart(2, '0')}`;
+                            uniqueMonths.add(key);
+                        }
                     });
+                    
                     const sortedMonths = Array.from(uniqueMonths).sort().reverse();
                     setAvailableMonths(sortedMonths);
-                    if (!targetMonth && sortedMonths.length > 0) setTargetMonth(sortedMonths[0]);
+                    
+                    // Default to current ranking month if available, else first available
+                    const nowRanking = getRankingMonth(new Date());
+                    const currentKey = `${nowRanking.year}-${String(nowRanking.month + 1).padStart(2, '0')}`;
+                    
+                    if (!targetMonth) {
+                        if (uniqueMonths.has(currentKey)) {
+                            setTargetMonth(currentKey);
+                        } else if (sortedMonths.length > 0) {
+                            setTargetMonth(sortedMonths[0]);
+                        }
+                    }
                 }
             }, [rawData]);
 
             const referenceDate = useMemo(() => new Date(), []);
+            
             const filteredLogs = useMemo(() => {
                 return rawData.filter(log => {
                     if (timeFilter === 'all') return true;
                     if (!log.timestamp) return false;
-                    const logTime = new Date(log.timestamp).getTime();
+                    
                     const logDate = new Date(log.timestamp);
-                    if (timeFilter === 'current_month') return logDate.getMonth() === referenceDate.getMonth() && logDate.getFullYear() === referenceDate.getFullYear();
+                    const logTime = logDate.getTime();
+                    const logRanking = getRankingMonth(logDate);
+
+                    if (timeFilter === 'current_month') {
+                        const refRanking = getRankingMonth(referenceDate);
+                        return logRanking.month === refRanking.month && logRanking.year === refRanking.year;
+                    }
+                    
                     if (timeFilter === 'specific_month') {
                         if (!targetMonth) return true;
-                        const [year, month] = targetMonth.split('-').map(Number);
-                        return logDate.getMonth() + 1 === month && logDate.getFullYear() === year;
+                        const [tYear, tMonth] = targetMonth.split('-').map(Number);
+                        // tMonth is 1-12, logRanking.month is 0-11
+                        return (logRanking.month + 1) === tMonth && logRanking.year === tYear;
                     }
+
                     const diff = referenceDate.getTime() - logTime;
                     const oneDay = 24 * 60 * 60 * 1000;
                     if (timeFilter === 'day') return diff <= oneDay && diff >= 0;
                     if (timeFilter === 'week') return diff <= 7 * oneDay && diff >= 0;
+                    
                     return true;
                 });
             }, [rawData, timeFilter, targetMonth, referenceDate]);
