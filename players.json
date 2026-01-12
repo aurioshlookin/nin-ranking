@@ -518,7 +518,7 @@
   {
     "name": "Ivann",
     "mastery_1": "Taijutsu",
-    "mastery_2": "Taijutsu",
+    "mastery_2": "",
     "village": "Folha"
   },
   {
@@ -568,8 +568,101 @@
     "mastery_1": "Vento",
     "mastery_2": "Médico",
     "village": "Renegado Folha"
+  },
+  {
+    "name": "Romario",
+    "mastery_1": "Bolha",
+    "mastery_2": "Arma",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Minerva",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Folha"
+  },
+  {
+    "name": "Ravyn",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Dakotinha",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Wyn",
+    "mastery_1": "Raio",
+    "mastery_2": "Vento",
+    "village": "Folha"
+  },
+  {
+    "name": "Hazz0r",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Needle",
+    "mastery_1": "Terra",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Haganetsu Arashi",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  },
+  {
+    "name": "Kenas",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Kami zada",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Bunnybesito",
+    "mastery_1": "Arma",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Oboro",
+    "mastery_1": "Médico",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  },
+  {
+    "name": "Raikou.",
+    "mastery_1": "Vento",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Lynce",
+    "mastery_1": "Raio",
+    "mastery_2": "Vento",
+    "village": "Névoa"
+  },
+  {
+    "name": "Fantasmao",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Shotz",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Folha"
   }
 ]
-
-
-
