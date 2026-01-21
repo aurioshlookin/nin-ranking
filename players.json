@@ -1,0 +1,668 @@
+[
+  {
+    "name": "Auriosh",
+    "mastery_1": "Médico",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Jovinianex",
+    "mastery_1": "Arma",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Acqua",
+    "mastery_1": "Médico",
+    "mastery_2": "Bolha",
+    "village": "Névoa"
+  },
+  {
+    "name": "Chizu",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Folha"
+  },
+  {
+    "name": "UTI",
+    "mastery_1": "Médico",
+    "mastery_2": "Taijutsu",
+    "village": "Névoa"
+  },
+  {
+    "name": "Oked",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "pedrocoelho28",
+    "mastery_1": "Arma",
+    "mastery_2": "Raio",
+    "village": "Areia"
+  },
+  {
+    "name": "ikenami",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Raio",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Mtss",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "Ofxt",
+    "mastery_1": "Arma",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "arnold013",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Yohki",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Areia"
+  },
+  {
+    "name": "Cowboy",
+    "mastery_1": "Raio",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "Byakin",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Folha"
+  },
+  {
+    "name": "Misogi",
+    "mastery_1": "Arma",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "K011",
+    "mastery_1": "Médico",
+    "mastery_2": "Terra",
+    "village": "Areia"
+  },
+  {
+    "name": "Prado",
+    "mastery_1": "Vento",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Synesiss",
+    "mastery_1": "Vento",
+    "mastery_2": "Raio",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Hisuy",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Folha"
+  },
+  {
+    "name": "why so silent",
+    "mastery_1": "Água",
+    "mastery_2": "Vento",
+    "village": "Névoa"
+  },
+  {
+    "name": "Suyou",
+    "mastery_1": "Bolha",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "pjeul",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "saki amemiya",
+    "mastery_1": "Água",
+    "mastery_2": "Vento",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "get jinxed",
+    "mastery_1": "Arma",
+    "mastery_2": "Água",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Assassino",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "GuinhoHenriq",
+    "mastery_1": "Raio",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "rafa",
+    "mastery_1": "Raio",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "Agony",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Fogo",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Alvesrd",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "Artista Generico",
+    "mastery_1": "Médico",
+    "mastery_2": "Punho Gentil",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Fumetsu",
+    "mastery_1": "Água",
+    "mastery_2": "Fogo",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Sasuke Uchiha-",
+    "mastery_1": "Fogo",
+    "mastery_2": "Raio",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Criatura",
+    "mastery_1": "Raio",
+    "mastery_2": "Fogo",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Kouz",
+    "mastery_1": "Raio",
+    "mastery_2": "Fogo",
+    "village": "Névoa"
+  },
+  {
+    "name": "MaConheiro",
+    "mastery_1": "Médico",
+    "mastery_2": "Terra",
+    "village": "Areia"
+  },
+  {
+    "name": "BlackTemplar",
+    "mastery_1": "Terra",
+    "mastery_2": "Fogo",
+    "village": "Folha"
+  },
+  {
+    "name": "Putifero",
+    "mastery_1": "Médico",
+    "mastery_2": "Vento",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Menzi Arashi",
+    "mastery_1": "Terra",
+    "mastery_2": "Fogo",
+    "village": "Folha"
+  },
+  {
+    "name": "MaCiel",
+    "mastery_1": "Água",
+    "mastery_2": "Fogo",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "tucson-",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "vilao",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Urso",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Kyo",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Fogo",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Not Tuc",
+    "mastery_1": "Arma",
+    "mastery_2": "Terra",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "lGHl",
+    "mastery_1": "Arma",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Tinick",
+    "mastery_1": "Arma",
+    "mastery_2": "Terra",
+    "village": "Areia"
+  },
+  {
+    "name": "Rin Akeboshi",
+    "mastery_1": "Arma",
+    "mastery_2": "Fogo",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "ListerHugo",
+    "mastery_1": "Arma",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Tekomo",
+    "mastery_1": "Médico",
+    "mastery_2": "Leque",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "Quavo",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Sakia",
+    "mastery_1": "Médico",
+    "mastery_2": "Vento",
+    "village": "Névoa"
+  },
+  {
+    "name": "Tita",
+    "mastery_1": "Fogo",
+    "mastery_2": "Vento",
+    "village": "Renegado Areia"
+  },
+  {
+    "name": "kyara",
+    "mastery_1": "Médico",
+    "mastery_2": "Água",
+    "village": "Areia"
+  },
+  {
+    "name": "LostStar",
+    "mastery_1": "Médico",
+    "mastery_2": "Terra",
+    "village": "Folha"
+  },
+  {
+    "name": "AlnVctr",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Folha"
+  },
+  {
+    "name": "Brenesquinha",
+    "mastery_1": "Fogo",
+    "mastery_2": "Raio",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Nikong",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Segue o Lider",
+    "mastery_1": "Raio",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "billy the kid",
+    "mastery_1": "Raio",
+    "mastery_2": "Vento",
+    "village": "Areia"
+  },
+  {
+    "name": "Prodigina",
+    "mastery_1": "Raio",
+    "mastery_2": "Arma",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Igorhjc1",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Winter",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "are u even trying",
+    "mastery_1": "Terra",
+    "mastery_2": "Arma",
+    "village": "Névoa"
+  },
+  {
+    "name": "Nosferatu",
+    "mastery_1": "Vento",
+    "mastery_2": "Raio",
+    "village": "Areia"
+  },
+  {
+    "name": "Qiy",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Grizzly sin of sloth",
+    "mastery_1": "Leque",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Kioday",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Raio",
+    "village": "Folha"
+  },
+  {
+    "name": "RAVlL",
+    "mastery_1": "Arma",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Scheka",
+    "mastery_1": "Arma",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Harmonia",
+    "mastery_1": "Terra",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Raveny",
+    "mastery_1": "Fogo",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Horo Horo",
+    "mastery_1": "Médico",
+    "mastery_2": "Taijutsu",
+    "village": "Folha"
+  },
+  {
+    "name": "Tyr",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "MillionBOE",
+    "mastery_1": "Água",
+    "mastery_2": "Vento",
+    "village": "Folha"
+  },
+  {
+    "name": "Shotz",
+    "mastery_1": "Fogo",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  },
+  {
+    "name": "Winter",
+    "mastery_1": "Raio",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "MaNmaGlande",
+    "mastery_1": "Arma",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "L0G0S",
+    "mastery_1": "Médico",
+    "mastery_2": "Arma",
+    "village": "Folha"
+  },
+  {
+    "name": "Igorhjc1",
+    "mastery_1": "Água",
+    "mastery_2": "Fogo",
+    "village": "Névoa"
+  },
+  {
+    "name": "Hipotesys",
+    "mastery_1": "Bolha",
+    "mastery_2": "Médico",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Glut Arashi",
+    "mastery_1": "Médico",
+    "mastery_2": "Terra",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Deiidara",
+    "mastery_1": "Fogo",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "Airi Y",
+    "mastery_1": "Médico",
+    "mastery_2": "Taijutsu",
+    "village": "Folha"
+  },
+  {
+    "name": "Hash",
+    "mastery_1": "Arma",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Mujahideen",
+    "mastery_1": "Raio",
+    "mastery_2": "Vento",
+    "village": "Névoa"
+  },
+  {
+    "name": "Alric",
+    "mastery_1": "Água",
+    "mastery_2": "Arma",
+    "village": "Névoa"
+  },
+  {
+    "name": "Ivann",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "",
+    "village": "Folha"
+  },
+  {
+    "name": "Aspas",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Terra",
+    "village": "Névoa"
+  },
+  {
+    "name": "Murky",
+    "mastery_1": "Punho Gentil",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  },
+  {
+    "name": "Sanshi",
+    "mastery_1": "Água",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Dart",
+    "mastery_1": "Água",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Oblivion.",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "nakamyama",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "vzBro",
+    "mastery_1": "Terra",
+    "mastery_2": "Raio",
+    "village": "Areia"
+  },
+  {
+    "name": "Plush",
+    "mastery_1": "Vento",
+    "mastery_2": "Médico",
+    "village": "Renegado Folha"
+  },
+  {
+    "name": "Romario",
+    "mastery_1": "Bolha",
+    "mastery_2": "Arma",
+    "village": "Renegado Névoa"
+  },
+  {
+    "name": "Minerva",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Folha"
+  },
+  {
+    "name": "Ravyn",
+    "mastery_1": "Médico",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Dakotinha",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Wyn",
+    "mastery_1": "Raio",
+    "mastery_2": "Vento",
+    "village": "Folha"
+  },
+  {
+    "name": "Hazz0r",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Needle",
+    "mastery_1": "Terra",
+    "mastery_2": "Raio",
+    "village": "Névoa"
+  },
+  {
+    "name": "Haganetsu Arashi",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  },
+  {
+    "name": "Kenas",
+    "mastery_1": "Vento",
+    "mastery_2": "Água",
+    "village": "Névoa"
+  },
+  {
+    "name": "Kami zada",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Bunnybesito",
+    "mastery_1": "Arma",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Oboro",
+    "mastery_1": "Médico",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  },
+  {
+    "name": "Raikou.",
+    "mastery_1": "Vento",
+    "mastery_2": "Médico",
+    "village": "Névoa"
+  },
+  {
+    "name": "Lynce",
+    "mastery_1": "Raio",
+    "mastery_2": "Vento",
+    "village": "Névoa"
+  },
+  {
+    "name": "Fantasmao",
+    "mastery_1": "Taijutsu",
+    "mastery_2": "Médico",
+    "village": "Areia"
+  },
+  {
+    "name": "Shotz",
+    "mastery_1": "Terra",
+    "mastery_2": "Médico",
+    "village": "Folha"
+  }
+]
