@@ -157,7 +157,7 @@
                 share: "Share", won: "WON", participated: "PARTICIPATED", no_tournament_period: "No tournament found in this period.", stats_quick: "Quick Stats",
                 total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading data from Firebase...", error_loading: "Error loading data", try_again: "Try Again",
                 players_with: "Players with:", listing: "Listing", players_found: "players found", players_of_village: "Players of Village:",
-                upload_modal_title: "Upload JSON File", upload_logs_btn: "Battle Logs (Matches)", upload_players_btn: "Players Metadata (Villages/Masteries)", upload_success: "Upload successful!", upload_error: "Upload error:", uploading: "Uploading..."
+                upload_modal_title: "Upload JSON File", upload_logs_btn: "Battle Logs (Partidas)", upload_players_btn: "Players Metadata (Vilas/Maestrias)", upload_success: "Upload successful!", upload_error: "Upload error:", uploading: "Uploading..."
             }
         };
 
@@ -806,7 +806,11 @@
 
                     if (p1Param) setVersusPlayer1(p1Param);
                     if (p2Param) setVersusPlayer2(p2Param);
-                    window.history.replaceState({}, document.title, window.location.pathname);
+                    try {
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    } catch (e) {
+                        console.warn("Could not update history state (likely due to sandbox/iframe restrictions):", e);
+                    }
                 }
             }, [isLoading, data.rankings, groupedTournaments]); 
 
