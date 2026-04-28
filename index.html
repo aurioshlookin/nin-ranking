@@ -20,12 +20,13 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
         @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-            display: inline-block;
-            animation: marquee 60s linear infinite;
+            display: flex;
+            width: max-content;
+            animation: marquee 30s linear infinite;
         }
         .animate-marquee:hover {
             animation-play-state: paused;
@@ -115,6 +116,7 @@
                 no_player_found: "Nenhum jogador encontrado para este filtro.", date: "Data", tournament: "Torneio", time: "Horário", no_tournament_found: "Nenhum torneio encontrado para este filtro.",
                 files_loaded: "Arquivos carregados:",
                 custom_date: "Personalizado", live_ticker: "AO VIVO", export_card: "Exportar Cartão",
+                clear_versus: "Limpar", direct_match: "Confronto Direto",
                 // Modals
                 how_to_use: "Como usar o site", functionalities: "Funcionalidades", features_list_1: "Ranking: Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.",
                 features_list_2: "Torneios: Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.", features_list_3: "Filtros: Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.",
@@ -136,6 +138,7 @@
                 no_player_found: "No player found for this filter.", date: "Date", tournament: "Tournament", time: "Time", no_tournament_found: "No tournament found for this filter.",
                 files_loaded: "Files loaded:",
                 custom_date: "Custom", live_ticker: "LIVE", export_card: "Export Card",
+                clear_versus: "Clear", direct_match: "Direct Match",
                 // Modals
                 how_to_use: "How to use", functionalities: "Features", features_list_1: "Ranking: See the best players on the server. Click a name to see match history and performance charts.",
                 features_list_2: "Tournaments: Access past tournaments list. Click a tournament to view brackets and fight progress.", features_list_3: "Filters: Use mode (General, Ranked, etc.) and date filters to refine results.",
@@ -293,15 +296,26 @@
             if (recentLogs.length === 0) return null;
 
             return (
-                <div className="bg-slate-900 border border-slate-800 rounded-lg flex items-center overflow-hidden h-8 mb-6 shadow-md">
+                <div className="bg-slate-900 border border-slate-800 rounded-lg flex items-center overflow-hidden h-10 mb-6 shadow-md">
                     <div className="bg-red-600 text-white font-bold text-[10px] sm:text-xs px-3 py-2 flex items-center gap-1.5 z-10 shadow-lg h-full">
                         <Flame className="w-3 h-3 animate-pulse" /> {t.live_ticker}
                     </div>
                     <div className="flex-1 overflow-hidden relative h-full flex items-center bg-slate-950/50">
-                        <div className="animate-marquee whitespace-nowrap flex gap-8 text-xs text-slate-300 items-center h-full">
-                            {recentLogs.map((log, i) => {
+                        <div className="animate-marquee whitespace-nowrap flex gap-8 text-xs text-slate-300 items-center h-full pr-8">
+                            {[...recentLogs, ...recentLogs].map((log, i) => {
                                 const m = log.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
-                                return <span key={i}><span className="text-yellow-500 font-bold">[{m[1]}]</span> <span className="text-blue-400 font-bold">{m[2]}</span> derrotou <span className="text-red-400 font-medium">{m[3]}</span></span>
+                                if (!m) return null;
+                                const dateStr = new Date(log.timestamp).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+                                const timeStr = new Date(log.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                                return (
+                                    <span key={i} className="flex items-center gap-2">
+                                        <span className="text-slate-500 font-mono text-[10px] bg-slate-900 border border-slate-700 px-1.5 py-0.5 rounded">{dateStr} {timeStr}</span>
+                                        <span className="text-yellow-500 font-bold">[{m[1]}]</span> 
+                                        <span className="text-blue-400 font-bold">{m[2]}</span> 
+                                        <span className="text-slate-400">derrotou</span> 
+                                        <span className="text-red-400 font-medium">{m[3]}</span>
+                                    </span>
+                                );
                             })}
                         </div>
                     </div>
@@ -312,7 +326,7 @@
         const Podium = ({ topPlayers, t }) => {
             if (!topPlayers || topPlayers.length < 3) return null;
             return (
-                <div className="flex justify-center items-end h-56 mb-10 mt-6 gap-2 sm:gap-6 animate-in slide-in-from-bottom-4 duration-700">
+                <div className="flex justify-center items-end h-56 mb-10 mt-12 gap-2 sm:gap-6 animate-in slide-in-from-bottom-4 duration-700">
                     {/* 2nd Place */}
                     <div className="flex flex-col items-center">
                         <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-400 flex items-center justify-center mb-1 shadow-lg shadow-slate-500/20"><Medal className="w-6 h-6 text-slate-400"/></div>
@@ -1164,10 +1178,22 @@
                         {/* Views */}
                         {viewMode === 'versus' && (
                              <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500 p-6">
+                                <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <Swords className="w-5 h-5 text-red-500" /> {t.direct_match}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        {(versusPlayer1 || versusPlayer2) && (
+                                            <button onClick={() => { setVersusPlayer1(''); setVersusPlayer2(''); }} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-full font-bold text-xs transition-colors whitespace-nowrap">
+                                                <XIcon className="w-3.5 h-3.5 inline mr-1" />{t.clear_versus}
+                                            </button>
+                                        )}
+                                        <ShareButton generateUrl={() => getShareLink()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 h-8" label={t.share} />
+                                    </div>
+                                </div>
                                 <div className="flex flex-col md:flex-row gap-4 items-end mb-8 relative">
-                                    <div className="absolute top-0 right-0"><ShareButton generateUrl={() => getShareLink()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" label={t.share} /></div>
                                     <div className="flex-1 w-full"><label className="block text-slate-400 text-sm font-bold mb-2">{t.player1}</label><div className="relative"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-blue-400" /></div><input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder={t.player1} value={versusPlayer1} onChange={(e) => setVersusPlayer1(e.target.value)} /></div></div>
-                                    <div className="flex items-center justify-center pb-3"><div className="bg-slate-800 p-2 rounded-full border border-slate-700"><Swords className="w-6 h-6 text-red-500" /></div></div>
+                                    <div className="flex items-center justify-center pb-3"><div className="bg-slate-800 p-2 rounded-full border border-slate-700"><Swords className="w-6 h-6 text-slate-500" /></div></div>
                                     <div className="flex-1 w-full"><label className="block text-slate-400 text-sm font-bold mb-2">{t.player2}</label><div className="relative"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-red-400" /></div><input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-red-500/50" placeholder={t.player2} value={versusPlayer2} onChange={(e) => setVersusPlayer2(e.target.value)} /></div></div>
                                     <datalist id="playerList">{data.rankings.map(p => <option key={p.name} value={p.name} />)}</datalist>
                                 </div>
