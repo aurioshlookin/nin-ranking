@@ -50,6 +50,7 @@
         // --- ICONS ---
         const IconBase = ({ children, className, ...props }) => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>);
         const Trophy = (props) => <IconBase {...props}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></IconBase>;
+        const Crown = (props) => <IconBase {...props}><path d="m2 4 3 12h14l3-12-6 7-4-11-4 11z"/><path d="M7 22h10"/></IconBase>;
         const Swords = (props) => <IconBase {...props}><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" x2="19" y1="19" y2="13"/><line x1="16" x2="20" y1="16" y2="20"/><line x1="19" x2="21" y1="21" y2="19"/></IconBase>;
         const Users = (props) => <IconBase {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></IconBase>;
         const Medal = (props) => <IconBase {...props}><circle cx="12" cy="17" r="5"/><path d="M9 17v-8"/><path d="M15 17v-8"/><path d="M9 17h6"/><path d="M12 2v5"/><path d="M12 2l-4 5"/><path d="M12 2l4 5"/></IconBase>;
@@ -329,7 +330,7 @@
                 <div className="flex justify-center items-end h-56 mb-10 mt-12 gap-2 sm:gap-6 animate-in slide-in-from-bottom-4 duration-700">
                     {/* 2nd Place */}
                     <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-400 flex items-center justify-center mb-1 shadow-lg shadow-slate-500/20"><Medal className="w-6 h-6 text-slate-400"/></div>
+                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-400 flex items-center justify-center mb-1 shadow-lg shadow-slate-500/20"><Crown className="w-6 h-6 text-slate-400"/></div>
                         <span className="font-bold text-slate-300 text-sm truncate max-w-[80px] sm:max-w-[100px]">{topPlayers[1].name}</span>
                         <div className="flex flex-col items-center mb-2 mt-1 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
                             <span className="text-xs font-bold text-yellow-500 flex items-center gap-1" title={t.t_wins}><Trophy className="w-3 h-3"/> {topPlayers[1].tournamentWins}</span>
@@ -341,7 +342,7 @@
                     <div className="flex flex-col items-center z-10 relative -mx-2 sm:-mx-0">
                         <div className="absolute -top-6 text-yellow-500 animate-bounce"><Star className="w-6 h-6 fill-current drop-shadow-[0_0_8px_rgba(234,179,8,1)]"/></div>
                         <div className="w-16 h-16 bg-slate-800 rounded-full border-2 border-yellow-400 flex items-center justify-center mb-1 shadow-xl shadow-yellow-500/30">
-                            <Trophy className="w-8 h-8 text-yellow-400"/>
+                            <Crown className="w-8 h-8 text-yellow-400"/>
                         </div>
                         <span className="font-black text-yellow-400 text-base truncate max-w-[100px] sm:max-w-[120px] drop-shadow-md">{topPlayers[0].name}</span>
                         <div className="flex flex-col items-center mb-2 mt-1 bg-slate-900/80 px-3 py-1 rounded border border-yellow-500/30 shadow-lg">
@@ -352,7 +353,7 @@
                     </div>
                     {/* 3rd Place */}
                     <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-amber-700 flex items-center justify-center mb-1 shadow-lg shadow-amber-900/40"><Medal className="w-6 h-6 text-amber-600"/></div>
+                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-amber-700 flex items-center justify-center mb-1 shadow-lg shadow-amber-900/40"><Crown className="w-6 h-6 text-amber-600"/></div>
                         <span className="font-bold text-amber-500 text-sm truncate max-w-[80px] sm:max-w-[100px]">{topPlayers[2].name}</span>
                         <div className="flex flex-col items-center mb-2 mt-1 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
                             <span className="text-xs font-bold text-yellow-500 flex items-center gap-1" title={t.t_wins}><Trophy className="w-3 h-3"/> {topPlayers[2].tournamentWins}</span>
@@ -727,8 +728,8 @@
                             }
                             const currentBadges = foundP.badges ? foundP.badges.filter(b => b.id !== 'veteran' && b.id !== 'master') : [];
                             const newBadges = [...currentBadges];
-                            if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
-                            else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
+                            if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: t.icon_master, color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
+                            else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: t.icon_veteran, color: 'text-blue-400' });
                             
                             setSelectedPlayer({ ...foundP, badges: newBadges });
                         }
@@ -1265,7 +1266,7 @@
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                                     <Card title={t.active_players} value={filteredRankings.length} icon={Users} colorClass="text-blue-400 bg-blue-500" />
                                     <Card title={t.total_battles} value={totalBattles} icon={Swords} colorClass="text-red-400 bg-red-500" />
-                                    <Card title={t.most_wins} value={mostWinsPlayer ? mostWinsPlayer.name : '-'} icon={Medal} colorClass="text-yellow-400 bg-yellow-500" />
+                                    <Card title={t.most_wins} value={mostWinsPlayer ? mostWinsPlayer.name : '-'} icon={Crown} colorClass="text-yellow-400 bg-yellow-500" />
                                     <Card title={t.most_losses} value={mostLossesPlayer ? mostLossesPlayer.name : '-'} icon={TrendingDown} colorClass="text-orange-400 bg-orange-500" />
                                 </div>
                                 <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
@@ -1287,9 +1288,9 @@
                                                 {paginatedRankings.map((player, index) => {
                                                     let rankColor = "text-slate-500", rankIcon = null;
                                                     const realRank = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
-                                                    if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Trophy className="w-4 h-4 mx-auto" />; }
-                                                    if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
-                                                    if (realRank === 3) { rankColor = "text-amber-700"; rankIcon = <Medal className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 3) { rankColor = "text-amber-700"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
 
                                                     return (
                                                         <tr key={player.name} onClick={() => setSelectedPlayer(player)} className="hover:bg-slate-800/50 cursor-pointer transition-colors group">
