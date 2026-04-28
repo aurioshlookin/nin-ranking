@@ -608,8 +608,20 @@
                     let currentStart = 0;
                     
                     sortedLogs.forEach(log => {
-                        // Verifica se a mensagem de encerramento do torneio mensal está presente
-                        if (log.content && log.content.toLowerCase().includes('vencedores mensais do torneio')) {
+                        // Verifica se a mensagem de encerramento do torneio mensal está presente no texto ou no embed
+                        let isMonthlyReset = false;
+                        const targetPhrase = 'vencedores mensais do torneio';
+                        
+                        if (log.content && log.content.toLowerCase().includes(targetPhrase)) {
+                            isMonthlyReset = true;
+                        } else if (log.embeds && Array.isArray(log.embeds)) {
+                            isMonthlyReset = log.embeds.some(embed => 
+                                (embed.title && embed.title.toLowerCase().includes(targetPhrase)) ||
+                                (embed.description && embed.description.toLowerCase().includes(targetPhrase))
+                            );
+                        }
+
+                        if (isMonthlyReset) {
                             const endDate = new Date(log.timestamp);
                             
                             // O nome do mês é referente ao mês anterior ao da postagem (ex: postou em Abril, o mês era Março)
@@ -1050,62 +1062,6 @@
                             </div>
                         )}
 
-                        {viewMode === 'masteries' && (
-                            <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="bg-slate-900/50 border-b border-yellow-500/20 px-6 py-3 flex items-start gap-3"><AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" /><p className="text-xs text-slate-400 leading-relaxed"><strong className="text-yellow-500 block mb-1">{t.manual_warning}</strong>{t.manual_warning_text}</p></div>
-                                <div className="p-6 border-b border-slate-800 flex justify-between items-center"><div><h3 className="text-xl font-bold text-white">{t.ranking_masteries}</h3><p className="text-slate-400 text-sm">{t.ranking_masteries_sub}</p></div><div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700"><button onClick={() => setMasteryViewMode('combined')} className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${masteryViewMode === 'combined' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.combined}</button><button onClick={() => setMasteryViewMode('individual')} className={`px-3 py-1.5 rounded text-xs font-bold transition-colors ${masteryViewMode === 'individual' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}>{t.individual}</button></div></div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider"><th className="p-5">#</th><th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>{t.mastery} <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('players')}>{t.active_players} <SortIndicator active={sortConfig.key === 'players'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('wins')}>{t.total_wins} <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('losses')}>{t.losses} <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('battles')}>{t.battles} <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('winRate')}>{t.win_rate} <SortIndicator active={sortConfig.key === 'winRate'} direction={sortConfig.direction} /></th></tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-800">
-                                            {groupedMasteries.map((m, idx) => (
-                                                <tr key={m.name} className="hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => handleMasteryClick(m.name)} title="Clique para ver os jogadores com esta maestria">
-                                                    <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
-                                                    <td className="p-5"><div className="flex flex-wrap gap-2">{m.parts.map((part, i) => (<span key={i} className={`text-sm font-bold px-3 py-1 rounded border uppercase tracking-wide group-hover:brightness-110 ${STYLE_MAP[part] || 'text-slate-200 border-slate-700'}`}>{part}</span>))}</div></td>
-                                                    <td className="p-5 text-center text-slate-300 font-bold group-hover:text-white">{m.players}</td>
-                                                    <td className="p-5 text-center text-yellow-500 font-bold">{m.wins}</td>
-                                                    <td className="p-5 text-center text-red-500 font-bold">{m.losses}</td>
-                                                    <td className="p-5 text-center text-blue-400 font-bold">{m.battles}</td>
-                                                    <td className="p-5 text-center"><span className={`text-xs font-bold px-2 py-1 rounded-full ${parseFloat(m.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : parseFloat(m.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>{m.winRate}%</span></td>
-                                                </tr>
-                                            ))}
-                                            {groupedMasteries.length === 0 && (<tr><td colSpan="7" className="p-8 text-center text-slate-500">{t.no_mastery_data}</td></tr>)}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-
-                        {viewMode === 'villages' && (
-                            <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="bg-slate-900/50 border-b border-yellow-500/20 px-6 py-3 flex items-start gap-3"><AlertCircle className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" /><p className="text-xs text-slate-400 leading-relaxed"><strong className="text-yellow-500 block mb-1">{t.manual_warning}</strong>{t.manual_warning_text}</p></div>
-                                <div className="p-6 border-b border-slate-800"><h3 className="text-xl font-bold text-white">{t.ranking_villages}</h3><p className="text-slate-400 text-sm">{t.ranking_villages_sub}</p></div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider"><th className="p-5">#</th><th className="p-5 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('name')}>{t.village} <SortIndicator active={sortConfig.key === 'name'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('players')}>{t.active_players} <SortIndicator active={sortConfig.key === 'players'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('wins')}>{t.total_wins} <SortIndicator active={sortConfig.key === 'wins'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('losses')}>{t.losses} <SortIndicator active={sortConfig.key === 'losses'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('battles')}>{t.battles} <SortIndicator active={sortConfig.key === 'battles'} direction={sortConfig.direction} /></th><th className="p-5 text-center cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('winRate')}>{t.win_rate} <SortIndicator active={sortConfig.key === 'winRate'} direction={sortConfig.direction} /></th></tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-800">
-                                            {groupedVillages.map((v, idx) => (
-                                                <tr key={v.name} className="hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => handleVillageClick(v.name)} title="Clique para ver os jogadores desta vila">
-                                                    <td className="p-5 text-slate-500 font-bold">{idx + 1}</td>
-                                                    <td className="p-5 font-bold text-lg"><span className={STYLE_MAP[v.name] || 'text-white'}>{v.name}</span></td>
-                                                    <td className="p-5 text-center text-slate-300 font-bold">{v.players}</td>
-                                                    <td className="p-5 text-center text-yellow-500 font-bold">{v.wins}</td>
-                                                    <td className="p-5 text-center text-red-500 font-bold">{v.losses}</td>
-                                                    <td className="p-5 text-center text-blue-400 font-bold">{v.battles}</td>
-                                                    <td className="p-5 text-center"><span className={`text-xs font-bold px-2 py-1 rounded-full ${parseFloat(v.winRate) >= 60 ? 'bg-green-500/20 text-green-400' : parseFloat(v.winRate) >= 40 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>{v.winRate}%</span></td>
-                                                </tr>
-                                            ))}
-                                            {groupedVillages.length === 0 && (<tr><td colSpan="7" className="p-8 text-center text-slate-500">{t.no_village_data}</td></tr>)}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-                        
                         <div className="text-center text-[10px] text-slate-700 mt-8 pb-4">{t.files_loaded} {loadedFilesCount}</div>
                     </div>
                 </div>
