@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="./icon.png" id="dynamic-favicon">
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -95,7 +95,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nêmesis (Quem mais te venceu)", icon_victim: "Vítima (Quem você mais venceu)", about_project: "Sobre o Projeto",
                 about_text_1: "Este painel foi desenvolvido por Auriosh.", about_text_2: "É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.", about_text_3: "A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial Servidor do Discord.",
                 share: "Compartilhar", won: "VENCEU", participated: "PARTICIPOU", no_tournament_period: "Nenhum torneio encontrado neste período.", stats_quick: "Estatísticas Rápidas",
-                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "Carregando dados em paralelo...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
+                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "Carregando arquivos JSON...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
             },
             en: {
                 server: "Server: Hawk", to: "to",
@@ -114,7 +114,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nemesis (Who beat you most)", icon_victim: "Victim (Who you beat most)", about_project: "About Project",
                 about_text_1: "This panel was developed by Auriosh.", about_text_2: "It is a non-profit, unpaid project created for the community.", about_text_3: "Data updates are done manually using information released on the official Discord Server channel.",
                 share: "Share", won: "WON", participated: "PARTICIPATED", no_tournament_period: "No tournament found in this period.", stats_quick: "Quick Stats",
-                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading data in parallel...", error_loading: "Error loading data", try_again: "Try Again"
+                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading JSON files...", error_loading: "Error loading data", try_again: "Try Again"
             }
         };
 
@@ -517,6 +517,7 @@
                     let page = 1; let foundEnd = false; const MAX_PAGES = 50; const BATCH_SIZE = 5; 
 
                     try {
+                        // Carregar Metadados
                         try {
                             const playersResp = await fetch(`${PLAYERS_FILE}?v=${Date.now()}`);
                             if (playersResp.ok) {
@@ -527,6 +528,7 @@
                             }
                         } catch (err) { console.warn("Erro ao carregar players.json:", err); }
 
+                        // LER ARQUIVOS JSON PAGINADOS DO DISCORD EXPORTER
                         while (!foundEnd && page <= MAX_PAGES) {
                             const promises = [];
                             for (let i = 0; i < BATCH_SIZE; i++) {
@@ -538,14 +540,22 @@
                             const results = await Promise.all(promises);
                             let batchSuccessCount = 0;
                             results.forEach(json => {
-                                if (Array.isArray(json)) { loadedData.push(...json); batchSuccessCount++; } else { foundEnd = true; }
+                                // O formato do Discord Chat Exporter guarda os logs dentro do array "messages"
+                                if (json && json.messages && Array.isArray(json.messages)) { 
+                                    loadedData.push(...json.messages); 
+                                    batchSuccessCount++; 
+                                } else if (json && Array.isArray(json)) { // Fallback para array direto, caso ocorra
+                                    loadedData.push(...json); 
+                                    batchSuccessCount++; 
+                                }
                             });
                             if (batchSuccessCount === 0) foundEnd = true;
                             setLoadedFilesCount(prev => prev + batchSuccessCount);
                             page += BATCH_SIZE;
                         }
                         setRawData(loadedData);
-                    } catch (err) { setError(`${t.error_loading}: ${err.message}`); setRawData([]); } finally { setIsLoading(false); }
+                        setIsLoading(false);
+                    } catch (err) { setError(`${t.error_loading}: ${err.message}`); setRawData([]); setIsLoading(false); }
                 };
                 fetchData();
             }, []);
