@@ -9,6 +9,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Adição do html2canvas para gerar os Cards exportáveis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -16,6 +18,18 @@
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans">
@@ -69,8 +83,21 @@
         const Flame = (props) => <IconBase {...props} fill="currentColor"><path d="M12 2c0 0-3 2.5-3 6 0 2 1.5 3 1.5 5S9 19 12 19s4.5-3.5 4.5-6-1.5-3-1.5-5-3-6-3-6zm0 15c-1.5 0-2.5-1.5-2.5-3.5S10.5 11 12 11s2.5 1.5 2.5 2.5S13.5 17 12 17z" /><path d="M9.5 9c0 0-1.5 1.5-1.5 3.5S9 16 11 16s2.5-1.5 2.5-3-2-5-4-4z" opacity="0.6"/></IconBase>;
         const Star = (props) => <IconBase {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fillOpacity="0.2" /></IconBase>;
         const ShurikenIcon = (props) => <IconBase {...props}><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" fillOpacity="0.2" /></IconBase>;
-        const ScrollIcon = (props) => <IconBase {...props}><path d="M19 4H9C7.89543 4 7 4.89543 7 6V20C7 21.1046 7.89543 22 9 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" /><path d="M5 15H4C3.44772 15 3 14.5523 3 14V8C3 7.44772 3.44772 7 4 7H5" /><path d="M15 12H19" /><path d="M15 16H19" /><path d="M15 8H19" /></IconBase>;
-        const Globe = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></IconBase>;
+        const CameraIcon = (props) => <IconBase {...props}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></IconBase>;
+
+        // --- COMPONENTS ---
+        const HighlightText = ({ text, highlight }) => {
+            if (!highlight || !highlight.trim()) return <span>{text}</span>;
+            const regex = new RegExp(`(${highlight})`, 'gi');
+            const parts = text.split(regex);
+            return (
+                <span>
+                    {parts.map((part, i) =>
+                        regex.test(part) ? <span key={i} className="bg-yellow-500/30 text-yellow-300 px-0.5 rounded">{part}</span> : part
+                    )}
+                </span>
+            );
+        };
 
         // --- CONFIG ---
         const CUSTOM_ICON_URL = './icon.png'; 
@@ -85,8 +112,9 @@
                 player1: "Jogador 1", player2: "Jogador 2", no_match: "Nenhum confronto encontrado entre estes jogadores.", winners: "Vencedores", losers: "Perdedores",
                 victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Batalhas Totais", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas",
                 player: "Jogador", t_wins: "T. Vencidos", t_played: "T. Jogados", wins: "Vitórias", losses: "Derrotas", battles: "Partidas", win_rate: "Win Rate",
-                no_player_found: "Nenhum jogador encontrado para este filtro.", date: "Date", tournament: "Torneio", time: "Horário", no_tournament_found: "Nenhum torneio encontrado para este filtro.",
+                no_player_found: "Nenhum jogador encontrado para este filtro.", date: "Data", tournament: "Torneio", time: "Horário", no_tournament_found: "Nenhum torneio encontrado para este filtro.",
                 files_loaded: "Arquivos carregados:",
+                custom_date: "Personalizado", live_ticker: "AO VIVO", export_card: "Exportar Cartão",
                 // Modals
                 how_to_use: "Como usar o site", functionalities: "Funcionalidades", features_list_1: "Ranking: Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.",
                 features_list_2: "Torneios: Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.", features_list_3: "Filtros: Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.",
@@ -95,7 +123,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nêmesis (Quem mais te venceu)", icon_victim: "Vítima (Quem você mais venceu)", about_project: "Sobre o Projeto",
                 about_text_1: "Este painel foi desenvolvido por Auriosh.", about_text_2: "É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.", about_text_3: "A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial Servidor do Discord.",
                 share: "Compartilhar", won: "VENCEU", participated: "PARTICIPOU", no_tournament_period: "Nenhum torneio encontrado neste período.", stats_quick: "Estatísticas Rápidas",
-                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "Carregando arquivos JSON...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
+                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar arquivos JSON...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
             },
             en: {
                 server: "Server: Hawk", to: "to",
@@ -106,6 +134,7 @@
                 player: "Player", t_wins: "T. Won", t_played: "T. Played", wins: "Wins", losses: "Losses", battles: "Matches", win_rate: "Win Rate",
                 no_player_found: "No player found for this filter.", date: "Date", tournament: "Tournament", time: "Time", no_tournament_found: "No tournament found for this filter.",
                 files_loaded: "Files loaded:",
+                custom_date: "Custom", live_ticker: "LIVE", export_card: "Export Card",
                 // Modals
                 how_to_use: "How to use", functionalities: "Features", features_list_1: "Ranking: See the best players on the server. Click a name to see match history and performance charts.",
                 features_list_2: "Tournaments: Access past tournaments list. Click a tournament to view brackets and fight progress.", features_list_3: "Filters: Use mode (General, Ranked, etc.) and date filters to refine results.",
@@ -147,7 +176,7 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    alert("Link copied!");
+                    alert("Link copiado!");
                 } catch (err) {
                     console.error('Error copying link', err);
                 }
@@ -158,7 +187,7 @@
                 <button 
                     onClick={handleShare} 
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-xs transition-colors ${className || 'bg-blue-600 hover:bg-blue-500 text-white'}`}
-                    title="Copy link"
+                    title="Copiar link"
                 >
                     <ShareIcon className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">{label}</span>
@@ -241,6 +270,64 @@
                 <div><p className="text-slate-400 text-sm font-medium">{title}</p><h3 className="text-2xl font-bold text-white">{value}</h3></div>
             </div>
         );
+        
+        const LiveTicker = ({ logs, t }) => {
+            const recentLogs = useMemo(() => {
+                return logs.filter(l => l.content && l.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/))
+                           .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp))
+                           .slice(0, 10);
+            }, [logs]);
+
+            if (recentLogs.length === 0) return null;
+
+            return (
+                <div className="bg-slate-900 border border-slate-800 rounded-lg flex items-center overflow-hidden h-8 mb-6 shadow-md">
+                    <div className="bg-red-600 text-white font-bold text-[10px] sm:text-xs px-3 py-2 flex items-center gap-1.5 z-10 shadow-lg h-full">
+                        <Flame className="w-3 h-3 animate-pulse" /> {t.live_ticker}
+                    </div>
+                    <div className="flex-1 overflow-hidden relative h-full flex items-center bg-slate-950/50">
+                        <div className="animate-marquee whitespace-nowrap flex gap-8 text-xs text-slate-300 items-center h-full">
+                            {recentLogs.map((log, i) => {
+                                const m = log.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+                                return <span key={i}><span className="text-yellow-500 font-bold">[{m[1]}]</span> <span className="text-blue-400 font-bold">{m[2]}</span> derrotou <span className="text-red-400 font-medium">{m[3]}</span></span>
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        const Podium = ({ topPlayers }) => {
+            if (!topPlayers || topPlayers.length < 3) return null;
+            return (
+                <div className="flex justify-center items-end h-48 mb-10 mt-6 gap-2 sm:gap-6 animate-in slide-in-from-bottom-4 duration-700">
+                    {/* 2nd Place */}
+                    <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-400 flex items-center justify-center mb-2 shadow-lg shadow-slate-500/20"><Medal className="w-6 h-6 text-slate-400"/></div>
+                        <span className="font-bold text-slate-300 text-sm truncate max-w-[80px] sm:max-w-[100px]">{topPlayers[1].name}</span>
+                        <span className="text-xs text-slate-500 font-mono mb-2">{topPlayers[1].wins} V</span>
+                        <div className="w-20 sm:w-28 h-24 bg-gradient-to-t from-slate-900 to-slate-800 rounded-t-lg border-t-4 border-slate-400 flex justify-center pt-2 shadow-inner"><span className="text-2xl font-black text-slate-500/50">2</span></div>
+                    </div>
+                    {/* 1st Place */}
+                    <div className="flex flex-col items-center z-10 relative -mx-2 sm:-mx-0">
+                        <div className="absolute -top-6 text-yellow-500 animate-bounce"><Star className="w-6 h-6 fill-current drop-shadow-[0_0_8px_rgba(234,179,8,1)]"/></div>
+                        <div className="w-16 h-16 bg-slate-800 rounded-full border-2 border-yellow-400 flex items-center justify-center mb-2 shadow-xl shadow-yellow-500/30">
+                            <Trophy className="w-8 h-8 text-yellow-400"/>
+                        </div>
+                        <span className="font-black text-yellow-400 text-base truncate max-w-[100px] sm:max-w-[120px] drop-shadow-md">{topPlayers[0].name}</span>
+                        <span className="text-xs text-yellow-500/80 font-mono mb-2 font-bold">{topPlayers[0].wins} V</span>
+                        <div className="w-24 sm:w-32 h-32 bg-gradient-to-t from-yellow-950/40 to-yellow-600/40 rounded-t-lg border-t-4 border-yellow-400 flex justify-center pt-2 shadow-2xl shadow-yellow-900/40"><span className="text-4xl font-black text-yellow-500/50">1</span></div>
+                    </div>
+                    {/* 3rd Place */}
+                    <div className="flex flex-col items-center">
+                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-amber-700 flex items-center justify-center mb-2 shadow-lg shadow-amber-900/40"><Medal className="w-6 h-6 text-amber-600"/></div>
+                        <span className="font-bold text-amber-500 text-sm truncate max-w-[80px] sm:max-w-[100px]">{topPlayers[2].name}</span>
+                        <span className="text-xs text-amber-700 font-mono mb-2">{topPlayers[2].wins} V</span>
+                        <div className="w-20 sm:w-28 h-20 bg-gradient-to-t from-slate-900 to-amber-900/30 rounded-t-lg border-t-4 border-amber-700 flex justify-center pt-2 shadow-inner"><span className="text-2xl font-black text-amber-700/50">3</span></div>
+                    </div>
+                </div>
+            );
+        };
 
         const PlayerPerformanceChart = ({ matches, t }) => {
             const [hoveredStat, setHoveredStat] = useState(null);
@@ -322,6 +409,10 @@
                                     <div className="flex items-center gap-2"><Star className="w-4 h-4 text-yellow-400" /> <span>{t.icon_elite}</span></div>
                                     <div className="flex items-center gap-2"><Skull className="w-4 h-4 text-red-500" /> <span>{t.icon_nemesis}</span></div>
                                     <div className="flex items-center gap-2"><Swords className="w-4 h-4 text-green-500" /> <span>{t.icon_victim}</span></div>
+                                    {/* Novas Conquistas */}
+                                    <div className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-emerald-400" /> <span>Invicto (WR 100%)</span></div>
+                                    <div className="flex items-center gap-2"><TrendingDown className="w-4 h-4 text-purple-400" /> <span>Azarão (WR &lt; 30%)</span></div>
+                                    <div className="flex items-center gap-2"><Clock className="w-4 h-4 text-pink-400" /> <span>Gladiador Insone (50+ lutas)</span></div>
                                 </div>
                             </div>
                             <div className="h-px bg-slate-800 w-full"></div>
@@ -338,6 +429,22 @@
         const PlayerModal = ({ player, history, tournaments, activeTab, onClose, onNavigateToPlayer, onOpenTournament, getShareLink, t }) => {
             useLockBodyScroll(); 
             const [historyView, setHistoryView] = useState('matches'); 
+            const cardRef = useRef(null);
+
+            const handleExport = async () => {
+                if (!cardRef.current || typeof html2canvas === 'undefined') return;
+                try {
+                    const canvas = await html2canvas(cardRef.current, { backgroundColor: '#020617', scale: 2 });
+                    const url = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `Status_${player.name.replace(/ /g, '_')}.png`;
+                    a.click();
+                } catch (err) {
+                    console.error("Erro ao exportar", err);
+                }
+            };
+
             if (!player) return null;
             const allMatches = history[player.name] || [];
             const playerMatches = useMemo(() => {
@@ -373,9 +480,9 @@
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-[80]" onClick={onClose}>
                     <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]" onClick={(e) => e.stopPropagation()}>
-                        <div className="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
+                        <div className="p-4 sm:p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
                             <div className="flex flex-col gap-2">
-                                <h2 className="text-3xl font-bold text-white mb-0 flex items-center gap-2">{player.name}{parseFloat(player.winRate) >= 60 && <TrendingUp className="w-6 h-6 text-green-400" />}</h2>
+                                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-0 flex items-center gap-2">{player.name}{parseFloat(player.winRate) >= 60 && <TrendingUp className="w-6 h-6 text-green-400" />}</h2>
                                 <div className="flex flex-wrap gap-4 text-sm text-slate-400 items-center mt-1">
                                     <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-xs text-yellow-500 font-bold uppercase tracking-wider">{activeTab}</span>
                                     <span>{player.wins} {t.wins}</span><span>{player.losses} {t.losses}</span><span className={parseFloat(player.winRate) >= 50 ? 'text-green-400' : 'text-red-400'}>{player.winRate}% WR</span><span className="text-yellow-500 font-bold">{player.tournamentWins || 0} {t.t_wins}</span>
@@ -384,9 +491,13 @@
                                     {(player.streak || 0) <= -3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2"><Skull className="w-3.5 h-3.5 text-red-500" /><span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_loss}</span></div>)}
                                 </div>
                             </div>
-                            <div className="flex gap-2"><ShareButton generateUrl={() => getShareLink(player)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" label={t.share} /><button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-700 rounded-full"><XIcon className="w-6 h-6" /></button></div>
+                            <div className="flex gap-2">
+                                <button onClick={handleExport} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-xs transition-colors" title={t.export_card}><CameraIcon className="w-3.5 h-3.5" /><span className="hidden md:inline">{t.export_card}</span></button>
+                                <ShareButton generateUrl={() => getShareLink(player)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 h-8" label={t.share} />
+                                <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1.5 hover:bg-slate-700 rounded-full"><XIcon className="w-6 h-6" /></button>
+                            </div>
                         </div>
-                        <div className="flex-1 overflow-hidden min-h-0">
+                        <div className="flex-1 overflow-hidden min-h-0 bg-slate-950" ref={cardRef}>
                             <div className="h-full flex flex-col lg:flex-row-reverse">
                                 <div className="w-full lg:w-[45%] p-4 lg:p-6 bg-slate-900 lg:border-l border-b lg:border-b-0 border-slate-800 overflow-y-auto lg:overflow-visible flex-shrink-0">
                                     <PlayerPerformanceChart matches={playerMatches} t={t} />
@@ -422,7 +533,6 @@
 
         const App = () => {
             const [rawData, setRawData] = useState([]);
-            const [playersMetadata, setPlayersMetadata] = useState({});
             const [data, setData] = useState({ rankings: [], history: {} });
             const [isLoading, setIsLoading] = useState(true);
             const [error, setError] = useState(null);
@@ -447,6 +557,10 @@
             const [targetMonth, setTargetMonth] = useState('');
             const [dateRange, setDateRange] = useState({ start: null, end: null });
             
+            // Estados para Data Personalizada
+            const [customStartDate, setCustomStartDate] = useState('');
+            const [customEndDate, setCustomEndDate] = useState('');
+
             const [showOtherModes, setShowOtherModes] = useState(false);
             const [viewMode, setViewMode] = useState('ranking'); 
             const [selectedTournament, setSelectedTournament] = useState(null);
@@ -517,18 +631,6 @@
                     let page = 1; let foundEnd = false; const MAX_PAGES = 50; const BATCH_SIZE = 5; 
 
                     try {
-                        // Carregar Metadados
-                        try {
-                            const playersResp = await fetch(`${PLAYERS_FILE}?v=${Date.now()}`);
-                            if (playersResp.ok) {
-                                const playersJson = await playersResp.json();
-                                const playersMap = {};
-                                playersJson.forEach(p => { playersMap[p.name] = p; });
-                                setPlayersMetadata(playersMap);
-                            }
-                        } catch (err) { console.warn("Erro ao carregar players.json:", err); }
-
-                        // LER ARQUIVOS JSON PAGINADOS DO DISCORD EXPORTER
                         while (!foundEnd && page <= MAX_PAGES) {
                             const promises = [];
                             for (let i = 0; i < BATCH_SIZE; i++) {
@@ -540,11 +642,10 @@
                             const results = await Promise.all(promises);
                             let batchSuccessCount = 0;
                             results.forEach(json => {
-                                // O formato do Discord Chat Exporter guarda os logs dentro do array "messages"
                                 if (json && json.messages && Array.isArray(json.messages)) { 
                                     loadedData.push(...json.messages); 
                                     batchSuccessCount++; 
-                                } else if (json && Array.isArray(json)) { // Fallback para array direto, caso ocorra
+                                } else if (json && Array.isArray(json)) { 
                                     loadedData.push(...json); 
                                     batchSuccessCount++; 
                                 }
@@ -628,12 +729,11 @@
                         if (isMonthlyReset) {
                             const endDate = new Date(log.timestamp);
                             
-                            // O nome do mês é referente ao mês anterior ao da postagem
                             const prevMonthDate = new Date(endDate);
                             prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
                             
                             const month = String(prevMonthDate.getMonth() + 1).padStart(2, '0');
-                            const year = String(prevMonthDate.getFullYear()).slice(-2); // Ex: "26"
+                            const year = String(prevMonthDate.getFullYear()).slice(-2); 
                             
                             periods.push({
                                 id: `${currentStart}-${endDate.getTime()}`,
@@ -645,7 +745,6 @@
                         }
                     });
                     
-                    // Adiciona o mês que está em andamento agora (o mês atual) para a lista de filtros
                     const now = new Date();
                     const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
                     const currentYear = String(now.getFullYear()).slice(-2);
@@ -653,11 +752,10 @@
                     periods.push({
                         id: `${currentStart}-current`,
                         start: currentStart,
-                        end: Number.MAX_SAFE_INTEGER, // Vai até o infinito
+                        end: Number.MAX_SAFE_INTEGER, 
                         label: `${currentMonth}/${currentYear}`
                     });
                     
-                    // Inverte para que os meses mais recentes fiquem no topo da lista
                     const reversedPeriods = periods.reverse();
                     setAvailableMonths(reversedPeriods);
                     
@@ -679,7 +777,6 @@
                     if (timeFilter === 'current_month') {
                         let lastReset = 0;
                         if (availableMonths && availableMonths.length > 0) {
-                            // Como inserimos o mês atual, o índice 0 é o mês em andamento. O ".start" dele é o exato momento do último reset.
                             lastReset = availableMonths[0].start;
                         }
                         return logTime >= lastReset;
@@ -693,6 +790,13 @@
                         return logTime >= start && logTime < end;
                     }
 
+                    if (timeFilter === 'custom') {
+                        if (!customStartDate || !customEndDate) return true; 
+                        const start = new Date(customStartDate + 'T00:00:00').getTime();
+                        const end = new Date(customEndDate + 'T23:59:59').getTime();
+                        return logTime >= start && logTime <= end;
+                    }
+
                     const diff = referenceDate.getTime() - logTime;
                     const oneDay = 24 * 60 * 60 * 1000;
                     if (timeFilter === 'day') return diff <= oneDay && diff >= 0;
@@ -700,14 +804,13 @@
                     
                     return true;
                 });
-            }, [rawData, timeFilter, targetMonth, referenceDate, availableMonths]);
+            }, [rawData, timeFilter, targetMonth, referenceDate, availableMonths, customStartDate, customEndDate]);
 
             useEffect(() => {
                 const processed = processBattleLogs(filteredLogs);
-                const enrichedRankings = processed.rankings.map(r => ({ ...r, meta: playersMetadata[r.name] || {} }));
-                setData({ ...processed, rankings: enrichedRankings });
+                setData(processed);
                 setCurrentPage(1); 
-            }, [filteredLogs, playersMetadata]);
+            }, [filteredLogs]);
 
             const modeGroups = useMemo(() => {
                 if (filteredLogs.length === 0) return { main: ['Geral', 'Ranked'], others: [] };
@@ -810,8 +913,15 @@
                         else globalBattles = gStats.modes[activeTab] || 0;
                     }
                     const newBadges = [...(p.badges || [])];
-                    if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: t.icon_master, color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
-                    else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: t.icon_veteran, color: 'text-blue-400' });
+                    if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: 'Ninja Mestre', color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
+                    else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: 'Ninja Veterano', color: 'text-blue-400' });
+                    
+                    // Conquistas Dinâmicas do Filtro Atual
+                    const currentWR = parseFloat(p.winRate);
+                    if (p.battles >= 10 && currentWR === 100) newBadges.push({ id: 'invincible', icon: ShieldCheck, label: 'Invicto', color: 'text-emerald-400 drop-shadow-[0_0_2px_rgba(52,211,153,0.8)]' });
+                    else if (p.battles >= 20 && currentWR < 30) newBadges.push({ id: 'underdog', icon: TrendingDown, label: 'Azarão', color: 'text-purple-400' });
+                    if (p.battles >= 50) newBadges.push({ id: 'insomniac', icon: Clock, label: 'Gladiador Insone', color: 'text-pink-400' });
+
                     return { ...p, badges: newBadges };
                 });
 
@@ -833,7 +943,7 @@
                 });
 
                 return players;
-            }, [data.rankings, searchTerm, sortConfig, activeTab, globalPlayerStats, tournamentStats, t]);
+            }, [data.rankings, searchTerm, sortConfig, activeTab, globalPlayerStats, tournamentStats]);
 
             const paginatedRankings = useMemo(() => {
                 const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -917,11 +1027,11 @@
 
 
             // --- RENDER ---
-            if (isLoading) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8"><div className="w-full max-w-md space-y-4"><div className="flex justify-between items-end"><div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-32" /></div><Loader2 className="w-8 h-8 animate-spin text-yellow-500" /></div><Skeleton className="h-32 w-full rounded-xl" /><div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><div className="text-center text-xs text-slate-500 pt-4">{t.loading} {loadedFilesCount}</div></div></div>);
+            if (isLoading) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8"><div className="w-full max-w-md space-y-4"><div className="flex justify-between items-end"><div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-32" /></div><Loader2 className="w-8 h-8 animate-spin text-yellow-500" /></div><Skeleton className="h-32 w-full rounded-xl" /><div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><div className="text-center text-xs text-slate-500 pt-4">{t.loading}</div></div></div>);
             if (error) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 p-8 text-center"><AlertCircle className="w-16 h-16 mb-4" /><h2 className="text-2xl font-bold mb-2">{t.error_loading}</h2><p className="max-w-md">{error}</p><button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors text-white">{t.try_again}</button></div>);
 
             return (
-                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8 pb-16"> 
+                <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 md:p-8 pb-16 relative"> 
                     {showInfoModal && <InfoModal onClose={() => setShowInfoModal(false)} t={t} />}
                     {selectedPlayer && (
                         <PlayerModal 
@@ -938,9 +1048,12 @@
                     )}
                     {selectedTournament && <TournamentBracketModal tournament={selectedTournament} onClose={() => setSelectedTournament(null)} onPlayerClick={handlePlayerClick} getShareLink={getShareLink} t={t} />}
 
-                    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                    <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        {/* Live Ticker */}
+                        <LiveTicker logs={rawData} t={t} />
+
                         {/* Header */}
-                        <div className="flex flex-col lg:flex-row justify-between items-center border-b border-slate-800 pb-6 gap-6 relative">
+                        <div className="flex flex-col lg:flex-row justify-between items-center border-b border-slate-800 pb-6 gap-6 relative mb-8">
                             <div className="flex items-center gap-4 w-full lg:w-auto">
                                 <img src={CUSTOM_ICON_URL} alt="Logo" className="w-20 h-20 object-cover rounded-2xl" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
                                 <div className="hidden bg-gradient-to-br from-yellow-500 to-orange-600 p-4 rounded-2xl shadow-lg shadow-orange-500/20 flex items-center justify-center w-20 h-20"><Trophy className="w-10 h-10 text-white" /></div>
@@ -955,23 +1068,32 @@
                         </div>
 
                         {/* Search & Tabs */}
-                        <div className="w-full"><div className="relative group w-full"><div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Search className="w-6 h-6 text-slate-500 group-focus-within:text-yellow-500 transition-colors" /></div><input type="text" placeholder={t.search_placeholder} className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-lg text-lg" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} /></div></div>
-                        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <div className="w-full mb-2"><div className="relative group w-full"><div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Search className="w-6 h-6 text-slate-500 group-focus-within:text-yellow-500 transition-colors" /></div><input type="text" placeholder={t.search_placeholder} className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-lg text-lg" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} /></div></div>
+                        <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
                             <button onClick={() => setViewMode('ranking')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'ranking' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Trophy className="w-4 h-4" /> {t.ranking}</button>
                             <button onClick={() => setViewMode('versus')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'versus' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Swords className="w-4 h-4" /> {t.versus}</button>
                             <button onClick={() => setViewMode('tournaments')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><GitBranch className="w-4 h-4" /> {t.tournaments}</button>
                         </div>
 
                         {/* Filters */}
-                        <div className="flex flex-col gap-3 pb-2 border-b border-slate-800">
-                            <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-col gap-3 pb-2 border-b border-slate-800 mb-8">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
                                 <div className="flex flex-wrap gap-2">
                                     {modeGroups.main.map(mode => (<button key={mode} onClick={() => { setActiveTab(mode); setShowOtherModes(false); }} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${activeTab === mode ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}>{mode === 'Geral' ? <Filter className="w-3.5 h-3.5" /> : mode === 'Ranked' ? <ShieldCheck className="w-3.5 h-3.5" /> : <Swords className="w-3.5 h-3.5" />}{mode === 'Geral' && language === 'en' ? 'General' : mode}</button>))}
                                     {modeGroups.others.length > 0 && (<div className="relative"><button onClick={() => setShowOtherModes(!showOtherModes)} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${modeGroups.others.includes(activeTab) ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Menu className="w-3.5 h-3.5" />{modeGroups.others.includes(activeTab) ? activeTab : t.others}<ChevronDown className={`w-3.5 h-3.5 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} /></button>{showOtherModes && (<div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">{modeGroups.others.map(mode => (<button key={mode} onClick={() => { setActiveTab(mode); setShowOtherModes(false); }} className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'}`}>{mode}</button>))}</div>)}</div>)}
                                 </div>
-                                <div className="flex flex-row items-center gap-2 ml-auto">
-                                    <div className="relative group w-40 sm:w-48"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="w-4 h-4 text-slate-500" /></div><select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-2 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-slate-800 transition-colors text-sm font-medium"><option value="current_month">{t.current_month}</option><option value="day">{t.day}</option><option value="week">{t.week}</option><option value="specific_month">{t.specific_month}</option><option value="all">{t.all}</option></select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-4 h-4 text-slate-500" /></div></div>
-                                    {timeFilter === 'specific_month' && availableMonths.length > 0 && (<div className="relative group w-32 sm:w-40 animate-in fade-in slide-in-from-left-2 duration-200"><select value={targetMonth} onChange={(e) => setTargetMonth(e.target.value)} className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm font-medium">{availableMonths.map(period => (<option key={period.id} value={period.id}>{period.label}</option>))}</select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-3 h-3 text-slate-500" /></div></div>)}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 md:ml-auto w-full md:w-auto">
+                                    {timeFilter === 'custom' && (
+                                        <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 w-full sm:w-auto">
+                                            <input type="date" value={customStartDate} onChange={e => setCustomStartDate(e.target.value)} className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex-1" />
+                                            <span className="text-slate-500 text-sm font-bold">~</span>
+                                            <input type="date" value={customEndDate} onChange={e => setCustomEndDate(e.target.value)} className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 flex-1" />
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                                        <div className="relative group flex-1 sm:w-48"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="w-4 h-4 text-slate-500" /></div><select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-2 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-slate-800 transition-colors text-sm font-medium"><option value="current_month">{t.current_month}</option><option value="day">{t.day}</option><option value="week">{t.week}</option><option value="specific_month">{t.specific_month}</option><option value="custom">{t.custom_date}</option><option value="all">{t.all}</option></select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-4 h-4 text-slate-500" /></div></div>
+                                        {timeFilter === 'specific_month' && availableMonths.length > 0 && (<div className="relative group flex-1 sm:w-40 animate-in fade-in slide-in-from-left-2 duration-200"><select value={targetMonth} onChange={(e) => setTargetMonth(e.target.value)} className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm font-medium">{availableMonths.map(period => (<option key={period.id} value={period.id}>{period.label}</option>))}</select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-3 h-3 text-slate-500" /></div></div>)}
+                                    </div>
                                 </div>
                             </div>
                             <div className="text-slate-400 text-sm flex items-start gap-2 pl-1 animate-in fade-in duration-300"><InfoIcon className="w-4 h-4 mt-0.5 text-slate-500 flex-shrink-0" /><p>{MODE_DESCRIPTIONS[activeTab] || t.default_desc}</p></div>
@@ -990,7 +1112,26 @@
                                 {versusMatches.length > 0 ? (
                                     <React.Fragment>
                                         <div className="mb-8 space-y-4"><div className="flex items-center gap-3"><span className="text-xs text-blue-400 font-bold w-12 text-right">{((versusStats.p1Wins/versusStats.total)*100).toFixed(0)}%</span><div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden flex"><div style={{ width: `${(versusStats.p1Wins/versusStats.total)*100}%` }} className="h-full bg-blue-500"></div><div style={{ width: `${(versusStats.p2Wins/versusStats.total)*100}%` }} className="h-full bg-red-500"></div></div><span className="text-xs text-red-400 font-bold w-12">{((versusStats.p2Wins/versusStats.total)*100).toFixed(0)}%</span></div></div>
-                                        <div className="flex justify-center items-center gap-8 mb-8"><div className="text-center"><div className="text-4xl font-black text-blue-500">{versusStats.p1Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer1}</div></div><div className="text-slate-600 text-2xl font-black">X</div><div className="text-center"><div className="text-4xl font-black text-red-500">{versusStats.p2Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer2}</div></div></div>
+                                        <div className="flex justify-center items-center gap-8 mb-4"><div className="text-center"><div className="text-4xl font-black text-blue-500">{versusStats.p1Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer1}</div></div><div className="text-slate-600 text-2xl font-black">X</div><div className="text-center"><div className="text-4xl font-black text-red-500">{versusStats.p2Wins}</div><div className="text-xs text-slate-400 font-bold uppercase tracking-wider">{versusPlayer2}</div></div></div>
+                                        
+                                        {/* Linha do Tempo (Timeline do Versus) */}
+                                        <div className="flex items-center gap-1.5 overflow-x-auto py-4 mb-8 scrollbar-thin px-2 justify-start sm:justify-center w-full bg-slate-950/30 rounded-lg border border-slate-800/50 shadow-inner">
+                                            {versusMatches.slice().reverse().map((match, i) => {
+                                                 const m = match.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+                                                 if (!m) return null;
+                                                 const winners = m[2].split(',').map(n => n.trim());
+                                                 const isP1 = winners.includes(versusPlayer1);
+                                                 return (
+                                                     <div key={i} className={`w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white border-2 hover:scale-125 transition-transform cursor-help shadow-lg relative group ${isP1 ? 'bg-blue-600 border-blue-400' : 'bg-red-600 border-red-400'}`}>
+                                                         {isP1 ? 'V' : 'D'}
+                                                         <div className="absolute bottom-full mb-2 hidden group-hover:block w-max bg-slate-800 border border-slate-600 text-slate-200 text-[10px] py-1 px-2 rounded shadow-xl z-20">
+                                                             <span className={isP1 ? 'text-blue-400 font-bold' : 'text-red-400 font-bold'}>{isP1 ? versusPlayer1 : versusPlayer2}</span> venceu em {new Date(match.timestamp).toLocaleDateString('pt-BR')}
+                                                         </div>
+                                                     </div>
+                                                 )
+                                            })}
+                                        </div>
+
                                         <div className="space-y-3">{versusMatches.map((match, idx) => { const m = match.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/); if (!m) return null; const mode = m[1]; const winners = m[2].split(',').map(n => n.trim()); const losers = m[3].split(',').map(n => n.trim()); const isP1Winner = winners.includes(versusPlayer1); return (<div key={idx} onClick={() => handleOpenTournament(mode, match.timestamp)} className={`p-4 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative group cursor-pointer transition-all hover:shadow-lg ${isP1Winner ? 'bg-blue-900/10 border-blue-500/20 hover:border-blue-500/40' : 'bg-red-900/10 border-red-500/20 hover:border-red-500/40'}`}><div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-yellow-500 text-[10px] font-bold px-3 py-1 rounded-full border border-yellow-500/30 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-xl z-10 flex items-center gap-1"><Trophy className="w-3 h-3" /> {t.see_tournament}</div><div className="flex flex-col gap-2 flex-1 w-full"><div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 w-fit">{mode}</div><div className="flex flex-col gap-1.5 w-full"><div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50"><span className="text-green-500 font-bold text-[10px] uppercase mr-1 bg-green-500/10 px-1 rounded border border-green-500/20">{t.winners}</span>{winners.map((name, i) => { const isTarget = name === versusPlayer1 || name === versusPlayer2; const colorClass = name === versusPlayer1 ? 'text-blue-400' : name === versusPlayer2 ? 'text-red-400' : 'text-slate-400'; return (<span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`${colorClass} hover:underline hover:text-white cursor-pointer transition-colors ${isTarget ? 'font-black text-base border-b-2 border-current' : 'font-medium'}`} title="Ver histórico do jogador">{name}{i < winners.length - 1 ? ',' : ''}</span>); })}</div><div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50"><span className="text-red-500 font-bold text-[10px] uppercase mr-1 bg-red-500/10 px-1 rounded border border-red-500/20">{t.losers}</span>{losers.map((name, i) => { const isTarget = name === versusPlayer1 || name === versusPlayer2; const colorClass = name === versusPlayer1 ? 'text-blue-400' : name === versusPlayer2 ? 'text-red-400' : 'text-slate-500'; return (<span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`${colorClass} hover:underline hover:text-white cursor-pointer transition-colors ${isTarget ? 'font-black text-base border-b-2 border-current' : 'font-medium'}`} title="Ver histórico do jogador">{name}{i < losers.length - 1 ? ',' : ''}</span>); })}</div></div></div><div className="text-right flex-shrink-0 flex md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-800 pt-2 md:pt-0"><div className={`text-sm font-black px-3 py-1 rounded border ${isP1Winner ? 'text-blue-400 bg-blue-500/10 border-blue-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20'}`}>{isP1Winner ? t.victory_p1 : t.defeat_p1}</div><div className="text-xs text-slate-500 mt-1 font-mono">{new Date(match.timestamp).toLocaleDateString('pt-BR')}</div></div></div>); })}</div>
                                     </React.Fragment>
                                 ) : ((versusPlayer1 && versusPlayer2) && (<div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl"><Swords className="w-12 h-12 mx-auto mb-3 opacity-20" /><p>{t.no_match}</p></div>))}
@@ -999,7 +1140,12 @@
                         
                         {viewMode === 'ranking' && (
                             <React.Fragment>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {/* Pódio Destaque */}
+                                {currentPage === 1 && filteredRankings.length >= 3 && !searchTerm && (
+                                    <Podium topPlayers={filteredRankings.slice(0, 3)} />
+                                )}
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                                     <Card title={t.active_players} value={filteredRankings.length} icon={Users} colorClass="text-blue-400 bg-blue-500" />
                                     <Card title={t.total_battles} value={totalBattles} icon={Swords} colorClass="text-red-400 bg-red-500" />
                                     <Card title={t.most_wins} value={mostWinsPlayer ? mostWinsPlayer.name : '-'} icon={Medal} colorClass="text-yellow-400 bg-yellow-500" />
@@ -1034,10 +1180,12 @@
                                                             <td className="p-5">
                                                                 <div className="flex flex-col">
                                                                     <div className="flex items-center gap-2">
-                                                                        <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">{player.name}</span>
+                                                                        <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">
+                                                                            <HighlightText text={player.name} highlight={searchTerm} />
+                                                                        </span>
                                                                         {player.streak >= 3 && <span title={`${player.streak} ${t.icon_streak_win}`}><Flame className="w-4 h-4 text-orange-500 animate-pulse" /></span>}
                                                                         {player.streak <= -3 && <span title={`${Math.abs(player.streak)} ${t.icon_streak_loss}`}><Skull className="w-4 h-4 text-slate-500" /></span>}
-                                                                        {player.badges.map(b => (<b.icon key={b.id} className={`w-3.5 h-3.5 ${b.color}`} title={b.label} />))}
+                                                                        {player.badges.map((b, bIdx) => (<b.icon key={bIdx} className={`w-3.5 h-3.5 ${b.color}`} title={b.label} />))}
                                                                     </div>
                                                                 </div>
                                                             </td>
