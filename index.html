@@ -70,7 +70,7 @@
         const Star = (props) => <IconBase {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fillOpacity="0.2" /></IconBase>;
         const ShurikenIcon = (props) => <IconBase {...props}><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" fillOpacity="0.2" /></IconBase>;
         const ScrollIcon = (props) => <IconBase {...props}><path d="M19 4H9C7.89543 4 7 4.89543 7 6V20C7 21.1046 7.89543 22 9 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" /><path d="M5 15H4C3.44772 15 3 14.5523 3 14V8C3 7.44772 3.44772 7 4 7H5" /><path d="M15 12H19" /><path d="M15 16H19" /><path d="M15 8H19" /></IconBase>;
-        const Globe = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></IconBase>;
+        const Globe = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></IconBase>;
 
         // --- CONFIG ---
         const CUSTOM_ICON_URL = './icon.png'; 
@@ -621,8 +621,6 @@
                         let isMonthlyReset = false;
                         const targetPhrase = 'vencedores mensais do torneio';
                         
-                        // Converte todo o objeto do log (incluindo possíveis arrays de embeds profundos) 
-                        // para string antes de procurar pela frase.
                         if (JSON.stringify(log).toLowerCase().includes(targetPhrase)) {
                             isMonthlyReset = true;
                         }
@@ -635,7 +633,7 @@
                             prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
                             
                             const month = String(prevMonthDate.getMonth() + 1).padStart(2, '0');
-                            const year = prevMonthDate.getFullYear();
+                            const year = String(prevMonthDate.getFullYear()).slice(-2); // Ex: "26"
                             
                             periods.push({
                                 id: `${currentStart}-${endDate.getTime()}`,
@@ -645,6 +643,18 @@
                             });
                             currentStart = endDate.getTime();
                         }
+                    });
+                    
+                    // Adiciona o mês que está em andamento agora (o mês atual) para a lista de filtros
+                    const now = new Date();
+                    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+                    const currentYear = String(now.getFullYear()).slice(-2);
+                    
+                    periods.push({
+                        id: `${currentStart}-current`,
+                        start: currentStart,
+                        end: Number.MAX_SAFE_INTEGER, // Vai até o infinito
+                        label: `${currentMonth}/${currentYear}`
                     });
                     
                     // Inverte para que os meses mais recentes fiquem no topo da lista
@@ -668,9 +678,9 @@
 
                     if (timeFilter === 'current_month') {
                         let lastReset = 0;
-                        // O mês atual começa imediatamente após a última notificação de vencedores
                         if (availableMonths && availableMonths.length > 0) {
-                            lastReset = availableMonths[0].end;
+                            // Como inserimos o mês atual, o índice 0 é o mês em andamento. O ".start" dele é o exato momento do último reset.
+                            lastReset = availableMonths[0].start;
                         }
                         return logTime >= lastReset;
                     }
@@ -679,7 +689,7 @@
                         if (!targetMonth) return true;
                         const [startStr, endStr] = targetMonth.split('-');
                         const start = parseInt(startStr, 10);
-                        const end = parseInt(endStr, 10);
+                        const end = endStr === 'current' ? Number.MAX_SAFE_INTEGER : parseInt(endStr, 10);
                         return logTime >= start && logTime < end;
                     }
 
