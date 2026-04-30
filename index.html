@@ -961,8 +961,7 @@
                     return { ...p, badges: newBadges };
                 });
 
-                if (searchTerm) players = players.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
+                // Ordena todos os jogadores PRIMEIRO
                 players.sort((a, b) => {
                     let aValue = a[sortConfig.key] || 0;
                     let bValue = b[sortConfig.key] || 0;
@@ -978,8 +977,16 @@
                     return 0;
                 });
 
+                // Assinala a posição real deles no ranking
+                players = players.map((p, index) => ({ ...p, realRankPosition: index + 1 }));
+
+                // SÓ ENTÃO aplica a busca
+                if (searchTerm) {
+                    players = players.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+                }
+
                 return players;
-            }, [data.rankings, searchTerm, sortConfig, activeTab, globalPlayerStats, tournamentStats]);
+            }, [data.rankings, searchTerm, sortConfig, activeTab, globalPlayerStats, tournamentStats, t]);
 
             const paginatedRankings = useMemo(() => {
                 const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -1292,7 +1299,7 @@
                                             <tbody className="divide-y divide-slate-800">
                                                 {paginatedRankings.map((player, index) => {
                                                     let rankColor = "text-slate-500", rankIcon = null;
-                                                    const realRank = (currentPage - 1) * ITEMS_PER_PAGE + index + 1;
+                                                    const realRank = player.realRankPosition;
                                                     if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
                                                     if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
                                                     if (realRank === 3) { rankColor = "text-amber-700"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
