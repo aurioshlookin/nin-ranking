@@ -112,7 +112,7 @@
                 search_placeholder: "Buscar jogador...", ranking: "Ranking", versus: "Versus", tournaments: "Torneios",
                 others: "Outros", current_month: "Este Mês", day: "Últimas 24h", week: "Última Semana", specific_month: "Selecionar Mês", all: "Todo o Período", default_desc: "Estatísticas detalhadas para este modo de jogo específico.",
                 player1: "Jogador 1", player2: "Jogador 2", no_match: "Nenhum confronto encontrado entre estes jogadores.", winners: "Vencedores", losers: "Perdedores",
-                victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Batalhas Totais", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas",
+                victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Batalhas Totais", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas", on_fire: "Sequência de Vitórias",
                 player: "Jogador", t_wins: "T. Vencidos", t_played: "T. Jogados", wins: "Vitórias", losses: "Derrotas", battles: "Partidas", win_rate: "Win Rate",
                 no_player_found: "Nenhum jogador encontrado para este filtro.", date: "Data", tournament: "Torneio", time: "Horário", no_tournament_found: "Nenhum torneio encontrado para este filtro.",
                 files_loaded: "Arquivos carregados:",
@@ -134,7 +134,7 @@
                 search_placeholder: "Search player...", ranking: "Ranking", versus: "Versus", tournaments: "Tournaments",
                 others: "Others", current_month: "This Month", day: "Last 24h", week: "Last Week", specific_month: "Select Month", all: "All Time", default_desc: "Detailed statistics for this specific game mode.",
                 player1: "Player 1", player2: "Player 2", no_match: "No match found between these players.", winners: "Winners", losers: "Losers",
-                victory_p1: "P1 VICTORY", defeat_p1: "P1 DEFEAT", see_tournament: "View Tournament", active_players: "Active Players", total_battles: "Total Battles", most_wins: "Most Wins", most_losses: "Most Losses",
+                victory_p1: "P1 VICTORY", defeat_p1: "P1 DEFEAT", see_tournament: "View Tournament", active_players: "Active Players", total_battles: "Total Battles", most_wins: "Most Wins", most_losses: "Most Losses", on_fire: "Win Streak",
                 player: "Player", t_wins: "T. Won", t_played: "T. Played", wins: "Wins", losses: "Losses", battles: "Matches", win_rate: "Win Rate",
                 no_player_found: "No player found for this filter.", date: "Date", tournament: "Tournament", time: "Time", no_tournament_found: "No tournament found for this filter.",
                 files_loaded: "Files loaded:",
@@ -1027,9 +1027,14 @@
                 if (filteredRankings.length === 0) return null;
                 return [...filteredRankings].sort((a,b) => { if (b.wins !== a.wins) return b.wins - a.wins; return parseFloat(b.winRate) - parseFloat(a.winRate); })[0];
             }, [filteredRankings]);
-            const mostLossesPlayer = useMemo(() => {
+            const highestStreakPlayer = useMemo(() => {
                 if (filteredRankings.length === 0) return null;
-                return [...filteredRankings].sort((a,b) => { if (b.losses !== a.losses) return b.losses - a.losses; return parseFloat(a.winRate) - parseFloat(b.winRate); })[0];
+                const validPlayers = filteredRankings.filter(p => (p.streak || 0) > 0);
+                if (validPlayers.length === 0) return null;
+                return validPlayers.sort((a,b) => { 
+                    if (b.streak !== a.streak) return b.streak - a.streak; 
+                    return b.wins - a.wins; 
+                })[0];
             }, [filteredRankings]);
 
             const versusMatches = useMemo(() => {
@@ -1267,7 +1272,7 @@
                                     <Card title={t.active_players} value={filteredRankings.length} icon={Users} colorClass="text-blue-400 bg-blue-500" />
                                     <Card title={t.total_battles} value={totalBattles} icon={Swords} colorClass="text-red-400 bg-red-500" />
                                     <Card title={t.most_wins} value={mostWinsPlayer ? mostWinsPlayer.name : '-'} icon={Crown} colorClass="text-yellow-400 bg-yellow-500" />
-                                    <Card title={t.most_losses} value={mostLossesPlayer ? mostLossesPlayer.name : '-'} icon={TrendingDown} colorClass="text-orange-400 bg-orange-500" />
+                                    <Card title={t.on_fire} value={highestStreakPlayer ? `${highestStreakPlayer.name} (${highestStreakPlayer.streak})` : '-'} icon={Flame} colorClass="text-orange-400 bg-orange-500" />
                                 </div>
                                 <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
                                     <div className="overflow-x-auto">
