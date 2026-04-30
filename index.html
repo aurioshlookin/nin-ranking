@@ -109,7 +109,8 @@
         const TRANSLATIONS = {
             pt: {
                 server: "Servidor: Hawk", to: "até",
-                search_placeholder: "Buscar jogador...", ranking: "Ranking", versus: "Versus", tournaments: "Torneios",
+                search_placeholder: "Buscar jogador...", search_disabled_tooltip: "A pesquisa só está disponível na aba Ranking.",
+                ranking: "Ranking", versus: "Versus", tournaments: "Torneios",
                 others: "Outros", current_month: "Este Mês", day: "Últimas 24h", week: "Última Semana", specific_month: "Selecionar Mês", all: "Todo o Período", default_desc: "Estatísticas detalhadas para este modo de jogo específico.",
                 player1: "Jogador 1", player2: "Jogador 2", no_match: "Nenhum confronto encontrado entre estes jogadores.", winners: "Vencedores", losers: "Perdedores",
                 victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Batalhas Totais", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas", on_fire: "Sequência de Vitórias",
@@ -131,7 +132,8 @@
             },
             en: {
                 server: "Server: Hawk", to: "to",
-                search_placeholder: "Search player...", ranking: "Ranking", versus: "Versus", tournaments: "Tournaments",
+                search_placeholder: "Search player...", search_disabled_tooltip: "Search is only available in the Ranking tab.",
+                ranking: "Ranking", versus: "Versus", tournaments: "Tournaments",
                 others: "Others", current_month: "This Month", day: "Last 24h", week: "Last Week", specific_month: "Select Month", all: "All Time", default_desc: "Detailed statistics for this specific game mode.",
                 player1: "Player 1", player2: "Player 2", no_match: "No match found between these players.", winners: "Winners", losers: "Losers",
                 victory_p1: "P1 VICTORY", defeat_p1: "P1 DEFEAT", see_tournament: "View Tournament", active_players: "Active Players", total_battles: "Total Battles", most_wins: "Most Wins", most_losses: "Most Losses", on_fire: "Win Streak",
@@ -330,7 +332,9 @@
                 <div className="flex justify-center items-end h-56 mb-10 mt-12 gap-2 sm:gap-6 animate-in slide-in-from-bottom-4 duration-700">
                     {/* 2nd Place */}
                     <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-400 flex items-center justify-center mb-1 shadow-lg shadow-slate-500/20"><Crown className="w-6 h-6 text-slate-400"/></div>
+                        <div className="w-[4.5rem] h-12 bg-slate-800 rounded-full border-2 border-slate-400 flex items-center justify-center mb-1 shadow-lg shadow-slate-500/20">
+                            <Crown className="w-4 h-4 text-slate-400 mr-1"/><span className="text-slate-400 font-bold text-sm">#2</span>
+                        </div>
                         <span className="font-bold text-slate-300 text-sm truncate max-w-[80px] sm:max-w-[100px]">{topPlayers[1].name}</span>
                         <div className="flex flex-col items-center mb-2 mt-1 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
                             <span className="text-xs font-bold text-yellow-500 flex items-center gap-1" title={t.t_wins}><Trophy className="w-3 h-3"/> {topPlayers[1].tournamentWins}</span>
@@ -341,8 +345,8 @@
                     {/* 1st Place */}
                     <div className="flex flex-col items-center z-10 relative -mx-2 sm:-mx-0">
                         <div className="absolute -top-6 text-yellow-500 animate-bounce"><Star className="w-6 h-6 fill-current drop-shadow-[0_0_8px_rgba(234,179,8,1)]"/></div>
-                        <div className="w-16 h-16 bg-slate-800 rounded-full border-2 border-yellow-400 flex items-center justify-center mb-1 shadow-xl shadow-yellow-500/30">
-                            <Crown className="w-8 h-8 text-yellow-400"/>
+                        <div className="w-20 h-16 bg-slate-800 rounded-full border-2 border-yellow-400 flex items-center justify-center mb-1 shadow-xl shadow-yellow-500/30">
+                            <Crown className="w-6 h-6 text-yellow-400 mr-1"/><span className="text-yellow-400 font-bold text-lg">#1</span>
                         </div>
                         <span className="font-black text-yellow-400 text-base truncate max-w-[100px] sm:max-w-[120px] drop-shadow-md">{topPlayers[0].name}</span>
                         <div className="flex flex-col items-center mb-2 mt-1 bg-slate-900/80 px-3 py-1 rounded border border-yellow-500/30 shadow-lg">
@@ -353,7 +357,9 @@
                     </div>
                     {/* 3rd Place */}
                     <div className="flex flex-col items-center">
-                        <div className="w-12 h-12 bg-slate-800 rounded-full border-2 border-amber-700 flex items-center justify-center mb-1 shadow-lg shadow-amber-900/40"><Crown className="w-6 h-6 text-amber-600"/></div>
+                        <div className="w-[4.5rem] h-12 bg-slate-800 rounded-full border-2 border-amber-700 flex items-center justify-center mb-1 shadow-lg shadow-amber-900/40">
+                            <Crown className="w-4 h-4 text-amber-600 mr-1"/><span className="text-amber-600 font-bold text-sm">#3</span>
+                        </div>
                         <span className="font-bold text-amber-500 text-sm truncate max-w-[80px] sm:max-w-[100px]">{topPlayers[2].name}</span>
                         <div className="flex flex-col items-center mb-2 mt-1 bg-slate-900/80 px-2 py-1 rounded border border-slate-700">
                             <span className="text-xs font-bold text-yellow-500 flex items-center gap-1" title={t.t_wins}><Trophy className="w-3 h-3"/> {topPlayers[2].tournamentWins}</span>
@@ -606,6 +612,13 @@
             const [versusPlayer2, setVersusPlayer2] = useState('');
             
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
+
+            // Limpa o termo de pesquisa caso a aba não seja "Ranking"
+            useEffect(() => {
+                if (viewMode !== 'ranking') {
+                    setSearchTerm('');
+                }
+            }, [viewMode]);
 
             const globalPlayerStats = useMemo(() => {
                 const stats = {};
@@ -1157,7 +1170,21 @@
                         </div>
 
                         {/* Search & Tabs */}
-                        <div className="w-full mb-2"><div className="relative group w-full"><div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><Search className="w-6 h-6 text-slate-500 group-focus-within:text-yellow-500 transition-colors" /></div><input type="text" placeholder={t.search_placeholder} className="w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-lg text-lg" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} /></div></div>
+                        <div className="w-full mb-2">
+                            <div className="relative group w-full" title={viewMode !== 'ranking' ? t.search_disabled_tooltip : ''}>
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Search className={`w-6 h-6 transition-colors ${viewMode === 'ranking' ? 'text-slate-500 group-focus-within:text-yellow-500' : 'text-slate-700'}`} />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder={t.search_placeholder} 
+                                    className={`w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 focus:border-yellow-500 transition-all shadow-lg text-lg ${viewMode !== 'ranking' ? 'opacity-50 cursor-not-allowed bg-slate-950' : ''}`} 
+                                    value={searchTerm} 
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
+                                    disabled={viewMode !== 'ranking'}
+                                />
+                            </div>
+                        </div>
                         <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
                             <button onClick={() => setViewMode('ranking')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'ranking' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Trophy className="w-4 h-4" /> {t.ranking}</button>
                             <button onClick={() => setViewMode('versus')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'versus' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Swords className="w-4 h-4" /> {t.versus}</button>
@@ -1300,13 +1327,21 @@
                                                 {paginatedRankings.map((player, index) => {
                                                     let rankColor = "text-slate-500", rankIcon = null;
                                                     const realRank = player.realRankPosition;
-                                                    if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
-                                                    if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
-                                                    if (realRank === 3) { rankColor = "text-amber-700"; rankIcon = <Crown className="w-4 h-4 mx-auto" />; }
+                                                    if (realRank === 1) { rankColor = "text-yellow-500"; rankIcon = <Crown className="w-5 h-5" />; }
+                                                    if (realRank === 2) { rankColor = "text-slate-300"; rankIcon = <Crown className="w-5 h-5" />; }
+                                                    if (realRank === 3) { rankColor = "text-amber-700"; rankIcon = <Crown className="w-5 h-5" />; }
 
                                                     return (
                                                         <tr key={player.name} onClick={() => setSelectedPlayer(player)} className="hover:bg-slate-800/50 cursor-pointer transition-colors group">
-                                                            <td className={`p-5 text-center font-bold ${rankColor} text-lg`}>{rankIcon || `#${realRank}`}</td>
+                                                            <td className={`p-5 text-center font-bold ${rankColor} text-lg`}>
+                                                                {rankIcon ? (
+                                                                    <div className="flex items-center justify-center gap-1.5">
+                                                                        {rankIcon} <span>#{realRank}</span>
+                                                                    </div>
+                                                                ) : (
+                                                                    `#${realRank}`
+                                                                )}
+                                                            </td>
                                                             <td className="p-5">
                                                                 <div className="flex flex-col">
                                                                     <div className="flex items-center gap-2">
