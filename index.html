@@ -110,7 +110,7 @@
             pt: {
                 server: "Servidor: Hawk", to: "até",
                 search_placeholder: "Buscar jogador...", search_disabled_tooltip: "A pesquisa só está disponível na aba Ranking.",
-                ranking: "Ranking", versus: "Versus", tournaments: "Torneios",
+                ranking: "Ranking", versus: "Versus", tournaments: "Torneios", matches_tab: "Partidas",
                 others: "Outros", current_month: "Este Mês", day: "Últimas 24h", week: "Última Semana", specific_month: "Selecionar Mês", all: "Todo o Período", default_desc: "Estatísticas detalhadas para este modo de jogo específico.",
                 player1: "Jogador 1", player2: "Jogador 2", no_match: "Nenhum confronto encontrado entre estes jogadores.", winners: "Vencedores", losers: "Perdedores",
                 victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Batalhas Totais", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas", on_fire: "Sequência de Vitórias",
@@ -119,6 +119,8 @@
                 files_loaded: "Arquivos carregados:",
                 custom_date: "Personalizado", live_ticker: "AO VIVO", export_card: "Exportar Cartão",
                 clear_versus: "Limpar", direct_match: "Confronto Direto",
+                search_matches: "Pesquisar Partidas", player_optional: "Jogador (Opcional)",
+                best_comps: "Melhores Duplas e Trios", sort_by_matches: "Partidas Vencidas", sort_by_tourneys: "Torneios Vencidos", duos: "Top 10 Duplas", trios: "Top 10 Trios",
                 // Modals
                 how_to_use: "Como usar o site", functionalities: "Funcionalidades", features_list_1: "Ranking: Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.",
                 features_list_2: "Torneios: Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.", features_list_3: "Filtros: Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.",
@@ -133,7 +135,7 @@
             en: {
                 server: "Server: Hawk", to: "to",
                 search_placeholder: "Search player...", search_disabled_tooltip: "Search is only available in the Ranking tab.",
-                ranking: "Ranking", versus: "Versus", tournaments: "Tournaments",
+                ranking: "Ranking", versus: "Versus", tournaments: "Tournaments", matches_tab: "Matches",
                 others: "Others", current_month: "This Month", day: "Last 24h", week: "Last Week", specific_month: "Select Month", all: "All Time", default_desc: "Detailed statistics for this specific game mode.",
                 player1: "Player 1", player2: "Player 2", no_match: "No match found between these players.", winners: "Winners", losers: "Losers",
                 victory_p1: "P1 VICTORY", defeat_p1: "P1 DEFEAT", see_tournament: "View Tournament", active_players: "Active Players", total_battles: "Total Battles", most_wins: "Most Wins", most_losses: "Most Losses", on_fire: "Win Streak",
@@ -142,6 +144,8 @@
                 files_loaded: "Files loaded:",
                 custom_date: "Custom", live_ticker: "LIVE", export_card: "Export Card",
                 clear_versus: "Clear", direct_match: "Direct Match",
+                search_matches: "Search Matches", player_optional: "Player (Optional)",
+                best_comps: "Best Duos and Trios", sort_by_matches: "Match Wins", sort_by_tourneys: "Tournament Wins", duos: "Top 10 Duos", trios: "Top 10 Trios",
                 // Modals
                 how_to_use: "How to use", functionalities: "Features", features_list_1: "Ranking: See the best players on the server. Click a name to see match history and performance charts.",
                 features_list_2: "Tournaments: Access past tournaments list. Click a tournament to view brackets and fight progress.", features_list_3: "Filters: Use mode (General, Ranked, etc.) and date filters to refine results.",
@@ -610,13 +614,24 @@
             
             const [versusPlayer1, setVersusPlayer1] = useState('');
             const [versusPlayer2, setVersusPlayer2] = useState('');
+
+            // Estados da nova Aba de Partidas
+            const [matchSearchP1, setMatchSearchP1] = useState('');
+            const [matchSearchP2, setMatchSearchP2] = useState('');
+            const [matchSearchP3, setMatchSearchP3] = useState('');
+            const [compSortMode, setCompSortMode] = useState('tourneys');
             
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
-            // Limpa o termo de pesquisa caso a aba não seja "Ranking"
+            // Limpa o termo de pesquisa caso a aba não seja "Ranking" e limpa a pesquisa de partidas se não for "Partidas"
             useEffect(() => {
                 if (viewMode !== 'ranking') {
                     setSearchTerm('');
+                }
+                if (viewMode !== 'matches') {
+                    setMatchSearchP1('');
+                    setMatchSearchP2('');
+                    setMatchSearchP3('');
                 }
             }, [viewMode]);
 
@@ -715,7 +730,7 @@
                     const params = new URLSearchParams(window.location.search);
                     
                     const viewParam = params.get('view');
-                    if (viewParam && ['ranking', 'versus', 'tournaments'].includes(viewParam)) setViewMode(viewParam);
+                    if (viewParam && ['ranking', 'versus', 'tournaments', 'matches'].includes(viewParam)) setViewMode(viewParam);
 
                     const modeParam = params.get('mode'); if (modeParam) setActiveTab(modeParam);
                     const timeParam = params.get('time'); if (timeParam) setTimeFilter(timeParam);
@@ -1127,6 +1142,88 @@
                     .slice(0, 10);
             }, [filteredLogs, viewMode, activeTab]);
 
+            // --- Lógica para "Pesquisar Partidas" ---
+            const searchedMatches = useMemo(() => {
+                if (viewMode !== 'matches') return [];
+                const activeSearch = [matchSearchP1, matchSearchP2, matchSearchP3]
+                    .map(n => n.trim().toLowerCase())
+                    .filter(Boolean);
+                
+                if (activeSearch.length === 0) return [];
+
+                return filteredLogs.filter(log => {
+                    const match = (log.content || "").match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+                    if (!match) return false;
+                    
+                    const mode = match[1];
+                    if (activeTab !== 'Geral') {
+                        if (activeTab === 'Ranked') {
+                            if (!['Auto1v1', 'Auto2v2', 'Auto3v3'].includes(mode)) return false;
+                        } else {
+                            if (mode !== activeTab) return false;
+                        }
+                    }
+
+                    const participants = [...match[2].split(','), ...match[3].split(',')]
+                        .map(n => n.trim().toLowerCase())
+                        .filter(Boolean);
+                    
+                    // Todos os jogadores pesquisados devem estar na partida
+                    return activeSearch.every(p => participants.some(part => part.includes(p) || part === p));
+                }).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            }, [filteredLogs, matchSearchP1, matchSearchP2, matchSearchP3, viewMode, activeTab]);
+
+            const topComps = useMemo(() => {
+                if (viewMode !== 'matches') return { duos: [], trios: [] };
+                
+                const stats = {};
+                
+                filteredLogs.forEach(log => {
+                    const match = (log.content || "").match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+                    if (!match) return;
+                    const mode = match[1];
+                    if (mode !== 'Auto2v2' && mode !== 'Auto3v3') return;
+                    if (activeTab !== 'Geral' && activeTab !== 'Ranked' && activeTab !== mode) return;
+
+                    const winners = match[2].split(',').map(n => n.trim()).filter(Boolean).sort();
+                    if ((mode === 'Auto2v2' && winners.length === 2) || (mode === 'Auto3v3' && winners.length === 3)) {
+                        const key = winners.join('|||');
+                        if (!stats[key]) stats[key] = { names: winners, matchWins: 0, tourneyWins: 0, type: mode === 'Auto2v2' ? 'duo' : 'trio' };
+                        stats[key].matchWins++;
+                    }
+                });
+
+                groupedTournaments.forEach(t => {
+                    if (t.name !== 'Auto2v2' && t.name !== 'Auto3v3') return;
+                    if (activeTab !== 'Geral' && activeTab !== 'Ranked' && activeTab !== t.name) return;
+
+                    const sortedMatches = [...t.matches].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    const lastMatch = sortedMatches[sortedMatches.length - 1];
+                    if (!lastMatch) return;
+
+                    const winners = [...lastMatch.winners].sort();
+                    if ((t.name === 'Auto2v2' && winners.length === 2) || (t.name === 'Auto3v3' && winners.length === 3)) {
+                        const key = winners.join('|||');
+                        if (!stats[key]) stats[key] = { names: winners, matchWins: 0, tourneyWins: 0, type: t.name === 'Auto2v2' ? 'duo' : 'trio' };
+                        stats[key].tourneyWins++;
+                    }
+                });
+
+                const compsArray = Object.values(stats);
+                const sortKey = compSortMode === 'tourneys' ? 'tourneyWins' : 'matchWins';
+                const fallbackKey = compSortMode === 'tourneys' ? 'matchWins' : 'tourneyWins';
+
+                compsArray.sort((a, b) => {
+                    if (b[sortKey] !== a[sortKey]) return b[sortKey] - a[sortKey];
+                    return b[fallbackKey] - a[fallbackKey];
+                });
+
+                return {
+                    duos: compsArray.filter(c => c.type === 'duo').slice(0, 10),
+                    trios: compsArray.filter(c => c.type === 'trio').slice(0, 10)
+                };
+            }, [filteredLogs, groupedTournaments, viewMode, activeTab, compSortMode]);
+
 
             // --- RENDER ---
             if (isLoading) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8"><div className="w-full max-w-md space-y-4"><div className="flex justify-between items-end"><div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-32" /></div><Loader2 className="w-8 h-8 animate-spin text-yellow-500" /></div><Skeleton className="h-32 w-full rounded-xl" /><div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><div className="text-center text-xs text-slate-500 pt-4">{t.loading}</div></div></div>);
@@ -1188,6 +1285,7 @@
                         <div className="flex gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
                             <button onClick={() => setViewMode('ranking')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'ranking' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Trophy className="w-4 h-4" /> {t.ranking}</button>
                             <button onClick={() => setViewMode('versus')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'versus' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Swords className="w-4 h-4" /> {t.versus}</button>
+                            <button onClick={() => setViewMode('matches')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'matches' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Crosshair className="w-4 h-4" /> {t.matches_tab}</button>
                             <button onClick={() => setViewMode('tournaments')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><GitBranch className="w-4 h-4" /> {t.tournaments}</button>
                         </div>
 
@@ -1216,6 +1314,175 @@
                         </div>
 
                         {/* Views */}
+                        {viewMode === 'matches' && (
+                            <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500 p-6">
+                                <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                        <Search className="w-5 h-5 text-blue-500" /> {t.search_matches}
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        {(matchSearchP1 || matchSearchP2 || matchSearchP3) && (
+                                            <button onClick={() => { setMatchSearchP1(''); setMatchSearchP2(''); setMatchSearchP3(''); }} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-full font-bold text-xs transition-colors whitespace-nowrap">
+                                                <XIcon className="w-3.5 h-3.5 inline mr-1" />{t.clear_versus}
+                                            </button>
+                                        )}
+                                        <ShareButton generateUrl={() => getShareLink()} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 h-8" label={t.share} />
+                                    </div>
+                                </div>
+
+                                {/* 3 Inputs para Pesquisa de Partidas */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                    <div className="w-full">
+                                        <label className="block text-slate-400 text-sm font-bold mb-2">{t.player} 1</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-blue-400" /></div>
+                                            <input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder={t.player_optional} value={matchSearchP1} onChange={(e) => setMatchSearchP1(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="w-full">
+                                        <label className="block text-slate-400 text-sm font-bold mb-2">{t.player} 2</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-blue-400" /></div>
+                                            <input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder={t.player_optional} value={matchSearchP2} onChange={(e) => setMatchSearchP2(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="w-full">
+                                        <label className="block text-slate-400 text-sm font-bold mb-2">{t.player} 3</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Users className="w-5 h-5 text-blue-400" /></div>
+                                            <input type="text" list="playerList" className="w-full bg-slate-800 border border-slate-700 text-white rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500/50" placeholder={t.player_optional} value={matchSearchP3} onChange={(e) => setMatchSearchP3(e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {(matchSearchP1 || matchSearchP2 || matchSearchP3) ? (
+                                    searchedMatches.length > 0 ? (
+                                        <div className="space-y-3">
+                                            {searchedMatches.map((match, idx) => { 
+                                                const m = match.content.match(/^\[(.*?)\] (.*?) derrotou (.*)/); 
+                                                if (!m) return null; 
+                                                const mode = m[1]; 
+                                                const winners = m[2].split(',').map(n => n.trim()); 
+                                                const losers = m[3].split(',').map(n => n.trim()); 
+                                                
+                                                const isTarget = (name) => {
+                                                    const lName = name.toLowerCase();
+                                                    return (matchSearchP1 && lName.includes(matchSearchP1.toLowerCase())) ||
+                                                           (matchSearchP2 && lName.includes(matchSearchP2.toLowerCase())) ||
+                                                           (matchSearchP3 && lName.includes(matchSearchP3.toLowerCase()));
+                                                };
+
+                                                return (
+                                                    <div key={idx} onClick={() => handleOpenTournament(mode, match.timestamp)} className="p-4 rounded-xl border flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative group cursor-pointer transition-all hover:shadow-lg bg-slate-900/50 border-slate-800 hover:border-slate-600">
+                                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 text-yellow-500 text-[10px] font-bold px-3 py-1 rounded-full border border-yellow-500/30 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 shadow-xl z-10 flex items-center gap-1">
+                                                            <Trophy className="w-3 h-3" /> {t.see_tournament}
+                                                        </div>
+                                                        <div className="flex flex-col gap-2 flex-1 w-full">
+                                                            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1 w-fit">{mode}</div>
+                                                            <div className="flex flex-col gap-1.5 w-full">
+                                                                <div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50">
+                                                                    <span className="text-green-500 font-bold text-[10px] uppercase mr-1 bg-green-500/10 px-1 rounded border border-green-500/20">{t.winners}</span>
+                                                                    {winners.map((name, i) => (
+                                                                        <span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`hover:underline cursor-pointer transition-colors ${isTarget(name) ? 'text-blue-400 font-black border-b-2 border-blue-400' : 'text-slate-300 font-medium hover:text-white'}`} title={t.player}>{name}{i < winners.length - 1 ? ',' : ''}</span>
+                                                                    ))}
+                                                                </div>
+                                                                <div className="flex flex-wrap items-center gap-1 text-sm bg-slate-950/30 p-2 rounded border border-slate-800/50">
+                                                                    <span className="text-red-500 font-bold text-[10px] uppercase mr-1 bg-red-500/10 px-1 rounded border border-red-500/20">{t.losers}</span>
+                                                                    {losers.map((name, i) => (
+                                                                        <span key={i} onClick={(e) => { e.stopPropagation(); handlePlayerClick(name); }} className={`hover:underline cursor-pointer transition-colors ${isTarget(name) ? 'text-red-400 font-black border-b-2 border-red-400' : 'text-slate-400 font-medium hover:text-white'}`} title={t.player}>{name}{i < losers.length - 1 ? ',' : ''}</span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right flex-shrink-0 flex md:flex-col items-center md:items-end justify-between w-full md:w-auto mt-2 md:mt-0 border-t md:border-t-0 border-slate-800 pt-2 md:pt-0">
+                                                            <div className="text-xs text-slate-500 font-mono">{new Date(match.timestamp).toLocaleDateString('pt-BR')}</div>
+                                                            <div className="text-xs text-slate-500 mt-1 font-mono">{new Date(match.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}</div>
+                                                        </div>
+                                                    </div>
+                                                ); 
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl">
+                                            <Search className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                                            <p>{t.no_match}</p>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="mt-4 animate-in fade-in duration-500">
+                                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="bg-yellow-500/20 p-2 rounded-lg border border-yellow-500/30"><Crown className="w-5 h-5 text-yellow-500" /></div>
+                                                <h3 className="text-xl font-bold text-white">{t.best_comps}</h3>
+                                            </div>
+                                            <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
+                                                <button onClick={() => setCompSortMode('tourneys')} className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${compSortMode === 'tourneys' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>{t.sort_by_tourneys}</button>
+                                                <button onClick={() => setCompSortMode('matches')} className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${compSortMode === 'matches' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>{t.sort_by_matches}</button>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                            {/* Top Duos */}
+                                            <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+                                                <h4 className="text-blue-400 font-bold mb-4 uppercase tracking-wider text-sm flex items-center gap-2"><Users className="w-4 h-4"/> {t.duos}</h4>
+                                                {topComps.duos.length > 0 ? topComps.duos.map((comp, idx) => (
+                                                    <div key={idx} className="bg-slate-900/50 border border-slate-800 p-3 rounded-lg mb-2 flex items-center justify-between hover:bg-slate-800 transition-colors">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-slate-500 font-bold text-sm w-5">#{idx+1}</span>
+                                                            <div className="flex flex-col">
+                                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                                    <span className="text-white font-bold text-sm">{comp.names[0]}</span>
+                                                                    <span className="text-slate-600 text-xs">&</span>
+                                                                    <span className="text-white font-bold text-sm">{comp.names[1]}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-4 text-xs font-bold">
+                                                            <div className="flex flex-col items-end" title={t.sort_by_tourneys}>
+                                                                <span className={`flex items-center gap-1 ${compSortMode==='tourneys' ? 'text-yellow-400' : 'text-slate-500'}`}><Trophy className="w-3 h-3"/> {comp.tourneyWins}</span>
+                                                            </div>
+                                                            <div className="flex flex-col items-end" title={t.sort_by_matches}>
+                                                                <span className={`flex items-center gap-1 ${compSortMode==='matches' ? 'text-green-400' : 'text-slate-500'}`}><Swords className="w-3 h-3"/> {comp.matchWins}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )) : <div className="text-slate-500 text-sm border border-dashed border-slate-800 p-4 rounded-lg text-center">Nenhuma dupla encontrada.</div>}
+                                            </div>
+
+                                            {/* Top Trios */}
+                                            <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+                                                <h4 className="text-purple-400 font-bold mb-4 uppercase tracking-wider text-sm flex items-center gap-2"><Users className="w-4 h-4"/> {t.trios}</h4>
+                                                {topComps.trios.length > 0 ? topComps.trios.map((comp, idx) => (
+                                                    <div key={idx} className="bg-slate-900/50 border border-slate-800 p-3 rounded-lg mb-2 flex items-center justify-between hover:bg-slate-800 transition-colors">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-slate-500 font-bold text-sm w-5">#{idx+1}</span>
+                                                            <div className="flex flex-col">
+                                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                                    <span className="text-white font-bold text-sm">{comp.names[0]}</span>
+                                                                    <span className="text-slate-600 text-xs">,</span>
+                                                                    <span className="text-white font-bold text-sm">{comp.names[1]}</span>
+                                                                    <span className="text-slate-600 text-xs">&</span>
+                                                                    <span className="text-white font-bold text-sm">{comp.names[2]}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-4 text-xs font-bold">
+                                                            <div className="flex flex-col items-end" title={t.sort_by_tourneys}>
+                                                                <span className={`flex items-center gap-1 ${compSortMode==='tourneys' ? 'text-yellow-400' : 'text-slate-500'}`}><Trophy className="w-3 h-3"/> {comp.tourneyWins}</span>
+                                                            </div>
+                                                            <div className="flex flex-col items-end" title={t.sort_by_matches}>
+                                                                <span className={`flex items-center gap-1 ${compSortMode==='matches' ? 'text-green-400' : 'text-slate-500'}`}><Swords className="w-3 h-3"/> {comp.matchWins}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )) : <div className="text-slate-500 text-sm border border-dashed border-slate-800 p-4 rounded-lg text-center">Nenhum trio encontrado.</div>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {viewMode === 'versus' && (
                              <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 animate-in fade-in slide-in-from-bottom-4 duration-500 p-6">
                                 <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
