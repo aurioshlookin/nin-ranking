@@ -120,7 +120,7 @@
                 custom_date: "Personalizado", live_ticker: "AO VIVO", export_card: "Exportar Cartão",
                 clear_versus: "Limpar", direct_match: "Confronto Direto",
                 search_matches: "Pesquisar Partidas", player_optional: "Jogador (Opcional)",
-                best_comps: "Melhores Duplas e Trios", sort_by_matches: "Partidas Vencidas", sort_by_tourneys: "Torneios Vencidos", duos: "Top 10 Duplas", trios: "Top 10 Trios",
+                comps_title: "Ranking de Duplas e Trios", sort_best: "Top Melhores", sort_worst: "Top Piores", duos: "Top 10 Duplas", trios: "Top 10 Trios",
                 // Modals
                 how_to_use: "Como usar o site", functionalities: "Funcionalidades", features_list_1: "Ranking: Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.",
                 features_list_2: "Torneios: Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.", features_list_3: "Filtros: Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.",
@@ -145,7 +145,7 @@
                 custom_date: "Custom", live_ticker: "LIVE", export_card: "Export Card",
                 clear_versus: "Clear", direct_match: "Direct Match",
                 search_matches: "Search Matches", player_optional: "Player (Optional)",
-                best_comps: "Best Duos and Trios", sort_by_matches: "Match Wins", sort_by_tourneys: "Tournament Wins", duos: "Top 10 Duos", trios: "Top 10 Trios",
+                comps_title: "Duos and Trios Ranking", sort_best: "Top Best", sort_worst: "Top Worst", duos: "Top 10 Duos", trios: "Top 10 Trios",
                 // Modals
                 how_to_use: "How to use", functionalities: "Features", features_list_1: "Ranking: See the best players on the server. Click a name to see match history and performance charts.",
                 features_list_2: "Tournaments: Access past tournaments list. Click a tournament to view brackets and fight progress.", features_list_3: "Filters: Use mode (General, Ranked, etc.) and date filters to refine results.",
@@ -232,15 +232,21 @@
             const rivalry = {}; 
             const initPlayer = (name) => {
                 if (!stats[name]) {
-                    stats[name] = { name, wins: 0, losses: 0, battles: 0, winRate: 0, modes: {}, streak: 0, maxStreak: 0, badges: [] };
+                    stats[name] = { name, wins: 0, losses: 0, battles: 0, winRate: 0, modes: {}, streak: 0, rankedStreak: 0, badges: [] };
                     history[name] = [];
                     rivalry[name] = {};
                 }
             };
             const updateModeStats = (playerName, mode, result) => {
-                if (!stats[playerName].modes[mode]) { stats[playerName].modes[mode] = { wins: 0, losses: 0, battles: 0 }; }
+                if (!stats[playerName].modes[mode]) { stats[playerName].modes[mode] = { wins: 0, losses: 0, battles: 0, streak: 0 }; }
                 stats[playerName].modes[mode].battles += 1;
-                if (result === 'win') stats[playerName].modes[mode].wins += 1; else stats[playerName].modes[mode].losses += 1;
+                if (result === 'win') {
+                    stats[playerName].modes[mode].wins += 1;
+                    stats[playerName].modes[mode].streak = stats[playerName].modes[mode].streak >= 0 ? stats[playerName].modes[mode].streak + 1 : 1;
+                } else {
+                    stats[playerName].modes[mode].losses += 1;
+                    stats[playerName].modes[mode].streak = stats[playerName].modes[mode].streak <= 0 ? stats[playerName].modes[mode].streak - 1 : -1;
+                }
             };
             const updateRivalry = (player, opponent, result) => {
                 if (!rivalry[player][opponent]) rivalry[player][opponent] = { wins: 0, losses: 0 };
@@ -257,15 +263,33 @@
                     const losers = match[3].split(',').map(n => n.trim()).filter(n => n.length > 0);
                     const timestamp = log.timestamp;
                     winners.forEach(winner => {
-                        initPlayer(winner); stats[winner].wins += 1; stats[winner].battles += 1; updateModeStats(winner, mode, 'win');
+                        initPlayer(winner); 
+                        stats[winner].wins += 1; 
+                        stats[winner].battles += 1; 
+                        updateModeStats(winner, mode, 'win');
                         history[winner].push({ opponent: losers.join(', '), result: 'win', timestamp: timestamp, mode: mode });
+                        
+                        // Atualiza Sequência Global e Ranked
                         if (stats[winner].streak >= 0) stats[winner].streak += 1; else stats[winner].streak = 1;
+                        if (['Auto1v1', 'Auto2v2', 'Auto3v3'].includes(mode)) {
+                            if (stats[winner].rankedStreak >= 0) stats[winner].rankedStreak += 1; else stats[winner].rankedStreak = 1;
+                        }
+
                         losers.forEach(loser => updateRivalry(winner, loser, 'win'));
                     });
                     losers.forEach(loser => {
-                        initPlayer(loser); stats[loser].losses += 1; stats[loser].battles += 1; updateModeStats(loser, mode, 'loss');
+                        initPlayer(loser); 
+                        stats[loser].losses += 1; 
+                        stats[loser].battles += 1; 
+                        updateModeStats(loser, mode, 'loss');
                         history[loser].push({ opponent: winners.join(', '), result: 'loss', timestamp: timestamp, mode: mode });
+                        
+                        // Atualiza Sequência Global e Ranked
                         if (stats[loser].streak <= 0) stats[loser].streak -= 1; else stats[loser].streak = -1;
+                        if (['Auto1v1', 'Auto2v2', 'Auto3v3'].includes(mode)) {
+                            if (stats[loser].rankedStreak <= 0) stats[loser].rankedStreak -= 1; else stats[loser].rankedStreak = -1;
+                        }
+
                         winners.forEach(winner => updateRivalry(loser, winner, 'loss'));
                     });
                 }
@@ -533,8 +557,8 @@
                                     <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-xs text-yellow-500 font-bold uppercase tracking-wider">{activeTab}</span>
                                     <span>{player.wins} {t.wins}</span><span>{player.losses} {t.losses}</span><span className={parseFloat(player.winRate) >= 50 ? 'text-green-400' : 'text-red-400'}>{player.winRate}% WR</span><span className="text-yellow-500 font-bold">{player.tournamentWins || 0} {t.t_wins}</span>
                                     {player.badges && player.badges.length > 0 && (<div className="flex items-center gap-2 pl-2">{player.badges.map((badge, idx) => { const BadgeIcon = badge.icon; return (<div key={idx} className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-900 border border-slate-700 shadow-sm" title={badge.label}><BadgeIcon className={`w-3.5 h-3.5 ${badge.color}`} /><span className="text-[10px] font-bold text-slate-300 uppercase tracking-wide hidden sm:inline-block">{badge.label}</span></div>); })}</div>)}
-                                    {(player.streak || 0) >= 3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-orange-900/30 border border-orange-500/30 shadow-sm ml-2"><Flame className="w-3.5 h-3.5 text-orange-500" /><span className="text-[10px] font-bold text-orange-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_win}</span></div>)}
-                                    {(player.streak || 0) <= -3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2"><Skull className="w-3.5 h-3.5 text-red-500" /><span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_loss}</span></div>)}
+                                    {(player.displayStreak || 0) >= 3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-orange-900/30 border border-orange-500/30 shadow-sm ml-2"><Flame className="w-3.5 h-3.5 text-orange-500" /><span className="text-[10px] font-bold text-orange-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_win}</span></div>)}
+                                    {(player.displayStreak || 0) <= -3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2"><Skull className="w-3.5 h-3.5 text-red-500" /><span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_loss}</span></div>)}
                                 </div>
                             </div>
                             <div className="flex gap-2">
@@ -619,7 +643,7 @@
             const [matchSearchP1, setMatchSearchP1] = useState('');
             const [matchSearchP2, setMatchSearchP2] = useState('');
             const [matchSearchP3, setMatchSearchP3] = useState('');
-            const [compSortMode, setCompSortMode] = useState('tourneys');
+            const [compRankMode, setCompRankMode] = useState('best');
             
             const [loadedFilesCount, setLoadedFilesCount] = useState(0);
 
@@ -986,7 +1010,13 @@
                     else if (p.battles >= 20 && currentWR < 30) newBadges.push({ id: 'underdog', icon: TrendingDown, label: 'Azarão', color: 'text-purple-400' });
                     if (p.battles >= 50) newBadges.push({ id: 'insomniac', icon: Clock, label: 'Gladiador Insone', color: 'text-pink-400' });
 
-                    return { ...p, badges: newBadges };
+                    // Identifica o streak de acordo com o filtro atual
+                    let displayStreak = 0;
+                    if (activeTab === 'Geral') displayStreak = p.streak || 0;
+                    else if (activeTab === 'Ranked') displayStreak = p.rankedStreak || 0;
+                    else displayStreak = p.modes && p.modes[activeTab] ? p.modes[activeTab].streak : 0;
+
+                    return { ...p, displayStreak, badges: newBadges };
                 });
 
                 // Ordena todos os jogadores PRIMEIRO
@@ -1040,7 +1070,7 @@
             const handlePlayerClick = (playerName) => {
                 if (!data.rankings) return;
                 let player = data.rankings.find(r => r.name === playerName);
-                if (!player) player = { name: playerName, wins: 0, losses: 0, battles: 0, winRate: 0, badges: [] };
+                if (!player) player = { name: playerName, wins: 0, losses: 0, battles: 0, winRate: 0, badges: [], streak: 0, rankedStreak: 0, modes: {} };
                 const gStats = globalPlayerStats[playerName];
                 let globalBattles = 0;
                 if (gStats) {
@@ -1053,7 +1083,13 @@
                 if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: t.icon_master, color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
                 else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: t.icon_veteran, color: 'text-blue-400' });
                 
-                setSelectedPlayer({ ...player, badges: newBadges });
+                // Streak a apresentar no modal
+                let displayStreak = 0;
+                if (activeTab === 'Geral') displayStreak = player.streak || 0;
+                else if (activeTab === 'Ranked') displayStreak = player.rankedStreak || 0;
+                else displayStreak = player.modes && player.modes[activeTab] ? player.modes[activeTab].streak : 0;
+
+                setSelectedPlayer({ ...player, badges: newBadges, displayStreak });
                 setSelectedTournament(null); 
             };
 
@@ -1064,10 +1100,10 @@
             }, [filteredRankings]);
             const highestStreakPlayer = useMemo(() => {
                 if (filteredRankings.length === 0) return null;
-                const validPlayers = filteredRankings.filter(p => (p.streak || 0) > 0);
+                const validPlayers = filteredRankings.filter(p => (p.displayStreak || 0) > 0);
                 if (validPlayers.length === 0) return null;
                 return validPlayers.sort((a,b) => { 
-                    if (b.streak !== a.streak) return b.streak - a.streak; 
+                    if (b.displayStreak !== a.displayStreak) return b.displayStreak - a.displayStreak; 
                     return b.wins - a.wins; 
                 })[0];
             }, [filteredRankings]);
@@ -1186,10 +1222,17 @@
                     if (activeTab !== 'Geral' && activeTab !== 'Ranked' && activeTab !== mode) return;
 
                     const winners = match[2].split(',').map(n => n.trim()).filter(Boolean).sort();
+                    const losers = match[3].split(',').map(n => n.trim()).filter(Boolean).sort();
+                    
                     if ((mode === 'Auto2v2' && winners.length === 2) || (mode === 'Auto3v3' && winners.length === 3)) {
                         const key = winners.join('|||');
-                        if (!stats[key]) stats[key] = { names: winners, matchWins: 0, tourneyWins: 0, type: mode === 'Auto2v2' ? 'duo' : 'trio' };
+                        if (!stats[key]) stats[key] = { names: winners, matchWins: 0, matchLosses: 0, tourneyWins: 0, type: mode === 'Auto2v2' ? 'duo' : 'trio' };
                         stats[key].matchWins++;
+                    }
+                    if ((mode === 'Auto2v2' && losers.length === 2) || (mode === 'Auto3v3' && losers.length === 3)) {
+                        const key = losers.join('|||');
+                        if (!stats[key]) stats[key] = { names: losers, matchWins: 0, matchLosses: 0, tourneyWins: 0, type: mode === 'Auto2v2' ? 'duo' : 'trio' };
+                        stats[key].matchLosses++;
                     }
                 });
 
@@ -1204,25 +1247,31 @@
                     const winners = [...lastMatch.winners].sort();
                     if ((t.name === 'Auto2v2' && winners.length === 2) || (t.name === 'Auto3v3' && winners.length === 3)) {
                         const key = winners.join('|||');
-                        if (!stats[key]) stats[key] = { names: winners, matchWins: 0, tourneyWins: 0, type: t.name === 'Auto2v2' ? 'duo' : 'trio' };
+                        if (!stats[key]) stats[key] = { names: winners, matchWins: 0, matchLosses: 0, tourneyWins: 0, type: t.name === 'Auto2v2' ? 'duo' : 'trio' };
                         stats[key].tourneyWins++;
                     }
                 });
 
                 const compsArray = Object.values(stats);
-                const sortKey = compSortMode === 'tourneys' ? 'tourneyWins' : 'matchWins';
-                const fallbackKey = compSortMode === 'tourneys' ? 'matchWins' : 'tourneyWins';
 
-                compsArray.sort((a, b) => {
-                    if (b[sortKey] !== a[sortKey]) return b[sortKey] - a[sortKey];
-                    return b[fallbackKey] - a[fallbackKey];
-                });
+                if (compRankMode === 'best') {
+                    compsArray.sort((a, b) => {
+                        if (b.tourneyWins !== a.tourneyWins) return b.tourneyWins - a.tourneyWins;
+                        if (b.matchWins !== a.matchWins) return b.matchWins - a.matchWins;
+                        return a.matchLosses - b.matchLosses;
+                    });
+                } else {
+                    compsArray.sort((a, b) => {
+                        if (b.matchLosses !== a.matchLosses) return b.matchLosses - a.matchLosses;
+                        return a.matchWins - b.matchWins;
+                    });
+                }
 
                 return {
                     duos: compsArray.filter(c => c.type === 'duo').slice(0, 10),
                     trios: compsArray.filter(c => c.type === 'trio').slice(0, 10)
                 };
-            }, [filteredLogs, groupedTournaments, viewMode, activeTab, compSortMode]);
+            }, [filteredLogs, groupedTournaments, viewMode, activeTab, compRankMode]);
 
 
             // --- RENDER ---
@@ -1412,12 +1461,14 @@
                                     <div className="mt-4 animate-in fade-in duration-500">
                                         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="bg-yellow-500/20 p-2 rounded-lg border border-yellow-500/30"><Crown className="w-5 h-5 text-yellow-500" /></div>
-                                                <h3 className="text-xl font-bold text-white">{t.best_comps}</h3>
+                                                <div className={`p-2 rounded-lg border ${compRankMode === 'best' ? 'bg-yellow-500/20 border-yellow-500/30' : 'bg-red-500/20 border-red-500/30'}`}>
+                                                    {compRankMode === 'best' ? <Crown className="w-5 h-5 text-yellow-500" /> : <Skull className="w-5 h-5 text-red-500" />}
+                                                </div>
+                                                <h3 className="text-xl font-bold text-white">{t.comps_title}</h3>
                                             </div>
                                             <div className="flex bg-slate-800 p-1 rounded-lg border border-slate-700">
-                                                <button onClick={() => setCompSortMode('tourneys')} className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${compSortMode === 'tourneys' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>{t.sort_by_tourneys}</button>
-                                                <button onClick={() => setCompSortMode('matches')} className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${compSortMode === 'matches' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>{t.sort_by_matches}</button>
+                                                <button onClick={() => setCompRankMode('best')} className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${compRankMode === 'best' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>{t.sort_best}</button>
+                                                <button onClick={() => setCompRankMode('worst')} className={`px-3 py-1.5 text-xs font-bold rounded transition-colors ${compRankMode === 'worst' ? 'bg-red-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}>{t.sort_worst}</button>
                                             </div>
                                         </div>
 
@@ -1438,11 +1489,14 @@
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-4 text-xs font-bold">
-                                                            <div className="flex flex-col items-end" title={t.sort_by_tourneys}>
-                                                                <span className={`flex items-center gap-1 ${compSortMode==='tourneys' ? 'text-yellow-400' : 'text-slate-500'}`}><Trophy className="w-3 h-3"/> {comp.tourneyWins}</span>
+                                                            <div className="flex flex-col items-end" title={t.t_wins}>
+                                                                <span className="flex items-center gap-1 text-yellow-500"><Trophy className="w-3 h-3"/> {comp.tourneyWins}</span>
                                                             </div>
-                                                            <div className="flex flex-col items-end" title={t.sort_by_matches}>
-                                                                <span className={`flex items-center gap-1 ${compSortMode==='matches' ? 'text-green-400' : 'text-slate-500'}`}><Swords className="w-3 h-3"/> {comp.matchWins}</span>
+                                                            <div className="flex flex-col items-end" title={t.wins}>
+                                                                <span className="flex items-center gap-1 text-green-400"><Swords className="w-3 h-3"/> {comp.matchWins}</span>
+                                                            </div>
+                                                            <div className="flex flex-col items-end" title={t.losses}>
+                                                                <span className="flex items-center gap-1 text-red-500"><Skull className="w-3 h-3"/> {comp.matchLosses}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1467,11 +1521,14 @@
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-4 text-xs font-bold">
-                                                            <div className="flex flex-col items-end" title={t.sort_by_tourneys}>
-                                                                <span className={`flex items-center gap-1 ${compSortMode==='tourneys' ? 'text-yellow-400' : 'text-slate-500'}`}><Trophy className="w-3 h-3"/> {comp.tourneyWins}</span>
+                                                            <div className="flex flex-col items-end" title={t.t_wins}>
+                                                                <span className="flex items-center gap-1 text-yellow-500"><Trophy className="w-3 h-3"/> {comp.tourneyWins}</span>
                                                             </div>
-                                                            <div className="flex flex-col items-end" title={t.sort_by_matches}>
-                                                                <span className={`flex items-center gap-1 ${compSortMode==='matches' ? 'text-green-400' : 'text-slate-500'}`}><Swords className="w-3 h-3"/> {comp.matchWins}</span>
+                                                            <div className="flex flex-col items-end" title={t.wins}>
+                                                                <span className="flex items-center gap-1 text-green-400"><Swords className="w-3 h-3"/> {comp.matchWins}</span>
+                                                            </div>
+                                                            <div className="flex flex-col items-end" title={t.losses}>
+                                                                <span className="flex items-center gap-1 text-red-500"><Skull className="w-3 h-3"/> {comp.matchLosses}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1573,7 +1630,7 @@
                                     <Card title={t.active_players} value={filteredRankings.length} icon={Users} colorClass="text-blue-400 bg-blue-500" />
                                     <Card title={t.total_battles} value={totalBattles} icon={Swords} colorClass="text-red-400 bg-red-500" />
                                     <Card title={t.most_wins} value={mostWinsPlayer ? mostWinsPlayer.name : '-'} icon={Crown} colorClass="text-yellow-400 bg-yellow-500" />
-                                    <Card title={t.on_fire} value={highestStreakPlayer ? `${highestStreakPlayer.name} (${highestStreakPlayer.streak})` : '-'} icon={Flame} colorClass="text-orange-400 bg-orange-500" />
+                                    <Card title={t.on_fire} value={highestStreakPlayer ? `${highestStreakPlayer.name} (${highestStreakPlayer.displayStreak})` : '-'} icon={Flame} colorClass="text-orange-400 bg-orange-500" />
                                 </div>
                                 <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800">
                                     <div className="overflow-x-auto">
@@ -1615,8 +1672,8 @@
                                                                         <span className="font-semibold text-white group-hover:text-yellow-400 transition-colors text-lg">
                                                                             <HighlightText text={player.name} highlight={searchTerm} />
                                                                         </span>
-                                                                        {player.streak >= 3 && <span title={`${player.streak} ${t.icon_streak_win}`}><Flame className="w-4 h-4 text-orange-500 animate-pulse" /></span>}
-                                                                        {player.streak <= -3 && <span title={`${Math.abs(player.streak)} ${t.icon_streak_loss}`}><Skull className="w-4 h-4 text-slate-500" /></span>}
+                                                                        {player.displayStreak >= 3 && <span title={`${player.displayStreak} ${t.icon_streak_win}`}><Flame className="w-4 h-4 text-orange-500 animate-pulse" /></span>}
+                                                                        {player.displayStreak <= -3 && <span title={`${Math.abs(player.displayStreak)} ${t.icon_streak_loss}`}><Skull className="w-4 h-4 text-slate-500" /></span>}
                                                                         {player.badges.map((b, bIdx) => (<b.icon key={bIdx} className={`w-3.5 h-3.5 ${b.color}`} title={b.label} />))}
                                                                     </div>
                                                                 </div>
