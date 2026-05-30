@@ -121,6 +121,7 @@
                 clear_versus: "Limpar", direct_match: "Confronto Direto",
                 search_matches: "Pesquisar Partidas", player_optional: "Jogador (Opcional)",
                 comps_title: "Ranking de Duplas e Trios", sort_best: "Top Melhores", sort_worst: "Top Piores", duos: "Top 10 Duplas", trios: "Top 10 Trios",
+                top_rivalries: "Top 10 Maiores Rivalidades", top_victims: "Top 10 Vítimas", top_nemesis: "Top 10 Nêmesis",
                 // Modals
                 how_to_use: "Como usar o site", functionalities: "Funcionalidades", features_list_1: "Ranking: Veja os melhores jogadores do servidor. Clique em um nome para ver o histórico de partidas e gráficos de desempenho.",
                 features_list_2: "Torneios: Acesse a lista de torneios passados. Clique em um torneio para visualizar as chaves (brackets) e o progresso das lutas.", features_list_3: "Filtros: Use os filtros de modo (Geral, Ranked, etc.) e data para refinar os resultados.",
@@ -129,8 +130,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nêmesis (Quem mais te venceu)", icon_victim: "Vítima (Quem você mais venceu)", about_project: "Sobre o Projeto",
                 about_text_1: "Este painel foi desenvolvido por Auriosh.", about_text_2: "É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.", about_text_3: "A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial Servidor do Discord.",
                 share: "Compartilhar", won: "VENCEU", participated: "PARTICIPOU", no_tournament_period: "Nenhum torneio encontrado neste período.", stats_quick: "Estatísticas Rápidas",
-                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar arquivos JSON...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente",
-                top_rivalries: "Top 10 Maiores Rivalidades"
+                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar arquivos JSON...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
             },
             en: {
                 server: "Server: Hawk", to: "to",
@@ -146,6 +146,7 @@
                 clear_versus: "Clear", direct_match: "Direct Match",
                 search_matches: "Search Matches", player_optional: "Player (Optional)",
                 comps_title: "Duos and Trios Ranking", sort_best: "Top Best", sort_worst: "Top Worst", duos: "Top 10 Duos", trios: "Top 10 Trios",
+                top_rivalries: "Top 10 Biggest Rivalries", top_victims: "Top 10 Victims", top_nemesis: "Top 10 Nemeses",
                 // Modals
                 how_to_use: "How to use", functionalities: "Features", features_list_1: "Ranking: See the best players on the server. Click a name to see match history and performance charts.",
                 features_list_2: "Tournaments: Access past tournaments list. Click a tournament to view brackets and fight progress.", features_list_3: "Filters: Use mode (General, Ranked, etc.) and date filters to refine results.",
@@ -154,8 +155,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nemesis (Who beat you most)", icon_victim: "Victim (Who you beat most)", about_project: "About Project",
                 about_text_1: "This panel was developed by Auriosh.", about_text_2: "It is a non-profit, unpaid project created for the community.", about_text_3: "Data updates are done manually using information released on the official Discord Server channel.",
                 share: "Share", won: "WON", participated: "PARTICIPATED", no_tournament_period: "No tournament found in this period.", stats_quick: "Quick Stats",
-                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading JSON files...", error_loading: "Error loading data", try_again: "Try Again",
-                top_rivalries: "Top 10 Biggest Rivalries"
+                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading JSON files...", error_loading: "Error loading data", try_again: "Try Again"
             }
         };
 
@@ -1137,6 +1137,62 @@
                 return { p1Wins, p2Wins, total: versusMatches.length };
             }, [versusMatches, versusPlayer1]);
 
+            // Top Vitimas e Nemesis para quando so o P1 ta selecionado
+            const singlePlayerVersusStats = useMemo(() => {
+                if (viewMode !== 'versus' || (!versusPlayer1 && !versusPlayer2) || (versusPlayer1 && versusPlayer2)) {
+                    return { victims: [], nemesis: [], targetPlayer: '' };
+                }
+                
+                const targetPlayer = versusPlayer1 || versusPlayer2;
+                const stats = {};
+
+                filteredLogs.forEach(log => {
+                    const content = log.content || "";
+                    const match = content.match(/^\[(.*?)\] (.*?) derrotou (.*)/);
+                    if (!match) return;
+                    const mode = match[1];
+                    
+                    if (activeTab !== 'Geral') {
+                        if (activeTab === 'Ranked') {
+                            if (!['Auto1v1', 'Auto2v2', 'Auto3v3'].includes(mode)) return;
+                        } else {
+                            if (mode !== activeTab) return;
+                        }
+                    }
+
+                    const winners = match[2].split(',').map(n => n.trim()).filter(Boolean);
+                    const losers = match[3].split(',').map(n => n.trim()).filter(Boolean);
+                    
+                    if (winners.includes(targetPlayer)) {
+                        losers.forEach(loser => {
+                            if (!stats[loser]) stats[loser] = { name: loser, wins: 0, losses: 0, total: 0 };
+                            stats[loser].wins++;
+                            stats[loser].total++;
+                        });
+                    } else if (losers.includes(targetPlayer)) {
+                        winners.forEach(winner => {
+                            if (!stats[winner]) stats[winner] = { name: winner, wins: 0, losses: 0, total: 0 };
+                            stats[winner].losses++;
+                            stats[winner].total++;
+                        });
+                    }
+                });
+
+                const arr = Object.values(stats);
+                const victims = arr.filter(s => s.wins > 0).sort((a,b) => {
+                    if (b.wins !== a.wins) return b.wins - a.wins;
+                    return a.losses - b.losses;
+                }).slice(0, 10);
+
+                const nemesis = arr.filter(s => s.losses > 0).sort((a,b) => {
+                    if (b.losses !== a.losses) return b.losses - a.losses;
+                    return a.wins - b.wins;
+                }).slice(0, 10);
+
+                return { victims, nemesis, targetPlayer };
+
+            }, [filteredLogs, viewMode, activeTab, versusPlayer1, versusPlayer2]);
+
             const topRivalries = useMemo(() => {
                 if (viewMode !== 'versus') return [];
                 const pairs = {};
@@ -1592,6 +1648,51 @@
                                     ) : (
                                         <div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl"><Swords className="w-12 h-12 mx-auto mb-3 opacity-20" /><p>{t.no_match}</p></div>
                                     )
+                                ) : (versusPlayer1 || versusPlayer2) ? (
+                                    <div className="mt-4 animate-in fade-in duration-500">
+                                        <div className="mb-6 flex justify-between items-center bg-slate-800 border border-slate-700 p-4 rounded-xl">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-white">Estatísticas VS para <span className="text-blue-400">{singlePlayerVersusStats.targetPlayer}</span></h3>
+                                                <p className="text-xs text-slate-400 mt-1">Selecione um oponente ao lado para ver o histórico de confrontos diretos.</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            {/* Vitimas */}
+                                            <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+                                                <h4 className="text-green-400 font-bold mb-4 uppercase tracking-wider text-sm flex items-center gap-2"><Swords className="w-4 h-4"/> {t.top_victims}</h4>
+                                                {singlePlayerVersusStats.victims.length > 0 ? singlePlayerVersusStats.victims.map((v, idx) => (
+                                                    <div key={idx} onClick={() => { if(versusPlayer1) setVersusPlayer2(v.name); else setVersusPlayer1(v.name); }} className="bg-slate-900/50 border border-slate-800 p-3 rounded-lg mb-2 flex items-center justify-between hover:bg-slate-800 hover:border-green-500/30 transition-colors cursor-pointer group">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-slate-500 font-bold text-sm w-5">#{idx+1}</span>
+                                                            <span className="text-white font-bold group-hover:text-green-400 transition-colors">{v.name}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-sm">
+                                                            <span className="font-black text-green-500">{v.wins} V</span>
+                                                            <span className="text-slate-600">/</span>
+                                                            <span className="font-bold text-red-500">{v.losses} D</span>
+                                                        </div>
+                                                    </div>
+                                                )) : <div className="text-slate-500 text-sm border border-dashed border-slate-800 p-4 rounded-lg text-center">Nenhuma vítima encontrada.</div>}
+                                            </div>
+                                            {/* Nemesis */}
+                                            <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800">
+                                                <h4 className="text-red-500 font-bold mb-4 uppercase tracking-wider text-sm flex items-center gap-2"><Skull className="w-4 h-4"/> {t.top_nemesis}</h4>
+                                                {singlePlayerVersusStats.nemesis.length > 0 ? singlePlayerVersusStats.nemesis.map((n, idx) => (
+                                                    <div key={idx} onClick={() => { if(versusPlayer1) setVersusPlayer2(n.name); else setVersusPlayer1(n.name); }} className="bg-slate-900/50 border border-slate-800 p-3 rounded-lg mb-2 flex items-center justify-between hover:bg-slate-800 hover:border-red-500/30 transition-colors cursor-pointer group">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-slate-500 font-bold text-sm w-5">#{idx+1}</span>
+                                                            <span className="text-white font-bold group-hover:text-red-500 transition-colors">{n.name}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-sm">
+                                                            <span className="font-bold text-green-500">{n.wins} V</span>
+                                                            <span className="text-slate-600">/</span>
+                                                            <span className="font-black text-red-500">{n.losses} D</span>
+                                                        </div>
+                                                    </div>
+                                                )) : <div className="text-slate-500 text-sm border border-dashed border-slate-800 p-4 rounded-lg text-center">Nenhum nêmesis encontrado.</div>}
+                                            </div>
+                                        </div>
+                                    </div>
                                 ) : (
                                     <div className="mt-4 animate-in fade-in duration-500">
                                         <div className="flex items-center gap-3 mb-6">
