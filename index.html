@@ -737,44 +737,84 @@
             };
 
             useEffect(() => {
-                const fetchData = async () => {
+                const parseEntry = (b) => {
+                    const dateObj = new Date(b.t || Date.now());
+                    const ts = isNaN(dateObj.getTime()) ? new Date().toISOString() : dateObj.toISOString();
+                    if (b.m === "SYS_RESET") return { type: 'battle', entry: { content: "vencedores mensais do torneio", timestamp: ts } };
+                    if (b.m === "MAP") return { type: 'map', entry: { content: `[Mapa] ${b.w} capturou ${b.l}`, timestamp: ts, footer: b.f } };
+                    if (b.m === "BLESS") return { type: 'bless', entry: { content: `[Bênção] ${b.w} abençoou ${b.l}`, timestamp: ts, footer: b.f, type: b.b } };
+                    return { type: 'battle', entry: { content: `[${b.m}] ${b.w} derrotou ${b.l}`, timestamp: ts } };
+                };
+
+                // Carrega todos os dados uma unica vez
+                const initialLoad = async () => {
                     setIsLoading(true); setError(null);
                     try {
-                        // Busca via REST API simples - sem SDK, sem WebSocket, sem conexao persistente
                         const resp = await fetch(`${FIREBASE_DB_URL}/nin_drops.json`);
                         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                         const data = await resp.json();
+                        const battleLogs = [], mLogs = [], bLogs = [];
+                        let newestId = '0';
                         if (data) {
-                            const battleLogs = [];
-                            const mLogs = [];
-                            const bLogs = [];
-                            Object.values(data).forEach(b => {
-                                const dateObj = new Date(b.t || Date.now());
-                                const ts = isNaN(dateObj.getTime()) ? new Date().toISOString() : dateObj.toISOString();
-                                if (b.m === "SYS_RESET") {
-                                    battleLogs.push({ content: "vencedores mensais do torneio", timestamp: ts });
-                                } else if (b.m === "MAP") {
-                                    mLogs.push({ content: `[Mapa] ${b.w} capturou ${b.l}`, timestamp: ts, footer: b.f });
-                                } else if (b.m === "BLESS") {
-                                    bLogs.push({ content: `[Bênção] ${b.w} abençoou ${b.l}`, timestamp: ts, footer: b.f, type: b.b });
-                                } else {
-                                    battleLogs.push({ content: `[${b.m}] ${b.w} derrotou ${b.l}`, timestamp: ts });
-                                }
+                            Object.entries(data).forEach(([id, b]) => {
+                                if (id > newestId) newestId = id;
+                                const { type, entry } = parseEntry(b);
+                                if (type === 'battle') battleLogs.push(entry);
+                                else if (type === 'map') mLogs.push(entry);
+                                else bLogs.push(entry);
                             });
                             setLoadedFilesCount(battleLogs.length);
                             setRawData(battleLogs);
                             setMapData(mLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
                             setBlessData(bLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
-                        } else {
-                            setRawData([]); setMapData([]); setBlessData([]);
                         }
+                        setIsLoading(false);
+                        return newestId;
                     } catch(err) {
                         setError(`${t.error_loading}: ${err.message}`);
-                    } finally {
                         setIsLoading(false);
+                        return '0';
                     }
                 };
-                fetchData();
+
+                // Polling leve a cada 30s - busca so registros NOVOS pelo ID
+                const pollNewEntries = async (afterId, setAfter) => {
+                    try {
+                        const url = `${FIREBASE_DB_URL}/nin_drops.json?orderBy="$key"&startAt="${afterId}"&limitToLast=50`;
+                        const resp = await fetch(url);
+                        if (!resp.ok) return;
+                        const data = await resp.json();
+                        if (!data) return;
+                        const newEntries = Object.entries(data).filter(([id]) => id > afterId);
+                        if (newEntries.length === 0) return;
+                        let latestId = afterId;
+                        const newBattle = [], newMap = [], newBless = [];
+                        newEntries.forEach(([id, b]) => {
+                            if (id > latestId) latestId = id;
+                            const { type, entry } = parseEntry(b);
+                            if (type === 'battle') newBattle.push(entry);
+                            else if (type === 'map') newMap.push(entry);
+                            else newBless.push(entry);
+                        });
+                        if (newBattle.length > 0) setRawData(prev => [...prev, ...newBattle]);
+                        if (newMap.length > 0) setMapData(prev => [...newMap, ...prev]);
+                        if (newBless.length > 0) setBlessData(prev => [...newBless, ...prev]);
+                        setAfter(latestId);
+                    } catch(e) { console.warn('Poll error:', e); }
+                };
+
+                let intervalId = null;
+                let currentNewestId = '0';
+
+                initialLoad().then(newestId => {
+                    currentNewestId = newestId;
+                    // Polling a cada 30 segundos buscando so novidades
+                    intervalId = setInterval(() => {
+                        pollNewEntries(currentNewestId, (newId) => { currentNewestId = newId; });
+                    }, 30000);
+                });
+
+                return () => { if (intervalId) clearInterval(intervalId); };
             }, []);
 
 
