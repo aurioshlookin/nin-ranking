@@ -109,6 +109,12 @@
         
         const LiveTicker = ({ logs, mapData = [], blessData = [], t }) => {
             const [isOpen, setIsOpen] = useState(false);
+            const [now, setNow] = useState(new Date());
+
+            useEffect(() => {
+                const timer = setInterval(() => setNow(new Date()), 1000);
+                return () => clearInterval(timer);
+            }, []);
 
             const sortedLogs = [...logs].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
             
@@ -146,16 +152,32 @@
                 if (parts.length !== 2) return null;
                 const giver = parts[0].replace('[Bênção] ', '');
                 const color = isXP ? 'text-pink-400' : 'text-green-400';
-                const timeStr = new Date(bless.timestamp).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-                const dateStr = new Date(bless.timestamp).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+                
+                const blessTime = new Date(bless.timestamp);
+                const timeStr = blessTime.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+                
+                const diffMs = now.getTime() - blessTime.getTime();
+                const oneHourMs = 60 * 60 * 1000;
+                const isExpired = diffMs >= oneHourMs;
+
+                let timerStr;
+                if (isExpired) {
+                    timerStr = "Expirado";
+                } else {
+                    const remainingMs = oneHourMs - diffMs;
+                    const mins = Math.floor(remainingMs / 60000);
+                    const secs = Math.floor((remainingMs % 60000) / 1000);
+                    timerStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                }
+
                 return (
                     <div className="flex flex-col gap-1 p-3 bg-slate-900 border border-slate-800 rounded-xl shadow-sm hover:border-slate-700 transition-colors" title={`${giver} abençoou ${parts[1]} (${isXP ? 'XP' : 'Drop'})`}>
                         <div className="text-[10px] font-bold text-slate-500 uppercase flex items-center justify-between gap-1.5">
                             <div className="flex items-center gap-1.5"><Star className={`w-3 h-3 ${color}`}/> Último Bless {isXP ? 'XP' : 'Drop'}</div>
-                            <span className="text-[9px] bg-slate-800 px-1 rounded">{dateStr} {timeStr}</span>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded font-black tracking-wider ${isExpired ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400 animate-pulse font-mono'}`}>{timerStr}</span>
                         </div>
                         <div className="text-sm font-bold truncate text-white">{giver}</div>
-                        <div className="text-[10px] text-slate-400 truncate">abençoou <span className={color}>{parts[1]}</span></div>
+                        <div className="text-[10px] text-slate-400 truncate">abençoou <span className={color}>{parts[1]}</span> às {timeStr}</div>
                     </div>
                 );
             };

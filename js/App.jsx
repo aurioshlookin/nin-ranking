@@ -1560,7 +1560,7 @@
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-center items-center text-center">
                                         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Maior Combo (Período)</h4>
-                                        <div className="text-3xl font-black text-pink-500 mb-1">{blessStats.maxStreak}x</div>
+                                        <div className="text-3xl font-black text-purple-500 mb-1">{blessStats.maxStreak}x</div>
                                         <div className="font-bold text-white">{blessStats.maxStreakPerson}</div>
                                     </div>
                                     <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-center items-center text-center">
@@ -1618,24 +1618,35 @@
                                             )}
                                         </>
                                     ) : (
-                                        <div className="space-y-3">
-                                            {paginatedBlessings.map((m, i) => (
-                                                <div key={i} className="p-4 rounded-xl border border-pink-500/20 bg-pink-900/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-pink-500/40 transition-colors">
-                                                    <div className="flex items-center gap-3 flex-1">
-                                                        <div className="p-2 bg-pink-500/20 rounded-lg"><Sparkles className="w-5 h-5 text-pink-400" /></div>
+                                        <div className="space-y-3 mt-4">
+                                            {paginatedBlessings.map((m, idx) => {
+                                                const isXP = m.type === 'XP';
+                                                const bgIcon = isXP ? 'bg-pink-500/20' : 'bg-green-500/20';
+                                                const textIcon = isXP ? 'text-pink-400' : 'text-green-400';
+                                                const borderCard = isXP ? 'border-pink-500/20' : 'border-green-500/20';
+                                                const textName = isXP ? 'text-pink-300' : 'text-green-300';
+                                                const textFooter = isXP ? 'text-pink-200/70' : 'text-green-200/70';
+
+                                                return (
+                                                <div key={idx} className={`bg-slate-900 border ${borderCard} rounded-xl p-4 flex justify-between items-center shadow-md hover:bg-slate-800/50 transition-colors group`}>
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`p-2 ${bgIcon} rounded-lg`}><Sparkles className={`w-5 h-5 ${textIcon}`} /></div>
                                                         <div className="flex flex-col">
                                                             <div className="flex items-center gap-2 flex-wrap">
                                                                 <span className="font-bold text-white">{m.content.split(' abençoou ')[0].replace('[Bênção] ', '')}</span> 
                                                                 <span className="text-slate-400">abençoou</span> 
-                                                                <span className="font-bold text-pink-300">{m.content.split(' abençoou ')[1]}</span>
-                                                                {m.type && <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${m.type === 'XP' ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>{m.type}</span>}
+                                                                <span className={`font-bold ${textName}`}>{m.content.split(' abençoou ')[1]}</span>
+                                                                {m.type && <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${isXP ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>{m.type}</span>}
                                                             </div>
-                                                            {m.footer && <div className="text-sm text-pink-200/70 italic mt-1">"{m.footer}"</div>}
+                                                            {m.footer && <div className={`text-sm ${textFooter} italic mt-1`}>"{m.footer}"</div>}
                                                         </div>
                                                     </div>
-                                                    <div className="text-xs text-slate-500 font-mono flex-shrink-0 flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(m.timestamp).toLocaleString('pt-BR')}</div>
+                                                    <div className="flex items-center gap-2 text-slate-500 text-xs font-mono opacity-60 group-hover:opacity-100 transition-opacity">
+                                                        <Clock className="w-3.5 h-3.5" />
+                                                        {new Date(m.timestamp).toLocaleDateString('pt-BR')} {new Date(m.timestamp).toLocaleTimeString('pt-BR')}
+                                                    </div>
                                                 </div>
-                                            ))}
+                                            )})}
                                             {paginatedBlessings.length === 0 && <div className="text-center py-10 text-slate-500">Nenhuma benção registrada.</div>}
                                         </div>
                                     )}
