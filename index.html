@@ -14,21 +14,9 @@
     <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Adição do html2canvas para gerar os Cards exportáveis -->
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- LocalForage e Firebase RTDB -->
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script crossorigin src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script crossorigin src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <!-- Firebase REST API - sem SDK, sem WebSocket -->
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC8pfffU8pu-5IujSMmlnrR-VUqCqH9n4k",
-            authDomain: "ninranking-7ef1b.firebaseapp.com",
-            databaseURL: "https://ninranking-7ef1b-default-rtdb.firebaseio.com",
-            projectId: "ninranking-7ef1b",
-            storageBucket: "ninranking-7ef1b.firebasestorage.app",
-            messagingSenderId: "1095133873510",
-            appId: "1:1095133873510:web:53cf8d7566a7d24ed5b4a7"
-        };
-        firebase.initializeApp(firebaseConfig);
+        const FIREBASE_DB_URL = "https://ninranking-7ef1b-default-rtdb.firebaseio.com";
     </script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -749,19 +737,20 @@
             };
 
             useEffect(() => {
-                const fetchData = () => {
+                const fetchData = async () => {
                     setIsLoading(true); setError(null);
-                    
-                    // Ouve todo o nó em tempo real.
-                    firebase.database().ref('nin_drops').once('value').then((snapshot) => {
-                        const data = snapshot.val();
+                    try {
+                        // Busca via REST API simples - sem SDK, sem WebSocket, sem conexao persistente
+                        const resp = await fetch(`${FIREBASE_DB_URL}/nin_drops.json`);
+                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                        const data = await resp.json();
                         if (data) {
                             const battleLogs = [];
                             const mLogs = [];
                             const bLogs = [];
-                            
                             Object.values(data).forEach(b => {
-                                const dateObj = new Date(b.t || Date.now()); const ts = isNaN(dateObj.getTime()) ? new Date().toISOString() : dateObj.toISOString();
+                                const dateObj = new Date(b.t || Date.now());
+                                const ts = isNaN(dateObj.getTime()) ? new Date().toISOString() : dateObj.toISOString();
                                 if (b.m === "SYS_RESET") {
                                     battleLogs.push({ content: "vencedores mensais do torneio", timestamp: ts });
                                 } else if (b.m === "MAP") {
@@ -772,24 +761,18 @@
                                     battleLogs.push({ content: `[${b.m}] ${b.w} derrotou ${b.l}`, timestamp: ts });
                                 }
                             });
-                            
                             setLoadedFilesCount(battleLogs.length);
                             setRawData(battleLogs);
                             setMapData(mLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
                             setBlessData(bLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
-                            setIsLoading(false);
-                            firebase.database().goOffline();
                         } else {
-                            setRawData([]);
-                            setMapData([]);
-                            setBlessData([]);
-                            setIsLoading(false);
-                            firebase.database().goOffline();
+                            setRawData([]); setMapData([]); setBlessData([]);
                         }
-                    }).catch((err) => {
-                        setError(`${t.error_loading}: ${err.message}`); 
-                        setIsLoading(false); 
-                    });
+                    } catch(err) {
+                        setError(`${t.error_loading}: ${err.message}`);
+                    } finally {
+                        setIsLoading(false);
+                    }
                 };
                 fetchData();
             }, []);
