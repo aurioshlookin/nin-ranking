@@ -6,15 +6,18 @@
     <title>Nin Online Tournaments - Hawk Server</title>
     <link rel="icon" type="image/png" href="./icon.png" id="dynamic-favicon">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        
+    </script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Adição do html2canvas para gerar os Cards exportáveis -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- LocalForage e Firebase RTDB -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script crossorigin src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script crossorigin src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyC8pfffU8pu-5IujSMmlnrR-VUqCqH9n4k",
@@ -137,7 +140,7 @@
                 ranking: "Ranking", versus: "Versus", tournaments: "Torneios", matches_tab: "Partidas",
                 others: "Outros", current_month: "Este Mês", day: "Últimas 24h", week: "Última Semana", specific_month: "Selecionar Mês", all: "Todo o Período", default_desc: "Estatísticas detalhadas para este modo de jogo específico.",
                 player1: "Jogador 1", player2: "Jogador 2", no_match: "Nenhum confronto encontrado entre estes jogadores.", winners: "Vencedores", losers: "Perdedores",
-                victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Batalhas Totais", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas", on_fire: "Sequência de Vitórias",
+                victory_p1: "VITÓRIA J1", defeat_p1: "DERROTA J1", see_tournament: "Ver Torneio", active_players: "Jogadores Ativos", total_battles: "Total de Batalhas", most_wins: "Mais Vitórias", most_losses: "Mais Derrotas", on_fire: "Sequência de Vitórias",
                 player: "Jogador", t_wins: "T. Vencidos", t_played: "T. Jogados", wins: "Vitórias", losses: "Derrotas", battles: "Partidas", win_rate: "Win Rate",
                 no_player_found: "Nenhum jogador encontrado para este filtro.", date: "Data", tournament: "Torneio", time: "Horário", no_tournament_found: "Nenhum torneio encontrado para este filtro.",
                 files_loaded: "Arquivos carregados:",
@@ -154,7 +157,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nêmesis (Quem mais te venceu)", icon_victim: "Vítima (Quem você mais venceu)", about_project: "Sobre o Projeto",
                 about_text_1: "Este painel foi desenvolvido por Auriosh.", about_text_2: "É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.", about_text_3: "A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial Servidor do Discord.",
                 share: "Compartilhar", won: "VENCEU", participated: "PARTICIPOU", no_tournament_period: "Nenhum torneio encontrado neste período.", stats_quick: "Estatísticas Rápidas",
-                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar arquivos JSON...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
+                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
             },
             en: {
                 server: "Server: Hawk", to: "to",
@@ -179,7 +182,7 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nemesis (Who beat you most)", icon_victim: "Victim (Who you beat most)", about_project: "About Project",
                 about_text_1: "This panel was developed by Auriosh.", about_text_2: "It is a non-profit, unpaid project created for the community.", about_text_3: "Data updates are done manually using information released on the official Discord Server channel.",
                 share: "Share", won: "WON", participated: "PARTICIPATED", no_tournament_period: "No tournament found in this period.", stats_quick: "Quick Stats",
-                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading JSON files...", error_loading: "Error loading data", try_again: "Try Again"
+                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading...", error_loading: "Error loading data", try_again: "Try Again"
             }
         };
 
@@ -451,7 +454,7 @@
             );
         };
 
-        const TournamentBracketModal = ({ tournament, onClose, onPlayerClick, getShareLink, t }) => {
+        const TournamentModal = ({ tournament, onClose, onPlayerClick, getShareLink, t }) => {
             useLockBodyScroll(); 
             if (!tournament) return null;
             const matches = [...tournament.matches].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -461,7 +464,7 @@
                     <div className="bg-slate-900 w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
                             <div><h2 className="text-2xl font-bold text-white flex items-center gap-3"><Trophy className="text-yellow-500 w-6 h-6" />{tournament.name}</h2><p className="text-slate-400 text-sm mt-1">{tournament.date}</p></div>
-                            <div className="flex gap-2"><ShareButton generateUrl={() => getShareLink(tournament)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700" label={t.share} /><button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"><XIcon className="w-6 h-6" /></button></div>
+                            <div className="flex gap-2"><ShareButton url={getShareLink(tournament.name, true)} title={t.share} /><button onClick={onClose} className="p-2 hover:bg-slate-700 rounded-full transition-colors text-slate-400 hover:text-white"><XIcon className="w-6 h-6" /></button></div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin bg-slate-950/50">
                             {Object.entries(rounds).map(([roundName, roundMatches]) => {
@@ -630,7 +633,7 @@
             const [mapData, setMapData] = useState([]);
             const [blessData, setBlessData] = useState([]);
             const [data, setData] = useState({ rankings: [], history: {} });
-            const [isLoading, setIsLoading] = useState(true);
+            const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState(null);
             
             // --- LANGUAGE STATE ---
@@ -758,13 +761,13 @@
                             const bLogs = [];
                             
                             Object.values(data).forEach(b => {
-                                const ts = new Date(b.t).toISOString();
+                                const dateObj = new Date(b.t || Date.now()); const ts = isNaN(dateObj.getTime()) ? new Date().toISOString() : dateObj.toISOString();
                                 if (b.m === "SYS_RESET") {
                                     battleLogs.push({ content: "vencedores mensais do torneio", timestamp: ts });
                                 } else if (b.m === "MAP") {
                                     mLogs.push({ content: `[Mapa] ${b.w} capturou ${b.l}`, timestamp: ts, footer: b.f });
                                 } else if (b.m === "BLESS") {
-                                    bLogs.push({ content: `[Benção] ${b.w} abençoou ${b.l}`, timestamp: ts, footer: b.f, type: b.b });
+                                    bLogs.push({ content: `[Bênção] ${b.w} abençoou ${b.l}`, timestamp: ts, footer: b.f, type: b.b });
                                 } else {
                                     battleLogs.push({ content: `[${b.m}] ${b.w} derrotou ${b.l}`, timestamp: ts });
                                 }
@@ -918,6 +921,7 @@
                 const conquerCount = {};
                 const mapConquers = {};
                 filteredMapData.forEach(m => {
+                    if(!m.content.includes(' capturou ')) return;
                     const village = m.content.split(' capturou ')[0].replace('[Mapa] ', '').trim();
                     const mapName = m.content.split(' capturou ')[1].trim();
                     conquerCount[village] = (conquerCount[village] || 0) + 1;
@@ -955,7 +959,7 @@
                 let dropCount = 0;
                 
                 filteredBlessData.forEach(m => {
-                    const giver = m.content.split(' abençoou ')[0].replace('[Benção] ', '').trim();
+                    const giver = m.content.split(' abençoou ')[0].replace('[Bênção] ', '').trim();
                     if (!givers[giver]) givers[giver] = { total: 0, xp: 0, drop: 0 };
                     givers[giver].total++;
                     if (m.type === 'XP') { givers[giver].xp++; xpCount++; }
@@ -970,7 +974,7 @@
                 let currentPerson = null;
                 
                 [...filteredBlessData].sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).forEach(m => {
-                    const giver = m.content.split(' abençoou ')[0].replace('[Benção] ', '').trim();
+                    const giver = m.content.split(' abençoou ')[0].replace('[Bênção] ', '').trim();
                     if (giver === currentPerson) {
                         currentStreak++;
                     } else {
@@ -1531,7 +1535,7 @@
             }, [isLoading, data.rankings, groupedTournaments]); 
 
             // --- RENDER ---
-            if (isLoading) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8"><div className="w-full max-w-md space-y-4"><div className="flex justify-between items-end"><div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-32" /></div><Loader2 className="w-8 h-8 animate-spin text-yellow-500" /></div><Skeleton className="h-32 w-full rounded-xl" /><div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><div className="text-center text-xs text-slate-500 pt-4">{t.loading}</div></div></div>);
+            // if (isLoading) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8"><div className="w-full max-w-md space-y-4"><div className="flex justify-between items-end"><div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-32" /></div><Loader2 className="w-8 h-8 animate-spin text-yellow-500" /></div><Skeleton className="h-32 w-full rounded-xl" /><div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><div className="text-center text-xs text-slate-500 pt-4">{t.loading}</div></div></div>);
             if (error) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 p-8 text-center"><AlertCircle className="w-16 h-16 mb-4" /><h2 className="text-2xl font-bold mb-2">{t.error_loading}</h2><p className="max-w-md">{error}</p><button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors text-white">{t.try_again}</button></div>);
 
             return (
@@ -1550,7 +1554,7 @@
                             t={t}
                         />
                     )}
-                    {selectedTournament && <TournamentBracketModal tournament={selectedTournament} onClose={() => setSelectedTournament(null)} onPlayerClick={handlePlayerClick} getShareLink={getShareLink} t={t} />}
+                    {selectedTournament && <TournamentModal tournament={selectedTournament} onClose={() => setSelectedTournament(null)} onPlayerClick={handlePlayerClick} getShareLink={getShareLink} t={t} />}
 
                     <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-700">
                         {/* Live Ticker */}
@@ -1593,7 +1597,7 @@
                             <button onClick={() => setViewMode('matches')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'matches' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Crosshair className="w-4 h-4" /> {t.matches_tab}</button>
                             <button onClick={() => setViewMode('tournaments')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><GitBranch className="w-4 h-4" /> {t.tournaments}</button>
                             <button onClick={() => setViewMode('maps')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'maps' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><MapIcon className="w-4 h-4" /> Mapas</button>
-                            <button onClick={() => setViewMode('blessings')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'blessings' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Sparkles className="w-4 h-4" /> Bençãos</button>
+                            <button onClick={() => setViewMode('blessings')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'blessings' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Sparkles className="w-4 h-4" /> Bênçãos</button>
                         </div>
 
                         {/* Filters */}
@@ -2013,7 +2017,7 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    {totalPages > 1 && (<div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900"><button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button><span className="text-sm text-slate-400 font-medium">Página <span className="text-white font-bold">{currentPage}</span> de {totalPages}</span><button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button></div>)}
+{totalPages > 1 && (<div className="flex justify-center items-center gap-4 mt-6"><button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button><span className="text-slate-400 text-sm">Página <span className="text-white font-bold">{currentPage}</span> de {totalPages}</span><button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button></div>)}
                                 </div>
                             </React.Fragment>
                         )}
@@ -2170,7 +2174,7 @@
 
                         {viewMode === 'blessings' && (
                             <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                {/* Estatísticas de Bençãos */}
+                                {/* Estatísticas de Bênçãos */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-center items-center text-center">
                                         <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Maior Combo (Período)</h4>
@@ -2192,7 +2196,7 @@
                                 </div>
 
                                 <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 p-6">
-                                    <h3 className="text-xl font-bold text-pink-400 flex items-center gap-2 mb-6"><Sparkles className="w-6 h-6" /> {blessTab === 'Geral' ? 'Histórico de Bençãos' : 'Ranking de Abençoadores'}</h3>
+                                    <h3 className="text-xl font-bold text-pink-400 flex items-center gap-2 mb-6"><Sparkles className="w-6 h-6" /> {blessTab === 'Geral' ? 'Histórico de Bênçãos' : 'Ranking de Abençoadores'}</h3>
                                     
                                     {blessTab === 'Ranking' ? (
                                         <>
@@ -2239,7 +2243,7 @@
                                                         <div className="p-2 bg-pink-500/20 rounded-lg"><Sparkles className="w-5 h-5 text-pink-400" /></div>
                                                         <div className="flex flex-col">
                                                             <div className="flex items-center gap-2 flex-wrap">
-                                                                <span className="font-bold text-white">{m.content.split(' abençoou ')[0].replace('[Benção] ', '')}</span> 
+                                                                <span className="font-bold text-white">{m.content.split(' abençoou ')[0].replace('[Bênção] ', '')}</span> 
                                                                 <span className="text-slate-400">abençoou</span> 
                                                                 <span className="font-bold text-pink-300">{m.content.split(' abençoou ')[1]}</span>
                                                                 {m.type && <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${m.type === 'XP' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>{m.type}</span>}
