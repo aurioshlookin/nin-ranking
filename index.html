@@ -14,9 +14,16 @@
     <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Adição do html2canvas para gerar os Cards exportáveis -->
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Firebase REST API - sem SDK, sem WebSocket -->
+    <!-- Firebase SDK - Tempo Real Eficiente com Firestore -->
+    <script crossorigin src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script crossorigin src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script>
-        const FIREBASE_DB_URL = "https://ninranking-7ef1b-default-rtdb.firebaseio.com";
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8pfffU8pu-5IujSMmlnrR-VUqCqH9n4k",
+            projectId: "ninranking-7ef1b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
     </script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -746,75 +753,40 @@
                     return { type: 'battle', entry: { content: `[${b.m}] ${b.w} derrotou ${b.l}`, timestamp: ts } };
                 };
 
-                // Carrega todos os dados uma unica vez
-                const initialLoad = async () => {
-                    setIsLoading(true); setError(null);
-                    try {
-                        const resp = await fetch(`${FIREBASE_DB_URL}/nin_drops.json`);
-                        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                        const data = await resp.json();
-                        const battleLogs = [], mLogs = [], bLogs = [];
-                        let newestId = '0';
-                        if (data) {
-                            Object.entries(data).forEach(([id, b]) => {
-                                if (id > newestId) newestId = id;
-                                const { type, entry } = parseEntry(b);
-                                if (type === 'battle') battleLogs.push(entry);
-                                else if (type === 'map') mLogs.push(entry);
-                                else bLogs.push(entry);
-                            });
-                            setLoadedFilesCount(battleLogs.length);
-                            setRawData(battleLogs);
-                            setMapData(mLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
-                            setBlessData(bLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
-                        }
+                setIsLoading(true); setError(null);
+
+                const unsubscribe = db.collection('nin_drops_history').onSnapshot(
+                    (snapshot) => {
+                        const battleLogs = [];
+                        const mLogs = [];
+                        const bLogs = [];
+                        
+                        snapshot.docs.forEach(doc => {
+                            const data = doc.data();
+                            if (data.logs && Array.isArray(data.logs)) {
+                                data.logs.forEach(b => {
+                                    const { type, entry } = parseEntry(b);
+                                    if (type === 'battle') battleLogs.push(entry);
+                                    else if (type === 'map') mLogs.push(entry);
+                                    else bLogs.push(entry);
+                                });
+                            }
+                        });
+                        
+                        setLoadedFilesCount(battleLogs.length);
+                        setRawData(battleLogs);
+                        setMapData(mLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
+                        setBlessData(bLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
                         setIsLoading(false);
-                        return newestId;
-                    } catch(err) {
+                    },
+                    (err) => {
+                        console.error(err);
                         setError(`${t.error_loading}: ${err.message}`);
                         setIsLoading(false);
-                        return '0';
                     }
-                };
+                );
 
-                // Polling leve a cada 30s - busca so registros NOVOS pelo ID
-                const pollNewEntries = async (afterId, setAfter) => {
-                    try {
-                        const url = `${FIREBASE_DB_URL}/nin_drops.json?orderBy="$key"&startAt="${afterId}"&limitToLast=50`;
-                        const resp = await fetch(url);
-                        if (!resp.ok) return;
-                        const data = await resp.json();
-                        if (!data) return;
-                        const newEntries = Object.entries(data).filter(([id]) => id > afterId);
-                        if (newEntries.length === 0) return;
-                        let latestId = afterId;
-                        const newBattle = [], newMap = [], newBless = [];
-                        newEntries.forEach(([id, b]) => {
-                            if (id > latestId) latestId = id;
-                            const { type, entry } = parseEntry(b);
-                            if (type === 'battle') newBattle.push(entry);
-                            else if (type === 'map') newMap.push(entry);
-                            else newBless.push(entry);
-                        });
-                        if (newBattle.length > 0) setRawData(prev => [...prev, ...newBattle]);
-                        if (newMap.length > 0) setMapData(prev => [...newMap, ...prev]);
-                        if (newBless.length > 0) setBlessData(prev => [...newBless, ...prev]);
-                        setAfter(latestId);
-                    } catch(e) { console.warn('Poll error:', e); }
-                };
-
-                let intervalId = null;
-                let currentNewestId = '0';
-
-                initialLoad().then(newestId => {
-                    currentNewestId = newestId;
-                    // Polling a cada 30 segundos buscando so novidades
-                    intervalId = setInterval(() => {
-                        pollNewEntries(currentNewestId, (newId) => { currentNewestId = newId; });
-                    }, 30000);
-                });
-
-                return () => { if (intervalId) clearInterval(intervalId); };
+                return () => unsubscribe();
             }, []);
 
 
