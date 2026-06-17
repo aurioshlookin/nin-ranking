@@ -11,6 +11,22 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- Adição do html2canvas para gerar os Cards exportáveis -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- LocalForage e Firebase RTDB -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC8pfffU8pu-5IujSMmlnrR-VUqCqH9n4k",
+            authDomain: "ninranking-7ef1b.firebaseapp.com",
+            databaseURL: "https://ninranking-7ef1b-default-rtdb.firebaseio.com",
+            projectId: "ninranking-7ef1b",
+            storageBucket: "ninranking-7ef1b.firebasestorage.app",
+            messagingSenderId: "1095133873510",
+            appId: "1:1095133873510:web:53cf8d7566a7d24ed5b4a7"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
@@ -36,7 +52,14 @@
 <body class="bg-slate-950 text-slate-100 font-sans">
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script>
+        Babel.registerPreset('react-classic', {
+            presets: [
+                [Babel.availablePresets.react, { runtime: 'classic' }]
+            ]
+        });
+    </script>
+    <script type="text/babel" data-presets="react-classic">
         const { useState, useEffect, useMemo, useRef, useLayoutEffect } = React;
 
         const useLockBodyScroll = () => {
@@ -75,7 +98,8 @@
         const GitBranch = (props) => <IconBase {...props}><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></IconBase>;
         const HelpCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></IconBase>;
         const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconBase>;
-        const MapIcon = (props) => <IconBase {...props}><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></IconBase>;
+        const MapIcon = (props) => <IconBase {...props}><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></IconBase>;
+        const Sparkles = (props) => <IconBase {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></IconBase>;
         const Layers = (props) => <IconBase {...props}><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></IconBase>;
         const AlertTriangle = (props) => <IconBase {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>;
         const Crosshair = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></IconBase>;
@@ -603,6 +627,8 @@
 
         const App = () => {
             const [rawData, setRawData] = useState([]);
+            const [mapData, setMapData] = useState([]);
+            const [blessData, setBlessData] = useState([]);
             const [data, setData] = useState({ rankings: [], history: {} });
             const [isLoading, setIsLoading] = useState(true);
             const [error, setError] = useState(null);
@@ -625,16 +651,23 @@
             const [timeFilter, setTimeFilter] = useState('current_month');
             const [availableMonths, setAvailableMonths] = useState([]);
             const [targetMonth, setTargetMonth] = useState('');
+            const [targetCalendarMonth, setTargetCalendarMonth] = useState('');
             const [dateRange, setDateRange] = useState({ start: null, end: null });
             
             // Estados para Data Personalizada
             const [customStartDate, setCustomStartDate] = useState('');
             const [customEndDate, setCustomEndDate] = useState('');
-
             const [showOtherModes, setShowOtherModes] = useState(false);
-            const [viewMode, setViewMode] = useState('ranking'); 
+
+            const [viewMode, setViewMode] = useState('ranking');
+            const [blessTab, setBlessTab] = useState('Geral');
+            const [mapTab, setMapTab] = useState('Geral');
             const [selectedTournament, setSelectedTournament] = useState(null);
             const [showInfoModal, setShowInfoModal] = useState(false);
+            
+            useEffect(() => {
+                setCurrentPage(1);
+            }, [viewMode, blessTab, mapTab]);
             
             const [versusPlayer1, setVersusPlayer1] = useState('');
             const [versusPlayer2, setVersusPlayer2] = useState('');
@@ -713,85 +746,48 @@
             };
 
             useEffect(() => {
-                const fetchData = async () => {
+                const fetchData = () => {
                     setIsLoading(true); setError(null);
-                    const loadedData = [];
-                    let page = 1; let foundEnd = false; const MAX_PAGES = 50; const BATCH_SIZE = 5; 
-
-                    try {
-                        while (!foundEnd && page <= MAX_PAGES) {
-                            const promises = [];
-                            for (let i = 0; i < BATCH_SIZE; i++) {
-                                const currentP = page + i;
-                                if (currentP > MAX_PAGES) break;
-                                const url = `./servidor_page_${currentP}.json?v=${Date.now()}`;
-                                promises.push(fetch(url).then(res => (res.ok && res.headers.get('content-type')?.includes('application/json')) ? res.json() : null).catch(() => null));
-                            }
-                            const results = await Promise.all(promises);
-                            let batchSuccessCount = 0;
-                            results.forEach(json => {
-                                if (json && json.messages && Array.isArray(json.messages)) { 
-                                    loadedData.push(...json.messages); 
-                                    batchSuccessCount++; 
-                                } else if (json && Array.isArray(json)) { 
-                                    loadedData.push(...json); 
-                                    batchSuccessCount++; 
+                    
+                    // Ouve todo o nó em tempo real.
+                    firebase.database().ref('nin_drops').on('value', (snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            const battleLogs = [];
+                            const mLogs = [];
+                            const bLogs = [];
+                            
+                            Object.values(data).forEach(b => {
+                                const ts = new Date(b.t).toISOString();
+                                if (b.m === "SYS_RESET") {
+                                    battleLogs.push({ content: "vencedores mensais do torneio", timestamp: ts });
+                                } else if (b.m === "MAP") {
+                                    mLogs.push({ content: `[Mapa] ${b.w} capturou ${b.l}`, timestamp: ts, footer: b.f });
+                                } else if (b.m === "BLESS") {
+                                    bLogs.push({ content: `[Benção] ${b.w} abençoou ${b.l}`, timestamp: ts, footer: b.f, type: b.b });
+                                } else {
+                                    battleLogs.push({ content: `[${b.m}] ${b.w} derrotou ${b.l}`, timestamp: ts });
                                 }
                             });
-                            if (batchSuccessCount === 0) foundEnd = true;
-                            setLoadedFilesCount(prev => prev + batchSuccessCount);
-                            page += BATCH_SIZE;
+                            
+                            setLoadedFilesCount(battleLogs.length);
+                            setRawData(battleLogs);
+                            setMapData(mLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
+                            setBlessData(bLogs.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)));
+                        } else {
+                            setRawData([]);
+                            setMapData([]);
+                            setBlessData([]);
                         }
-                        setRawData(loadedData);
                         setIsLoading(false);
-                    } catch (err) { setError(`${t.error_loading}: ${err.message}`); setRawData([]); setIsLoading(false); }
+                    }, (err) => {
+                        setError(`${t.error_loading}: ${err.message}`); 
+                        setIsLoading(false); 
+                    });
                 };
                 fetchData();
             }, []);
 
-            useEffect(() => {
-                if (!isLoading && data.rankings.length > 0) {
-                    const params = new URLSearchParams(window.location.search);
-                    
-                    const viewParam = params.get('view');
-                    if (viewParam && ['ranking', 'versus', 'tournaments', 'matches'].includes(viewParam)) setViewMode(viewParam);
-
-                    const modeParam = params.get('mode'); if (modeParam) setActiveTab(modeParam);
-                    const timeParam = params.get('time'); if (timeParam) setTimeFilter(timeParam);
-                    const monthParam = params.get('month'); if (monthParam) setTargetMonth(monthParam);
-
-                    const playerParam = params.get('player');
-                    const tournamentParam = params.get('tournament');
-                    const p1Param = params.get('p1');
-                    const p2Param = params.get('p2');
-
-                    if (tournamentParam) {
-                        const foundT = groupedTournaments.find(t => t.id === tournamentParam);
-                        if (foundT) { setSelectedTournament(foundT); setViewMode('tournaments'); }
-                    } else if (playerParam) {
-                        const foundP = data.rankings.find(p => p.name.toLowerCase() === playerParam.toLowerCase());
-                        if (foundP) {
-                            const gStats = globalPlayerStats[foundP.name];
-                            let globalBattles = 0;
-                            if (gStats) {
-                                if (modeParam === 'Geral' || !modeParam) globalBattles = gStats.total;
-                                else if (modeParam === 'Ranked') globalBattles = (gStats.modes['Auto1v1'] || 0) + (gStats.modes['Auto2v2'] || 0) + (gStats.modes['Auto3v3'] || 0);
-                                else globalBattles = gStats.modes[modeParam] || 0;
-                            }
-                            const currentBadges = foundP.badges ? foundP.badges.filter(b => b.id !== 'veteran' && b.id !== 'master') : [];
-                            const newBadges = [...currentBadges];
-                            if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: t.icon_master, color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
-                            else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: t.icon_veteran, color: 'text-blue-400' });
-                            
-                            setSelectedPlayer({ ...foundP, badges: newBadges });
-                        }
-                    }
-
-                    if (p1Param) setVersusPlayer1(p1Param);
-                    if (p2Param) setVersusPlayer2(p2Param);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-            }, [isLoading, data.rankings, groupedTournaments]); 
 
             useEffect(() => {
                 if (rawData.length === 0) { setData({ rankings: [], history: {} }); return; }
@@ -833,28 +829,163 @@
                         }
                     });
                     
-                    const now = new Date();
-                    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
-                    const currentYear = String(now.getFullYear()).slice(-2);
+                    if (currentStart > 0) {
+                        const now = new Date();
+                        const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+                        const currentYear = String(now.getFullYear()).slice(-2);
+                        periods.push({
+                            id: `${currentStart}-current`,
+                            start: currentStart,
+                            end: Number.MAX_SAFE_INTEGER,
+                            label: `${currentMonth}/${currentYear}`
+                        });
+                    }
                     
-                    periods.push({
-                        id: `${currentStart}-current`,
-                        start: currentStart,
-                        end: Number.MAX_SAFE_INTEGER, 
-                        label: `${currentMonth}/${currentYear}`
-                    });
-                    
-                    const reversedPeriods = periods.reverse();
-                    setAvailableMonths(reversedPeriods);
-                    
-                    if (!targetMonth && reversedPeriods.length > 0) {
-                        setTargetMonth(reversedPeriods[0].id);
+                    periods.reverse();
+                    setAvailableMonths(periods);
+                    if (periods.length > 0 && !targetMonth) {
+                        setTargetMonth(periods[0].id);
                     }
                 }
             }, [rawData]);
 
             const referenceDate = useMemo(() => new Date(), []);
             
+            const availableCalendarMonths = useMemo(() => {
+                const allLogs = [...mapData, ...blessData];
+                if (allLogs.length === 0) return [];
+                let minT = Infinity;
+                let maxT = -Infinity;
+                allLogs.forEach(l => {
+                    const t = new Date(l.timestamp).getTime();
+                    if (t < minT) minT = t;
+                    if (t > maxT) maxT = t;
+                });
+                if (minT === Infinity) return [];
+                const minDate = new Date(minT);
+                const maxDate = new Date(maxT);
+                const periods = [];
+                let cur = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+                while (cur <= maxDate) {
+                    const m = cur.getMonth();
+                    const y = cur.getFullYear();
+                    const label = new Intl.DateTimeFormat(language === 'pt' ? 'pt-BR' : 'en-US', { month: 'long', year: 'numeric' }).format(cur);
+                    periods.push({ id: `${y}-${m}`, label: label.charAt(0).toUpperCase() + label.slice(1) });
+                    cur.setMonth(cur.getMonth() + 1);
+                }
+                return periods.reverse();
+            }, [mapData, blessData, language]);
+
+            useEffect(() => {
+                if (availableCalendarMonths.length > 0 && !targetCalendarMonth) {
+                    setTargetCalendarMonth(availableCalendarMonths[0].id);
+                }
+            }, [availableCalendarMonths, targetCalendarMonth]);
+
+            const filterSpecialByTime = (log) => {
+                if (timeFilter === 'all') return true;
+                if (!log.timestamp) return false;
+                
+                const logDate = new Date(log.timestamp);
+                const logTime = logDate.getTime();
+                
+                if (timeFilter === 'current_month') {
+                    const now = new Date();
+                    return logDate.getMonth() === now.getMonth() && logDate.getFullYear() === now.getFullYear();
+                }
+                if (timeFilter === 'specific_month') {
+                    if (!targetCalendarMonth) return true;
+                    const [y, m] = targetCalendarMonth.split('-');
+                    return logDate.getFullYear() === parseInt(y, 10) && logDate.getMonth() === parseInt(m, 10);
+                }
+                if (timeFilter === 'custom') {
+                    if (!customStartDate || !customEndDate) return true; 
+                    const start = new Date(customStartDate + 'T00:00:00').getTime();
+                    const end = new Date(customEndDate + 'T23:59:59').getTime();
+                    return logTime >= start && logTime <= end;
+                }
+                
+                const diff = referenceDate.getTime() - logTime;
+                if (timeFilter === 'day') return diff <= 24 * 60 * 60 * 1000;
+                if (timeFilter === 'week') return diff <= 7 * 24 * 60 * 60 * 1000;
+                return true;
+            };
+
+            const filteredMapData = useMemo(() => mapData.filter(filterSpecialByTime), [mapData, timeFilter, targetCalendarMonth, customStartDate, customEndDate, referenceDate]);
+            const filteredBlessData = useMemo(() => blessData.filter(filterSpecialByTime), [blessData, timeFilter, targetCalendarMonth, customStartDate, customEndDate, referenceDate]);
+            
+            const mapStats = useMemo(() => {
+                const conquerCount = {};
+                const mapConquers = {};
+                filteredMapData.forEach(m => {
+                    const village = m.content.split(' capturou ')[0].replace('[Mapa] ', '').trim();
+                    const mapName = m.content.split(' capturou ')[1].trim();
+                    conquerCount[village] = (conquerCount[village] || 0) + 1;
+                    
+                    if (!mapConquers[mapName]) mapConquers[mapName] = { total: 0, villages: {} };
+                    mapConquers[mapName].total++;
+                    mapConquers[mapName].villages[village] = (mapConquers[mapName].villages[village] || 0) + 1;
+                });
+                const topConquerors = Object.entries(conquerCount).sort((a,b) => b[1] - a[1]);
+                const topConqueredMaps = Object.entries(mapConquers).sort((a,b) => b[1].total - a[1].total);
+
+                const ownership = {};
+                [...mapData].sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).forEach(m => {
+                    const parts = m.content.split(' capturou ');
+                    if(parts.length === 2) {
+                        ownership[parts[1].trim()] = parts[0].replace('[Mapa] ', '').trim();
+                    }
+                });
+                const ownCount = {};
+                const ownedMapsByVillage = {};
+                Object.entries(ownership).forEach(([mapName, village]) => {
+                    ownCount[village] = (ownCount[village] || 0) + 1;
+                    if (!ownedMapsByVillage[village]) ownedMapsByVillage[village] = [];
+                    ownedMapsByVillage[village].push(mapName);
+                });
+                const currentOwnership = Object.entries(ownCount).sort((a,b) => b[1] - a[1]);
+                const currentOwnershipDetailed = Object.entries(ownedMapsByVillage).sort((a,b) => b[1].length - a[1].length);
+
+                return { topConquerors, currentOwnership, totalMaps: Object.keys(ownership).length, topConqueredMaps, currentOwnershipDetailed };
+            }, [filteredMapData, mapData]);
+
+            const blessStats = useMemo(() => {
+                const givers = {};
+                let xpCount = 0;
+                let dropCount = 0;
+                
+                filteredBlessData.forEach(m => {
+                    const giver = m.content.split(' abençoou ')[0].replace('[Benção] ', '').trim();
+                    if (!givers[giver]) givers[giver] = { total: 0, xp: 0, drop: 0 };
+                    givers[giver].total++;
+                    if (m.type === 'XP') { givers[giver].xp++; xpCount++; }
+                    else if (m.type === 'Drop') { givers[giver].drop++; dropCount++; }
+                });
+                
+                const topGivers = Object.entries(givers).sort((a,b) => b[1].total - a[1].total);
+                
+                let maxStreak = 0;
+                let maxStreakPerson = '-';
+                let currentStreak = 0;
+                let currentPerson = null;
+                
+                [...filteredBlessData].sort((a,b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).forEach(m => {
+                    const giver = m.content.split(' abençoou ')[0].replace('[Benção] ', '').trim();
+                    if (giver === currentPerson) {
+                        currentStreak++;
+                    } else {
+                        currentPerson = giver;
+                        currentStreak = 1;
+                    }
+                    if (currentStreak > maxStreak) {
+                        maxStreak = currentStreak;
+                        maxStreakPerson = currentPerson;
+                    }
+                });
+
+                return { topGivers, maxStreak, maxStreakPerson, xpCount, dropCount };
+            }, [filteredBlessData]);
+
             const filteredLogs = useMemo(() => {
                 return rawData.filter(log => {
                     if (timeFilter === 'all') return true;
@@ -1052,6 +1183,30 @@
             }, [filteredRankings, currentPage]);
 
             const totalPages = Math.ceil(filteredRankings.length / ITEMS_PER_PAGE);
+
+            const paginatedMaps = useMemo(() => {
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                return filteredMapData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            }, [filteredMapData, currentPage]);
+            const totalMapPages = Math.ceil(filteredMapData.length / ITEMS_PER_PAGE);
+
+            const paginatedMapRank = useMemo(() => {
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                return mapStats.topConqueredMaps.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            }, [mapStats.topConqueredMaps, currentPage]);
+            const totalMapRankPages = Math.ceil(mapStats.topConqueredMaps.length / ITEMS_PER_PAGE);
+
+            const paginatedBlessings = useMemo(() => {
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                return filteredBlessData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            }, [filteredBlessData, currentPage]);
+            const totalBlessPages = Math.ceil(filteredBlessData.length / ITEMS_PER_PAGE);
+
+            const paginatedBlessRank = useMemo(() => {
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                return blessStats.topGivers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+            }, [blessStats.topGivers, currentPage]);
+            const totalBlessRankPages = Math.ceil(blessStats.topGivers.length / ITEMS_PER_PAGE);
 
             const handleSort = (key) => {
                 let direction = 'desc';
@@ -1330,6 +1485,51 @@
             }, [filteredLogs, groupedTournaments, viewMode, activeTab, compRankMode]);
 
 
+            // --- URL EFFECT (MOVIDO PARA EVITAR TDZ DE groupedTournaments) ---
+            useEffect(() => {
+                if (!isLoading && data.rankings.length > 0) {
+                    const params = new URLSearchParams(window.location.search);
+                    
+                    const viewParam = params.get('view');
+                    if (viewParam && ['ranking', 'versus', 'tournaments', 'matches'].includes(viewParam)) setViewMode(viewParam);
+
+                    const modeParam = params.get('mode'); if (modeParam) setActiveTab(modeParam);
+                    const timeParam = params.get('time'); if (timeParam) setTimeFilter(timeParam);
+                    const monthParam = params.get('month'); if (monthParam) setTargetMonth(monthParam);
+
+                    const playerParam = params.get('player');
+                    const tournamentParam = params.get('tournament');
+                    const p1Param = params.get('p1');
+                    const p2Param = params.get('p2');
+
+                    if (tournamentParam) {
+                        const foundT = groupedTournaments.find(t => t.id === tournamentParam);
+                        if (foundT) { setSelectedTournament(foundT); setViewMode('tournaments'); }
+                    } else if (playerParam) {
+                        const foundP = data.rankings.find(p => p.name.toLowerCase() === playerParam.toLowerCase());
+                        if (foundP) {
+                            const gStats = globalPlayerStats[foundP.name];
+                            let globalBattles = 0;
+                            if (gStats) {
+                                if (modeParam === 'Geral' || !modeParam) globalBattles = gStats.total;
+                                else if (modeParam === 'Ranked') globalBattles = (gStats.modes['Auto1v1'] || 0) + (gStats.modes['Auto2v2'] || 0) + (gStats.modes['Auto3v3'] || 0);
+                                else globalBattles = gStats.modes[modeParam] || 0;
+                            }
+                            const currentBadges = foundP.badges ? foundP.badges.filter(b => b.id !== 'veteran' && b.id !== 'master') : [];
+                            const newBadges = [...currentBadges];
+                            if (globalBattles >= 1000) newBadges.push({ id: 'master', icon: ShurikenIcon, label: t.icon_master, color: 'text-yellow-400 drop-shadow-[0_0_3px_rgba(250,204,21,0.5)]' });
+                            else if (globalBattles >= 100) newBadges.push({ id: 'veteran', icon: ShurikenIcon, label: t.icon_veteran, color: 'text-blue-400' });
+                            
+                            setSelectedPlayer({ ...foundP, badges: newBadges });
+                        }
+                    }
+
+                    if (p1Param) setVersusPlayer1(p1Param);
+                    if (p2Param) setVersusPlayer2(p2Param);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }, [isLoading, data.rankings, groupedTournaments]); 
+
             // --- RENDER ---
             if (isLoading) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8"><div className="w-full max-w-md space-y-4"><div className="flex justify-between items-end"><div className="space-y-2"><Skeleton className="h-8 w-48" /><Skeleton className="h-4 w-32" /></div><Loader2 className="w-8 h-8 animate-spin text-yellow-500" /></div><Skeleton className="h-32 w-full rounded-xl" /><div className="space-y-2"><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /><Skeleton className="h-12 w-full" /></div><div className="text-center text-xs text-slate-500 pt-4">{t.loading}</div></div></div>);
             if (error) return (<div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-red-400 p-8 text-center"><AlertCircle className="w-16 h-16 mb-4" /><h2 className="text-2xl font-bold mb-2">{t.error_loading}</h2><p className="max-w-md">{error}</p><button onClick={() => window.location.reload()} className="mt-6 px-6 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors text-white">{t.try_again}</button></div>);
@@ -1392,15 +1592,34 @@
                             <button onClick={() => setViewMode('versus')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'versus' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Swords className="w-4 h-4" /> {t.versus}</button>
                             <button onClick={() => setViewMode('matches')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'matches' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Crosshair className="w-4 h-4" /> {t.matches_tab}</button>
                             <button onClick={() => setViewMode('tournaments')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><GitBranch className="w-4 h-4" /> {t.tournaments}</button>
+                            <button onClick={() => setViewMode('maps')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'maps' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><MapIcon className="w-4 h-4" /> Mapas</button>
+                            <button onClick={() => setViewMode('blessings')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'blessings' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Sparkles className="w-4 h-4" /> Bençãos</button>
                         </div>
 
                         {/* Filters */}
                         <div className="flex flex-col gap-3 pb-2 border-b border-slate-800 mb-8">
                             <div className="flex flex-col md:flex-row md:items-center gap-4">
-                                <div className="flex flex-wrap gap-2">
-                                    {modeGroups.main.map(mode => (<button key={mode} onClick={() => { setActiveTab(mode); setShowOtherModes(false); }} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${activeTab === mode ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}>{mode === 'Geral' ? <Filter className="w-3.5 h-3.5" /> : mode === 'Ranked' ? <ShieldCheck className="w-3.5 h-3.5" /> : <Swords className="w-3.5 h-3.5" />}{mode === 'Geral' && language === 'en' ? 'General' : mode}</button>))}
-                                    {modeGroups.others.length > 0 && (<div className="relative"><button onClick={() => setShowOtherModes(!showOtherModes)} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${modeGroups.others.includes(activeTab) ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Menu className="w-3.5 h-3.5" />{modeGroups.others.includes(activeTab) ? activeTab : t.others}<ChevronDown className={`w-3.5 h-3.5 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} /></button>{showOtherModes && (<div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">{modeGroups.others.map(mode => (<button key={mode} onClick={() => { setActiveTab(mode); setShowOtherModes(false); }} className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'}`}>{mode}</button>))}</div>)}</div>)}
-                                </div>
+                                {viewMode === 'maps' && (
+                                    <div className="flex flex-wrap gap-2">
+                                        <button onClick={() => setMapTab('Geral')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${mapTab === 'Geral' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><MapIcon className="w-3.5 h-3.5" /> Visão Geral</button>
+                                        <button onClick={() => setMapTab('Ranking')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${mapTab === 'Ranking' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Trophy className="w-3.5 h-3.5" /> Ranking de Mapas</button>
+                                        <button onClick={() => setMapTab('Atuais')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${mapTab === 'Atuais' ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><ShieldCheck className="w-3.5 h-3.5" /> Mapas Atuais por Vila</button>
+                                    </div>
+                                )}
+
+                                {viewMode === 'blessings' && (
+                                    <div className="flex flex-wrap gap-2">
+                                        <button onClick={() => setBlessTab('Geral')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${blessTab === 'Geral' ? 'bg-pink-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Sparkles className="w-3.5 h-3.5" /> Visão Geral</button>
+                                        <button onClick={() => setBlessTab('Ranking')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${blessTab === 'Ranking' ? 'bg-pink-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Trophy className="w-3.5 h-3.5" /> Ranking Abençoadores</button>
+                                    </div>
+                                )}
+
+                                {viewMode !== 'maps' && viewMode !== 'blessings' && (
+                                    <div className="flex flex-wrap gap-2">
+                                        {modeGroups.main.map(mode => (<button key={mode} onClick={() => { setActiveTab(mode); setShowOtherModes(false); }} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${activeTab === mode ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}>{mode === 'Geral' ? <Filter className="w-3.5 h-3.5" /> : mode === 'Ranked' ? <ShieldCheck className="w-3.5 h-3.5" /> : <Swords className="w-3.5 h-3.5" />}{mode === 'Geral' && language === 'en' ? 'General' : mode}</button>))}
+                                        {modeGroups.others.length > 0 && (<div className="relative"><button onClick={() => setShowOtherModes(!showOtherModes)} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${modeGroups.others.includes(activeTab) ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Menu className="w-3.5 h-3.5" />{modeGroups.others.includes(activeTab) ? activeTab : t.others}<ChevronDown className={`w-3.5 h-3.5 transition-transform ${showOtherModes ? 'rotate-180' : ''}`} /></button>{showOtherModes && (<div className="absolute top-full left-0 mt-2 w-48 bg-slate-900 border border-slate-800 rounded-xl shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">{modeGroups.others.map(mode => (<button key={mode} onClick={() => { setActiveTab(mode); setShowOtherModes(false); }} className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-slate-800 ${activeTab === mode ? 'text-yellow-500 bg-slate-800/50' : 'text-slate-400 hover:text-white'}`}>{mode}</button>))}</div>)}</div>)}
+                                    </div>
+                                )}
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 md:ml-auto w-full md:w-auto">
                                     {timeFilter === 'custom' && (
                                         <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 w-full sm:w-auto">
@@ -1411,11 +1630,13 @@
                                     )}
                                     <div className="flex items-center gap-2 w-full sm:w-auto">
                                         <div className="relative group flex-1 sm:w-48"><div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Calendar className="w-4 h-4 text-slate-500" /></div><select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)} className="appearance-none w-full bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-2 pl-9 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-slate-800 transition-colors text-sm font-medium"><option value="current_month">{t.current_month}</option><option value="day">{t.day}</option><option value="week">{t.week}</option><option value="specific_month">{t.specific_month}</option><option value="custom">{t.custom_date}</option><option value="all">{t.all}</option></select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-4 h-4 text-slate-500" /></div></div>
-                                        {timeFilter === 'specific_month' && availableMonths.length > 0 && (<div className="relative group flex-1 sm:w-40 animate-in fade-in slide-in-from-left-2 duration-200"><select value={targetMonth} onChange={(e) => setTargetMonth(e.target.value)} className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm font-medium">{availableMonths.map(period => (<option key={period.id} value={period.id}>{period.label}</option>))}</select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-3 h-3 text-slate-500" /></div></div>)}
+                                        {timeFilter === 'specific_month' && ((viewMode !== 'maps' && viewMode !== 'blessings' && availableMonths.length > 0) || ((viewMode === 'maps' || viewMode === 'blessings') && availableCalendarMonths.length > 0)) && (<div className="relative group flex-1 sm:w-40 animate-in fade-in slide-in-from-left-2 duration-200"><select value={viewMode === 'maps' || viewMode === 'blessings' ? targetCalendarMonth : targetMonth} onChange={(e) => viewMode === 'maps' || viewMode === 'blessings' ? setTargetCalendarMonth(e.target.value) : setTargetMonth(e.target.value)} className="appearance-none w-full bg-slate-800 border border-slate-700 text-slate-200 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer text-sm font-medium">{(viewMode === 'maps' || viewMode === 'blessings' ? availableCalendarMonths : availableMonths).map(period => (<option key={period.id} value={period.id}>{period.label}</option>))}</select><div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none"><ChevronDown className="w-3 h-3 text-slate-500" /></div></div>)}
                                     </div>
                                 </div>
                             </div>
-                            <div className="text-slate-400 text-sm flex items-start gap-2 pl-1 animate-in fade-in duration-300"><InfoIcon className="w-4 h-4 mt-0.5 text-slate-500 flex-shrink-0" /><p>{MODE_DESCRIPTIONS[language]?.[activeTab] || t.default_desc}</p></div>
+                            {viewMode !== 'maps' && viewMode !== 'blessings' && (
+                                <div className="text-slate-400 text-sm flex items-start gap-2 pl-1 animate-in fade-in duration-300"><InfoIcon className="w-4 h-4 mt-0.5 text-slate-500 flex-shrink-0" /><p>{MODE_DESCRIPTIONS[language]?.[activeTab] || t.default_desc}</p></div>
+                            )}
                         </div>
 
                         {/* Views */}
@@ -1812,6 +2033,233 @@
                                             {groupedTournaments.length === 0 && (<tr><td colSpan="4" className="p-12 text-center text-slate-500"><div className="flex flex-col items-center gap-3"><Trophy className="w-12 h-12 text-slate-700 opacity-50" /><p>{t.no_tournament_found}</p></div></td></tr>)}
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {viewMode === 'maps' && (
+                            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {/* Estatísticas de Mapas */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800">
+                                        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2"><MapIcon className="w-4 h-4" /> Posse Atual de Mapas</h4>
+                                        <div className="flex flex-col gap-3">
+                                            {mapStats.currentOwnership.map(([village, count], idx) => (
+                                                <div key={village} className="flex items-center justify-between bg-slate-800/50 p-3 rounded-lg">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-lg text-white">{idx + 1}º</span>
+                                                        <span className="font-bold text-blue-400">{village}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="text-xl font-black text-white">{count}</span>
+                                                        <span className="text-xs text-slate-400 font-bold uppercase">mapas</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {mapStats.currentOwnership.length === 0 && <span className="text-slate-500 text-sm">Nenhum mapa dominado ainda.</span>}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800">
+                                        <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2"><Trophy className="w-4 h-4" /> Top Conquistadores (Período)</h4>
+                                        <div className="flex flex-col gap-3">
+                                            {mapStats.topConquerors.slice(0, 5).map(([village, count], idx) => (
+                                                <div key={village} className="flex items-center justify-between bg-slate-800/50 p-3 rounded-lg">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-bold text-lg text-yellow-500">#{idx + 1}</span>
+                                                        <span className="font-bold text-white">{village}</span>
+                                                    </div>
+                                                    <span className="font-bold text-slate-400">{count} conquistas</span>
+                                                </div>
+                                            ))}
+                                            {mapStats.topConquerors.length === 0 && <span className="text-slate-500 text-sm">Nenhuma conquista neste período.</span>}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 p-6">
+                                    <h3 className="text-xl font-bold text-blue-400 flex items-center gap-2 mb-6"><MapIcon className="w-6 h-6" /> {mapTab === 'Geral' ? 'Histórico de Mapas' : mapTab === 'Ranking' ? 'Ranking de Mapas' : 'Mapas Atuais por Vila'}</h3>
+                                    
+                                    {mapTab === 'Ranking' ? (
+                                        <>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left border-collapse">
+                                                    <thead>
+                                                        <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                                            <th className="p-5 w-16 text-center">Pos</th>
+                                                            <th className="p-5">Mapa</th>
+                                                            <th className="p-5">Vilas Conquistadoras</th>
+                                                            <th className="p-5 text-center text-blue-400">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-800">
+                                                        {paginatedMapRank.map(([mapName, stats], idx) => (
+                                                            <tr key={mapName} className="hover:bg-slate-800/50 transition-colors">
+                                                                <td className="p-5 text-center font-bold text-slate-500">#{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</td>
+                                                                <td className="p-5 font-bold text-white text-lg">{mapName}</td>
+                                                                <td className="p-5">
+                                                                    <div className="flex flex-wrap gap-2">
+                                                                        {Object.entries(stats.villages).sort((a,b) => b[1] - a[1]).map(([v, count]) => (
+                                                                            <span key={v} className="px-2 py-1 bg-slate-800 rounded-md text-xs font-bold text-slate-300 flex items-center gap-1">
+                                                                                {v}: <span className="text-blue-400">{count}</span>
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="p-5 text-center font-black text-blue-400 text-xl">{stats.total}</td>
+                                                            </tr>
+                                                        ))}
+                                                        {mapStats.topConqueredMaps.length === 0 && (
+                                                            <tr><td colSpan="4" className="p-10 text-center text-slate-500">Nenhum mapa registrado.</td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {totalMapRankPages > 1 && (
+                                                <div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900 mt-4 rounded-xl">
+                                                    <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+                                                    <span className="text-sm text-slate-400 font-medium">Página <span className="text-white font-bold">{currentPage}</span> de {totalMapRankPages}</span>
+                                                    <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalMapRankPages))} disabled={currentPage === totalMapRankPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : mapTab === 'Atuais' ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {mapStats.currentOwnershipDetailed.map(([village, maps]) => (
+                                                <div key={village} className="bg-slate-950 rounded-xl p-5 border border-slate-800 shadow-md flex flex-col">
+                                                    <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                                                        <h4 className="font-black text-lg text-white">{village}</h4>
+                                                        <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full font-bold text-sm">{maps.length} Mapas</span>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2 flex-1 content-start">
+                                                        {maps.sort().map(m => (
+                                                            <span key={m} className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-300 shadow-sm">{m}</span>
+                                                        ))}
+                                                        {maps.length === 0 && <span className="text-slate-500 text-sm italic">Nenhum mapa conquistado</span>}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {mapStats.currentOwnershipDetailed.length === 0 && (
+                                                <div className="col-span-full text-center py-10 text-slate-500">Nenhum mapa registrado.</div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {paginatedMaps.map((m, i) => (
+                                                <div key={i} className="p-4 rounded-xl border border-blue-500/20 bg-blue-900/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-2 hover:border-blue-500/40 transition-colors">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-blue-500/20 rounded-lg"><MapIcon className="w-5 h-5 text-blue-400" /></div>
+                                                        <div><span className="font-bold text-white">{m.content.split(' capturou ')[0].replace('[Mapa] ', '')}</span> capturou <span className="font-bold text-blue-300">{m.content.split(' capturou ')[1]}</span></div>
+                                                    </div>
+                                                    <div className="text-xs text-slate-500 font-mono flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(m.timestamp).toLocaleString('pt-BR')}</div>
+                                                </div>
+                                            ))}
+                                            {paginatedMaps.length === 0 && <div className="text-center py-10 text-slate-500">Nenhuma conquista de mapa registrada.</div>}
+                                        </div>
+                                    )}
+                                    {mapTab === 'Geral' && totalMapPages > 1 && (
+                                        <div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900 mt-4 rounded-xl">
+                                            <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+                                            <span className="text-sm text-slate-400 font-medium">Página <span className="text-white font-bold">{currentPage}</span> de {totalMapPages}</span>
+                                            <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalMapPages))} disabled={currentPage === totalMapPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        {viewMode === 'blessings' && (
+                            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                {/* Estatísticas de Bençãos */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-center items-center text-center">
+                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Maior Combo (Período)</h4>
+                                        <div className="text-3xl font-black text-pink-500 mb-1">{blessStats.maxStreak}x</div>
+                                        <div className="font-bold text-white">{blessStats.maxStreakPerson}</div>
+                                    </div>
+                                    <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-center items-center text-center">
+                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Top Abençoador</h4>
+                                        <div className="text-2xl font-black text-yellow-400 mb-1">{blessStats.topGivers.length > 0 ? blessStats.topGivers[0][0] : '-'}</div>
+                                        <div className="text-sm text-slate-400">{blessStats.topGivers.length > 0 ? `${blessStats.topGivers[0][1].total} bençãos` : ''}</div>
+                                    </div>
+                                    <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800 flex flex-col justify-center items-center text-center gap-3">
+                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tipos (Período)</h4>
+                                        <div className="w-full flex justify-between px-4">
+                                            <div className="flex flex-col items-center"><span className="text-xl font-black text-blue-400">{blessStats.xpCount}</span><span className="text-xs font-bold text-slate-500">XP</span></div>
+                                            <div className="flex flex-col items-center"><span className="text-xl font-black text-green-400">{blessStats.dropCount}</span><span className="text-xs font-bold text-slate-500">DROP</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-800 p-6">
+                                    <h3 className="text-xl font-bold text-pink-400 flex items-center gap-2 mb-6"><Sparkles className="w-6 h-6" /> {blessTab === 'Geral' ? 'Histórico de Bençãos' : 'Ranking de Abençoadores'}</h3>
+                                    
+                                    {blessTab === 'Ranking' ? (
+                                        <>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left border-collapse">
+                                                    <thead>
+                                                        <tr className="bg-slate-950/50 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                                            <th className="p-5 w-16 text-center">Pos</th>
+                                                            <th className="p-5">Abençoador</th>
+                                                            <th className="p-5 text-center text-blue-400">XP</th>
+                                                            <th className="p-5 text-center text-green-400">Drop</th>
+                                                            <th className="p-5 text-center text-pink-400">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-800">
+                                                        {paginatedBlessRank.map(([name, stats], idx) => (
+                                                            <tr key={name} className="hover:bg-slate-800/50 transition-colors">
+                                                                <td className="p-5 text-center font-bold text-slate-500">#{(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}</td>
+                                                                <td className="p-5 font-bold text-white text-lg">{name}</td>
+                                                                <td className="p-5 text-center font-bold text-blue-400">{stats.xp}</td>
+                                                                <td className="p-5 text-center font-bold text-green-400">{stats.drop}</td>
+                                                                <td className="p-5 text-center font-black text-pink-400 text-xl">{stats.total}</td>
+                                                            </tr>
+                                                        ))}
+                                                        {blessStats.topGivers.length === 0 && (
+                                                            <tr><td colSpan="5" className="p-10 text-center text-slate-500">Nenhuma benção registrada.</td></tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {totalBlessRankPages > 1 && (
+                                                <div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900 mt-4 rounded-xl">
+                                                    <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+                                                    <span className="text-sm text-slate-400 font-medium">Página <span className="text-white font-bold">{currentPage}</span> de {totalBlessRankPages}</span>
+                                                    <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalBlessRankPages))} disabled={currentPage === totalBlessRankPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {paginatedBlessings.map((m, i) => (
+                                                <div key={i} className="p-4 rounded-xl border border-pink-500/20 bg-pink-900/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 hover:border-pink-500/40 transition-colors">
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <div className="p-2 bg-pink-500/20 rounded-lg"><Sparkles className="w-5 h-5 text-pink-400" /></div>
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <span className="font-bold text-white">{m.content.split(' abençoou ')[0].replace('[Benção] ', '')}</span> 
+                                                                <span className="text-slate-400">abençoou</span> 
+                                                                <span className="font-bold text-pink-300">{m.content.split(' abençoou ')[1]}</span>
+                                                                {m.type && <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${m.type === 'XP' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-green-500/20 text-green-400 border border-green-500/30'}`}>{m.type}</span>}
+                                                            </div>
+                                                            {m.footer && <div className="text-sm text-pink-200/70 italic mt-1">"{m.footer}"</div>}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-xs text-slate-500 font-mono flex-shrink-0 flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(m.timestamp).toLocaleString('pt-BR')}</div>
+                                                </div>
+                                            ))}
+                                            {paginatedBlessings.length === 0 && <div className="text-center py-10 text-slate-500">Nenhuma benção registrada.</div>}
+                                        </div>
+                                    )}
+                                    {blessTab === 'Geral' && totalBlessPages > 1 && (
+                                        <div className="p-4 border-t border-slate-800 flex justify-center items-center gap-4 bg-slate-900 mt-4 rounded-xl">
+                                            <button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+                                            <span className="text-sm text-slate-400 font-medium">Página <span className="text-white font-bold">{currentPage}</span> de {totalBlessPages}</span>
+                                            <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalBlessPages))} disabled={currentPage === totalBlessPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
