@@ -753,7 +753,7 @@
                     setIsLoading(true); setError(null);
                     
                     // Ouve todo o nó em tempo real.
-                    firebase.database().ref('nin_drops').on('value', (snapshot) => {
+                    firebase.database().ref('nin_drops').once('value').then((snapshot) => {
                         const data = snapshot.val();
                         if (data) {
                             const battleLogs = [];
@@ -783,7 +783,7 @@
                             setBlessData([]);
                         }
                         setIsLoading(false);
-                    }, (err) => {
+                    }).catch((err) => {
                         setError(`${t.error_loading}: ${err.message}`); 
                         setIsLoading(false); 
                     });
