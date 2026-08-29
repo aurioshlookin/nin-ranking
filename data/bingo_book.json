@@ -1,0 +1,2167 @@
+[
+  {
+    "Name": "BilboBoleiro",
+    "UUID": 112846,
+    "Level": 70,
+    "ParsedRank": "Kami",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Ganjatsuki",
+    "CorporationName": "Puppeteer Squad",
+    "PvpKills": 973,
+    "FamePoints": 374,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 972 para 973 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Artista Generico",
+    "UUID": 120123,
+    "Level": 70,
+    "ParsedRank": "Rogue",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Azhin",
+    "CorporationName": "None",
+    "PvpKills": 931,
+    "FamePoints": -90,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Dakotinha",
+    "UUID": 103814,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Zetsuken",
+    "CorporationName": "None",
+    "PvpKills": 838,
+    "FamePoints": 321,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 837 para 838 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Not Uhiwi",
+    "UUID": 58935,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "FantasmaUchiha",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 795,
+    "FamePoints": 124,
+    "ParsedMasteries": [
+      "Water",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 794 para 795 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Vegvisir",
+    "UUID": 124600,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Toitsu",
+    "GuildName": "Alcateia",
+    "CorporationName": "None",
+    "PvpKills": 747,
+    "FamePoints": 96,
+    "ParsedMasteries": [
+      "Earth",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Murky",
+    "UUID": 39492,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Paradise",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 653,
+    "FamePoints": 72,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Synkr0",
+    "UUID": 99920,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "Arashi",
+    "CorporationName": "None",
+    "PvpKills": 562,
+    "FamePoints": -43,
+    "ParsedMasteries": [
+      "Lightning",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Naoto Ryo",
+    "UUID": 146288,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Tendo",
+    "GuildName": "Alcateia",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 524,
+    "FamePoints": 377,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Leonidass",
+    "UUID": 161563,
+    "Level": 70,
+    "ParsedRank": "Rogue",
+    "ParsedVillage": "Rogue Sand",
+    "ParsedClan": "Sashiba",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "None",
+    "PvpKills": 481,
+    "FamePoints": -21,
+    "ParsedMasteries": [
+      "Advanced Earth",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 70, Rogue Sand, Advanced Earth, Weapon)"
+    ]
+  },
+  {
+    "Name": "Dobe",
+    "UUID": 8048,
+    "Level": 70,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Yokai",
+    "CorporationName": "None",
+    "PvpKills": 460,
+    "FamePoints": 357,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:38",
+    "ChangeHistory": [
+      "[2026-08-29 14:38] Registrado no banco de dados (Level 70, Rogue Mist, Medical, Advanced Taijutsu)"
+    ]
+  },
+  {
+    "Name": "ZER00",
+    "UUID": 146174,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "Seven Blades",
+    "PvpKills": 460,
+    "FamePoints": -45,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:11",
+    "ChangeHistory": [
+      "[2026-08-29 15:11] Registrado no banco de dados (Level 70, Mist, Fire, Advanced Water)"
+    ]
+  },
+  {
+    "Name": "AlnVctr",
+    "UUID": 122362,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "FantasmaUchiha",
+    "CorporationName": "None",
+    "PvpKills": 458,
+    "FamePoints": 20,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:48] PVP Kills aumentou de 457 para 458 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Oboro",
+    "UUID": 92942,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "Yozakura",
+    "CorporationName": "None",
+    "PvpKills": 454,
+    "FamePoints": 437,
+    "ParsedMasteries": [
+      "Water",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 14:57",
+    "FirstSeen": "2026-08-29 14:38",
+    "ChangeHistory": [
+      "[2026-08-29 14:38] Registrado no banco de dados (Level 70, Leaf, Water, Advanced Medical)"
+    ]
+  },
+  {
+    "Name": "Horo Horo",
+    "UUID": 112413,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "FantasmaUchiha",
+    "CorporationName": "Leaf Medical Unit",
+    "PvpKills": 357,
+    "FamePoints": 87,
+    "ParsedMasteries": [
+      "Advanced Medical",
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 356 para 357 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Espada Devoradora",
+    "UUID": 139965,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Sakame",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "Seven Blades",
+    "PvpKills": 347,
+    "FamePoints": -53,
+    "ParsedMasteries": [
+      "Lightning",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Nevoa",
+    "UUID": 121996,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Hoshigaki",
+    "CorporationName": "None",
+    "PvpKills": 342,
+    "FamePoints": 26,
+    "ParsedMasteries": [
+      "Water",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 14:56",
+    "FirstSeen": "2026-08-29 14:54",
+    "ChangeHistory": [
+      "[2026-08-29 14:54] Registrado no banco de dados (Level 70, Mist, Water, Advanced Weapon)"
+    ]
+  },
+  {
+    "Name": "Syllia",
+    "UUID": 111738,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Kazuki",
+    "GuildName": "Zenith",
+    "CorporationName": "Mist Medical Unit",
+    "PvpKills": 333,
+    "FamePoints": 562,
+    "ParsedMasteries": [
+      "Earth",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Fokyo",
+    "UUID": 114118,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Havoc",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 322,
+    "FamePoints": -4,
+    "ParsedMasteries": [
+      "Advanced Taijutsu",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "K09",
+    "UUID": 168426,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Alcateia",
+    "CorporationName": "None",
+    "PvpKills": 294,
+    "FamePoints": 148,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 292 para 293 (+1 kills)",
+      "[2026-08-29 15:11] PVP Kills aumentou de 293 para 294 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Araujozss",
+    "UUID": 173551,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "Vikings",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 291,
+    "FamePoints": 21,
+    "ParsedMasteries": [
+      "Wind",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Hipnos.",
+    "UUID": 121283,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Alcateia",
+    "CorporationName": "None",
+    "PvpKills": 282,
+    "FamePoints": 113,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 70, Sand, Fire, Advanced Earth)",
+      "[2026-08-29 14:48] PVP Kills aumentou de 281 para 282 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Mandakaruu",
+    "UUID": 159435,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Yozakura",
+    "CorporationName": "None",
+    "PvpKills": 255,
+    "FamePoints": 54,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 14:56",
+    "FirstSeen": "2026-08-29 14:39",
+    "ChangeHistory": [
+      "[2026-08-29 14:39] Registrado no banco de dados (Level 70, Leaf, Advanced Fire, Earth)"
+    ]
+  },
+  {
+    "Name": "MVP",
+    "UUID": 145436,
+    "Level": 70,
+    "ParsedRank": "Rogue",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Yozakura",
+    "CorporationName": "None",
+    "PvpKills": 235,
+    "FamePoints": 82,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:49",
+    "ChangeHistory": [
+      "[2026-08-29 14:49] Registrado no banco de dados (Level 70, Rogue Leaf, Fire, Advanced Earth)"
+    ]
+  },
+  {
+    "Name": "Skyan",
+    "UUID": 159785,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "Yozakura",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 215,
+    "FamePoints": 63,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "PhantomDiak",
+    "UUID": 151373,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Sakame",
+    "GuildName": "Hoshigaki",
+    "CorporationName": "Mist Medical Unit",
+    "PvpKills": 196,
+    "FamePoints": 137,
+    "ParsedMasteries": [
+      "Water",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Razuh",
+    "UUID": 141384,
+    "Level": 70,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Kazuki",
+    "GuildName": "Hoshigaki",
+    "CorporationName": "Kuronami",
+    "PvpKills": 192,
+    "FamePoints": 144,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 14:51",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Yukkan",
+    "UUID": 172301,
+    "Level": 70,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Duna",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 179,
+    "FamePoints": 50,
+    "ParsedMasteries": [
+      "Lightning",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 70, Sand, Lightning, Advanced Weapon)",
+      "[2026-08-29 14:43] PVP Kills aumentou de 178 para 179 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Mizu",
+    "UUID": 92419,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Hoshi",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "Mist Police Force",
+    "PvpKills": 178,
+    "FamePoints": 18,
+    "ParsedMasteries": [
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Tetrahidrocanabioll",
+    "UUID": 149103,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Sakame",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "Mist Medical Unit",
+    "PvpKills": 160,
+    "FamePoints": 14,
+    "ParsedMasteries": [
+      "Lightning",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:49",
+    "ChangeHistory": [
+      "[2026-08-29 14:49] Registrado no banco de dados (Level 70, Mist, Lightning, Advanced Medical)"
+    ]
+  },
+  {
+    "Name": "Denji.",
+    "UUID": 171625,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Yokai",
+    "CorporationName": "None",
+    "PvpKills": 154,
+    "FamePoints": 26,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Earth"
+    ],
+    "LastSeen": "2026-08-29 15:03",
+    "FirstSeen": "2026-08-29 14:52",
+    "ChangeHistory": [
+      "[2026-08-29 14:52] Registrado no banco de dados (Level 70, Sand, Fire, Advanced Earth)"
+    ]
+  },
+  {
+    "Name": "Shuriken",
+    "UUID": 139911,
+    "Level": 70,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Yokai",
+    "CorporationName": "None",
+    "PvpKills": 151,
+    "FamePoints": 15,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Eminem-",
+    "UUID": 84962,
+    "Level": 70,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Hayashi",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 148,
+    "FamePoints": 32,
+    "ParsedMasteries": [
+      "Wind",
+      "Advanced Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:11",
+    "ChangeHistory": [
+      "[2026-08-29 15:11] Registrado no banco de dados (Level 70, Rogue Leaf, Wind, Advanced Earth)"
+    ]
+  },
+  {
+    "Name": "Tinick",
+    "UUID": 74047,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Tendo",
+    "GuildName": "Vikings",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 140,
+    "FamePoints": 5,
+    "ParsedMasteries": [
+      "Advanced Wind",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 138 para 140 (+2 kills)"
+    ]
+  },
+  {
+    "Name": "Erikku",
+    "UUID": 141881,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Hayashi",
+    "GuildName": "Kizuna",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 130,
+    "FamePoints": 60,
+    "ParsedMasteries": [
+      "Wind",
+      "Advanced Lightning"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Manel",
+    "UUID": 126914,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "Shiny",
+    "CorporationName": "Puppeteer Squad",
+    "PvpKills": 128,
+    "FamePoints": 31,
+    "ParsedMasteries": [
+      "Wind",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Cookies",
+    "UUID": 152691,
+    "Level": 70,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Akashi",
+    "CorporationName": "None",
+    "PvpKills": 126,
+    "FamePoints": 46,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:02",
+    "ChangeHistory": [
+      "[2026-08-29 15:02] Registrado no banco de dados (Level 70, Rogue Mist, Fire, Advanced Medical)"
+    ]
+  },
+  {
+    "Name": "nTaelll",
+    "UUID": 171136,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Toitsu",
+    "GuildName": "Alcateia",
+    "CorporationName": "None",
+    "PvpKills": 112,
+    "FamePoints": -3,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Tokoyama",
+    "UUID": 154742,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "DARKLEAF",
+    "CorporationName": "Leaf Medical Unit",
+    "PvpKills": 111,
+    "FamePoints": 178,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 70, Leaf, Fire, Advanced Medical)"
+    ]
+  },
+  {
+    "Name": "Kajisan",
+    "UUID": 140251,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Yagyu",
+    "GuildName": "Oniwabanshu",
+    "CorporationName": "None",
+    "PvpKills": 108,
+    "FamePoints": 95,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 14:49",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Lupina",
+    "UUID": 73040,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Yagyu",
+    "GuildName": "Wandenreich",
+    "CorporationName": "None",
+    "PvpKills": 87,
+    "FamePoints": 33,
+    "ParsedMasteries": [
+      "Medical",
+      "Advanced Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Akuma Yagyu",
+    "UUID": 172430,
+    "Level": 70,
+    "ParsedRank": "Rogue",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Hoshigaki",
+    "CorporationName": "Kuronami",
+    "PvpKills": 86,
+    "FamePoints": 18,
+    "ParsedMasteries": [
+      "Advanced Wind",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Requiem",
+    "UUID": 177977,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Yokai",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 82,
+    "FamePoints": 19,
+    "ParsedMasteries": [
+      "Advanced Wind",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:52",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 70, Sand, Advanced Wind, Medical)"
+    ]
+  },
+  {
+    "Name": "Kyria",
+    "UUID": 141284,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Warhammer",
+    "CorporationName": "Sand Medical Unit",
+    "PvpKills": 78,
+    "FamePoints": 87,
+    "ParsedMasteries": [
+      "Water",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:08",
+    "FirstSeen": "2026-08-29 14:52",
+    "ChangeHistory": [
+      "[2026-08-29 14:52] Registrado no banco de dados (Level 70, Sand, Water, Advanced Medical)"
+    ]
+  },
+  {
+    "Name": "Makio",
+    "UUID": 150398,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "Malavita",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 62,
+    "FamePoints": 57,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Earth"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Ninjah",
+    "UUID": 145120,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Sashiba",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "None",
+    "PvpKills": 48,
+    "FamePoints": 11,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Johan",
+    "UUID": 15490,
+    "Level": 70,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Fokkusu",
+    "CorporationName": "None",
+    "PvpKills": 44,
+    "FamePoints": 4,
+    "ParsedMasteries": [
+      "Advanced Wind",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Scorpius",
+    "UUID": 133515,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Kazuki",
+    "GuildName": "Hoshigaki",
+    "CorporationName": "None",
+    "PvpKills": 23,
+    "FamePoints": 17,
+    "ParsedMasteries": [
+      "Advanced Fire",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Not Cat",
+    "UUID": 150442,
+    "Level": 70,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Acampamento",
+    "CorporationName": "None",
+    "PvpKills": 22,
+    "FamePoints": 6,
+    "ParsedMasteries": [
+      "Fire",
+      "Advanced Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:11",
+    "ChangeHistory": [
+      "[2026-08-29 15:11] Registrado no banco de dados (Level 70, Leaf, Fire, Advanced Lightning)"
+    ]
+  },
+  {
+    "Name": "Poseidas",
+    "UUID": 82005,
+    "Level": 69,
+    "ParsedRank": "Rogue",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Sakame",
+    "GuildName": "Ventrue",
+    "CorporationName": "Kuronami",
+    "PvpKills": 375,
+    "FamePoints": 28,
+    "ParsedMasteries": [
+      "Fire",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:52] Nível subiu de 68 para 69"
+    ]
+  },
+  {
+    "Name": "Meteorite",
+    "UUID": 161319,
+    "Level": 69,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Suwa",
+    "GuildName": "FantasmaUchiha",
+    "CorporationName": "None",
+    "PvpKills": 139,
+    "FamePoints": -8,
+    "ParsedMasteries": [
+      "Wind",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Shissei.",
+    "UUID": 122760,
+    "Level": 68,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Yagyu",
+    "GuildName": "Wandenreich",
+    "CorporationName": "None",
+    "PvpKills": 137,
+    "FamePoints": 2,
+    "ParsedMasteries": [
+      "Fire",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Mamute",
+    "UUID": 154778,
+    "Level": 68,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Sashiba",
+    "GuildName": "Alcateia",
+    "CorporationName": "None",
+    "PvpKills": 94,
+    "FamePoints": 36,
+    "ParsedMasteries": [
+      "Fire",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Pantera Cor De Rosa",
+    "UUID": 149200,
+    "Level": 68,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Fokkusu",
+    "CorporationName": "None",
+    "PvpKills": 58,
+    "FamePoints": 12,
+    "ParsedMasteries": [
+      "Fire",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Capa Bomb Um",
+    "UUID": 117318,
+    "Level": 67,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Estige",
+    "CorporationName": "None",
+    "PvpKills": 543,
+    "FamePoints": -37,
+    "ParsedMasteries": [
+      "Fire",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 67, Rogue Leaf, Fire, Weapon)",
+      "[2026-08-29 14:43] PVP Kills aumentou de 542 para 543 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Bomb",
+    "UUID": 143798,
+    "Level": 67,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Sound",
+    "CorporationName": "None",
+    "PvpKills": 96,
+    "FamePoints": 24,
+    "ParsedMasteries": [
+      "Fire",
+      "Wind"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:04",
+    "ChangeHistory": [
+      "[2026-08-29 15:04] Registrado no banco de dados (Level 67, Rogue Sand, Fire, Wind)"
+    ]
+  },
+  {
+    "Name": "Misuy",
+    "UUID": 119105,
+    "Level": 67,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Toitsu",
+    "GuildName": "Alcateia",
+    "CorporationName": "None",
+    "PvpKills": 74,
+    "FamePoints": 32,
+    "ParsedMasteries": [
+      "Wind",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 67, Sand, Wind, Medical)"
+    ]
+  },
+  {
+    "Name": "Caio  Ocean",
+    "UUID": 165551,
+    "Level": 65,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Spider",
+    "CorporationName": "None",
+    "PvpKills": 99,
+    "FamePoints": -50,
+    "ParsedMasteries": [
+      "Earth",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:08",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Azrael.",
+    "UUID": 140723,
+    "Level": 63,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Ventrue",
+    "CorporationName": "Kuronami",
+    "PvpKills": 277,
+    "FamePoints": -21,
+    "ParsedMasteries": [
+      "Fire",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] Guild alterada de 'Hoshigaki' para 'Ventrue'"
+    ]
+  },
+  {
+    "Name": "Kusakin Lui",
+    "UUID": 150440,
+    "Level": 63,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "DARKLEAF",
+    "CorporationName": "None",
+    "PvpKills": 123,
+    "FamePoints": -1,
+    "ParsedMasteries": [
+      "Wind",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:56",
+    "ChangeHistory": [
+      "[2026-08-29 14:56] Registrado no banco de dados (Level 63, Leaf, Wind, Earth)"
+    ]
+  },
+  {
+    "Name": "Xaconheira",
+    "UUID": 179107,
+    "Level": 63,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Ganjatsuki",
+    "CorporationName": "Sand Police Force",
+    "PvpKills": 34,
+    "FamePoints": 7,
+    "ParsedMasteries": [
+      "Medical",
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:01",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:56] Nível subiu de 62 para 63"
+    ]
+  },
+  {
+    "Name": "Peaches",
+    "UUID": 146023,
+    "Level": 63,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Kitsune",
+    "CorporationName": "None",
+    "PvpKills": 18,
+    "FamePoints": 31,
+    "ParsedMasteries": [
+      "Earth",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:08",
+    "FirstSeen": "2026-08-29 15:04",
+    "ChangeHistory": [
+      "[2026-08-29 15:04] Registrado no banco de dados (Level 63, Leaf, Earth, Medical)"
+    ]
+  },
+  {
+    "Name": "Rem",
+    "UUID": 143252,
+    "Level": 62,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Havoc",
+    "CorporationName": "None",
+    "PvpKills": 161,
+    "FamePoints": 30,
+    "ParsedMasteries": [
+      "Fire",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:03",
+    "ChangeHistory": [
+      "[2026-08-29 15:03] Registrado no banco de dados (Level 62, Sand, Fire, Medical)"
+    ]
+  },
+  {
+    "Name": "Napalm II",
+    "UUID": 181359,
+    "Level": 62,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Kazuki",
+    "GuildName": "TropaDosPelados",
+    "CorporationName": "None",
+    "PvpKills": 16,
+    "FamePoints": 4,
+    "ParsedMasteries": [
+      "Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:54",
+    "ChangeHistory": [
+      "[2026-08-29 14:54] Registrado no banco de dados (Level 61, Mist, Fire, Earth)",
+      "[2026-08-29 14:57] Nível subiu de 61 para 62"
+    ]
+  },
+  {
+    "Name": "Pumapjl",
+    "UUID": 140548,
+    "Level": 61,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Suwa",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 407,
+    "FamePoints": 258,
+    "ParsedMasteries": [
+      "Fire",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Gillian",
+    "UUID": 92473,
+    "Level": 61,
+    "ParsedRank": "Rogue",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Plague",
+    "CorporationName": "None",
+    "PvpKills": 327,
+    "FamePoints": -18,
+    "ParsedMasteries": [
+      "Lightning",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:02",
+    "ChangeHistory": [
+      "[2026-08-29 15:02] Registrado no banco de dados (Level 61, Rogue Mist, Lightning, Weapon)"
+    ]
+  },
+  {
+    "Name": "Euphorie",
+    "UUID": 179626,
+    "Level": 61,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Hoshi",
+    "GuildName": "LosChapetones",
+    "CorporationName": "None",
+    "PvpKills": 36,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Wind",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:01",
+    "FirstSeen": "2026-08-29 14:39",
+    "ChangeHistory": [
+      "[2026-08-29 14:39] Registrado no banco de dados (Level 61, Rogue Mist, Wind, Water)"
+    ]
+  },
+  {
+    "Name": "PhantomEarth",
+    "UUID": 154587,
+    "Level": 61,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Nemesis",
+    "CorporationName": "None",
+    "PvpKills": 31,
+    "FamePoints": 14,
+    "ParsedMasteries": [
+      "Earth",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:11",
+    "FirstSeen": "2026-08-29 14:44",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] Registrado no banco de dados (Level 61, Mist, Earth, Weapon)"
+    ]
+  },
+  {
+    "Name": "Palmas",
+    "UUID": 73161,
+    "Level": 60,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "LosChapetones",
+    "CorporationName": "Leaf Police Force",
+    "PvpKills": 74,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Water",
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:01",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Akilo",
+    "UUID": 181160,
+    "Level": 60,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "Nemesis",
+    "CorporationName": "Mist Police Force",
+    "PvpKills": 33,
+    "FamePoints": 7,
+    "ParsedMasteries": [
+      "Water",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:46",
+    "ChangeHistory": [
+      "[2026-08-29 14:46] Registrado no banco de dados (Level 60, Mist, Water, Weapon)",
+      "[2026-08-29 14:56] PVP Kills aumentou de 32 para 33 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Sonho Lindo",
+    "UUID": 125495,
+    "Level": 60,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 32,
+    "FamePoints": 7,
+    "ParsedMasteries": [
+      "Wind",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Froggg",
+    "UUID": 131538,
+    "Level": 59,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Illuminati",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 51,
+    "FamePoints": 10,
+    "ParsedMasteries": [
+      "Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Okami",
+    "UUID": 174098,
+    "Level": 58,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "Mayhem",
+    "CorporationName": "None",
+    "PvpKills": 103,
+    "FamePoints": 7,
+    "ParsedMasteries": [
+      "Medical",
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:56] PVP Kills aumentou de 102 para 103 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Verine",
+    "UUID": 86656,
+    "Level": 57,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Vikings",
+    "CorporationName": "Puppeteer Squad",
+    "PvpKills": 132,
+    "FamePoints": -2,
+    "ParsedMasteries": [
+      "Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Liny",
+    "UUID": 181211,
+    "Level": 57,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "AnyWay",
+    "CorporationName": "None",
+    "PvpKills": 37,
+    "FamePoints": 3,
+    "ParsedMasteries": [
+      "Wind",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:34",
+    "ChangeHistory": [
+      "[2026-08-29 14:34] Registrado no banco de dados (Level 57, Sand, Wind, Medical)"
+    ]
+  },
+  {
+    "Name": "Djagara",
+    "UUID": 180755,
+    "Level": 57,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Tendo",
+    "GuildName": "OreNoKintama",
+    "CorporationName": "Sand Medical Unit",
+    "PvpKills": 21,
+    "FamePoints": 18,
+    "ParsedMasteries": [
+      "Earth",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Lefiya",
+    "UUID": 58526,
+    "Level": 56,
+    "ParsedRank": "Chunin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "Alcateia",
+    "CorporationName": "Sand Medical Unit",
+    "PvpKills": 51,
+    "FamePoints": 4,
+    "ParsedMasteries": [
+      "Medical",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:00",
+    "ChangeHistory": [
+      "[2026-08-29 15:00] Registrado no banco de dados (Level 56, Sand, Medical, Weapon)"
+    ]
+  },
+  {
+    "Name": "GAsoo",
+    "UUID": 114156,
+    "Level": 56,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Zetsuken",
+    "CorporationName": "None",
+    "PvpKills": 10,
+    "FamePoints": 9,
+    "ParsedMasteries": [
+      "Lightning",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Mizuki",
+    "UUID": 128416,
+    "Level": 55,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "DARKLEAF",
+    "CorporationName": "None",
+    "PvpKills": 47,
+    "FamePoints": 14,
+    "ParsedMasteries": [
+      "Medical",
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 14:48",
+    "FirstSeen": "2026-08-29 14:34",
+    "ChangeHistory": [
+      "[2026-08-29 14:34] Registrado no banco de dados (Level 55, Leaf, Medical, Taijutsu)"
+    ]
+  },
+  {
+    "Name": "Basilov",
+    "UUID": 59269,
+    "Level": 55,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Sashiba",
+    "GuildName": "Requiem",
+    "CorporationName": "None",
+    "PvpKills": 8,
+    "FamePoints": 2,
+    "ParsedMasteries": [
+      "Wind",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Davi Brito",
+    "UUID": 120813,
+    "Level": 54,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Hoshi",
+    "GuildName": "Ghostring",
+    "CorporationName": "None",
+    "PvpKills": 67,
+    "FamePoints": -3,
+    "ParsedMasteries": [
+      "Lightning",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:38",
+    "ChangeHistory": [
+      "[2026-08-29 14:38] Registrado no banco de dados (Level 54, Rogue Mist, Lightning, Medical)"
+    ]
+  },
+  {
+    "Name": "Zereph",
+    "UUID": 75655,
+    "Level": 54,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Leaf",
+    "ParsedClan": "Hayashi",
+    "GuildName": "AnyWay",
+    "CorporationName": "None",
+    "PvpKills": 36,
+    "FamePoints": -3,
+    "ParsedMasteries": [
+      "Fire",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:11",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] Nível subiu de 53 para 54"
+    ]
+  },
+  {
+    "Name": "Dio Brando",
+    "UUID": 73306,
+    "Level": 54,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "Akashi",
+    "CorporationName": "None",
+    "PvpKills": 18,
+    "FamePoints": 5,
+    "ParsedMasteries": [
+      "Fire",
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 17 para 18 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Aiko Tanaka",
+    "UUID": 161978,
+    "Level": 53,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Spider",
+    "CorporationName": "None",
+    "PvpKills": 57,
+    "FamePoints": 24,
+    "ParsedMasteries": [
+      "Medical",
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Shiina Mahiru",
+    "UUID": 163923,
+    "Level": 52,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Estige",
+    "CorporationName": "None",
+    "PvpKills": 43,
+    "FamePoints": 5,
+    "ParsedMasteries": [
+      "Wind",
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 42 para 43 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Ret",
+    "UUID": 163832,
+    "Level": 52,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "BlackSkulls",
+    "CorporationName": "None",
+    "PvpKills": 15,
+    "FamePoints": 3,
+    "ParsedMasteries": [
+      "Lightning",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Ichimura",
+    "UUID": 166250,
+    "Level": 51,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Kazuki",
+    "GuildName": "Fujiwara",
+    "CorporationName": "None",
+    "PvpKills": 23,
+    "FamePoints": 10,
+    "ParsedMasteries": [
+      "Earth",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:02",
+    "ChangeHistory": [
+      "[2026-08-29 15:02] Registrado no banco de dados (Level 51, Mist, Earth, Medical)"
+    ]
+  },
+  {
+    "Name": "Hebi",
+    "UUID": 115015,
+    "Level": 51,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Akashi",
+    "CorporationName": "None",
+    "PvpKills": 20,
+    "FamePoints": 7,
+    "ParsedMasteries": [
+      "Fire",
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 15:01",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 14:44] PVP Kills aumentou de 19 para 20 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "grey",
+    "UUID": 181959,
+    "Level": 51,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Spider",
+    "CorporationName": "None",
+    "PvpKills": 12,
+    "FamePoints": 6,
+    "ParsedMasteries": [
+      "Earth",
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:01",
+    "ChangeHistory": [
+      "[2026-08-29 15:01] Registrado no banco de dados (Level 51, Leaf, Earth, Weapon)"
+    ]
+  },
+  {
+    "Name": "killmoon",
+    "UUID": 80877,
+    "Level": 51,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Hayashi",
+    "GuildName": "Yozakura",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 8,
+    "FamePoints": 10,
+    "ParsedMasteries": [
+      "Fire",
+      "Earth"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Konoha",
+    "UUID": 182206,
+    "Level": 50,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Yozakura",
+    "CorporationName": "Leaf Police Force",
+    "PvpKills": 25,
+    "FamePoints": 2,
+    "ParsedMasteries": [
+      "Fire",
+      "Wind"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:34",
+    "ChangeHistory": [
+      "[2026-08-29 14:34] Registrado no banco de dados (Level 50, Leaf, Fire, Wind)"
+    ]
+  },
+  {
+    "Name": "Karl Heinz Schneider",
+    "UUID": 114064,
+    "Level": 49,
+    "ParsedRank": "Hermit",
+    "ParsedVillage": "Rogue Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 225,
+    "FamePoints": 12,
+    "ParsedMasteries": [
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:03",
+    "ChangeHistory": [
+      "[2026-08-29 15:03] Registrado no banco de dados (Level 49, Rogue Mist, Taijutsu)"
+    ]
+  },
+  {
+    "Name": "ARKMOON",
+    "UUID": 181181,
+    "Level": 49,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "Vikings",
+    "CorporationName": "None",
+    "PvpKills": 5,
+    "FamePoints": 12,
+    "ParsedMasteries": [
+      "Wind"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:34",
+    "ChangeHistory": [
+      "[2026-08-29 14:34] Registrado no banco de dados (Level 49, Sand, Wind)"
+    ]
+  },
+  {
+    "Name": "NoaZ",
+    "UUID": 171513,
+    "Level": 48,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Clanless",
+    "GuildName": "BYOB",
+    "CorporationName": "None",
+    "PvpKills": 33,
+    "FamePoints": 2,
+    "ParsedMasteries": [
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 15:03",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 48, Mist, Water)"
+    ]
+  },
+  {
+    "Name": "lJHl",
+    "UUID": 149893,
+    "Level": 48,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Sasayaki",
+    "GuildName": "Akashi",
+    "CorporationName": "None",
+    "PvpKills": 22,
+    "FamePoints": 6,
+    "ParsedMasteries": [
+      "Medical"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 48, Leaf, Medical)"
+    ]
+  },
+  {
+    "Name": "Nacho.",
+    "UUID": 180481,
+    "Level": 48,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "Nara",
+    "CorporationName": "Twelve Fangs",
+    "PvpKills": 13,
+    "FamePoints": 0,
+    "ParsedMasteries": [
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:50",
+    "ChangeHistory": [
+      "[2026-08-29 14:50] Registrado no banco de dados (Level 48, Leaf, Taijutsu)"
+    ]
+  },
+  {
+    "Name": "HangLoose",
+    "UUID": 180636,
+    "Level": 48,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Yagyu",
+    "GuildName": "Zenith",
+    "CorporationName": "None",
+    "PvpKills": 3,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Nasft",
+    "UUID": 172396,
+    "Level": 47,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Yagyu",
+    "GuildName": "RezaLenda",
+    "CorporationName": "None",
+    "PvpKills": 9,
+    "FamePoints": 0,
+    "ParsedMasteries": [
+      "Wind"
+    ],
+    "LastSeen": "2026-08-29 15:03",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Jovinianex",
+    "UUID": 99209,
+    "Level": 46,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Jakusha",
+    "GuildName": "BlackSkulls",
+    "CorporationName": "None",
+    "PvpKills": 14,
+    "FamePoints": -2,
+    "ParsedMasteries": [
+      "Fire"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": [
+      "[2026-08-29 15:03] PVP Kills aumentou de 13 para 14 (+1 kills)"
+    ]
+  },
+  {
+    "Name": "Manguemaru",
+    "UUID": 181495,
+    "Level": 45,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 8,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Fire"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:56",
+    "ChangeHistory": [
+      "[2026-08-29 14:56] Registrado no banco de dados (Level 45, Leaf, Fire)"
+    ]
+  },
+  {
+    "Name": "Ivanito",
+    "UUID": 60378,
+    "Level": 45,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Muteki",
+    "GuildName": "Nara",
+    "CorporationName": "None",
+    "PvpKills": 6,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Lightning"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 45, Leaf, Lightning)"
+    ]
+  },
+  {
+    "Name": "El Zorro",
+    "UUID": 179632,
+    "Level": 42,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Malavita",
+    "CorporationName": "None",
+    "PvpKills": 0,
+    "FamePoints": 2,
+    "ParsedMasteries": [
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:41",
+    "ChangeHistory": [
+      "[2026-08-29 14:41] Registrado no banco de dados (Level 42, Sand, Weapon)"
+    ]
+  },
+  {
+    "Name": "One",
+    "UUID": 182100,
+    "Level": 38,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "LosChapetones",
+    "CorporationName": "None",
+    "PvpKills": 7,
+    "FamePoints": -2,
+    "ParsedMasteries": [
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:36",
+    "ChangeHistory": [
+      "[2026-08-29 14:36] Registrado no banco de dados (Level 38, Leaf, Taijutsu)"
+    ]
+  },
+  {
+    "Name": "Hokusai",
+    "UUID": 62216,
+    "Level": 36,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Clanless",
+    "GuildName": "Requiem",
+    "CorporationName": "None",
+    "PvpKills": 13,
+    "FamePoints": 9,
+    "ParsedMasteries": [
+      "Wind"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:49",
+    "ChangeHistory": [
+      "[2026-08-29 14:49] Registrado no banco de dados (Level 36, Sand, Wind)"
+    ]
+  },
+  {
+    "Name": "Veykz",
+    "UUID": 168475,
+    "Level": 34,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Mist",
+    "ParsedClan": "Hoshi",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 0,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Fire"
+    ],
+    "LastSeen": "2026-08-29 14:44",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Kynight",
+    "UUID": 179563,
+    "Level": 33,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 2,
+    "FamePoints": 1,
+    "ParsedMasteries": [
+      "Weapon"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 15:08",
+    "ChangeHistory": [
+      "[2026-08-29 15:08] Registrado no banco de dados (Level 33, Sand, Weapon)"
+    ]
+  },
+  {
+    "Name": "Medusa 777",
+    "UUID": 160644,
+    "Level": 29,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Sand",
+    "ParsedClan": "Ketsueki",
+    "GuildName": "Zetsuken",
+    "CorporationName": "None",
+    "PvpKills": 4,
+    "FamePoints": 0,
+    "ParsedMasteries": [
+      "Water"
+    ],
+    "LastSeen": "2026-08-29 14:48",
+    "FirstSeen": "2026-08-29 14:38",
+    "ChangeHistory": [
+      "[2026-08-29 14:38] Registrado no banco de dados (Level 29, Sand, Water)"
+    ]
+  },
+  {
+    "Name": "Lord Chiriku",
+    "UUID": 183176,
+    "Level": 29,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Clanless",
+    "GuildName": "Illuminati",
+    "CorporationName": "None",
+    "PvpKills": 1,
+    "FamePoints": 3,
+    "ParsedMasteries": [
+      "Taijutsu"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  },
+  {
+    "Name": "Miracle",
+    "UUID": 179160,
+    "Level": 20,
+    "ParsedRank": "Genin",
+    "ParsedVillage": "Leaf",
+    "ParsedClan": "Ukiyo",
+    "GuildName": "-",
+    "CorporationName": "None",
+    "PvpKills": 1,
+    "FamePoints": -2,
+    "ParsedMasteries": [
+      "Fire"
+    ],
+    "LastSeen": "2026-08-29 15:15",
+    "FirstSeen": "2026-08-29 14:32",
+    "ChangeHistory": []
+  }
+]
