@@ -14,6 +14,7 @@
             const [rawData, setRawData] = useState([]);
             const [mapData, setMapData] = useState([]);
             const [blessData, setBlessData] = useState([]);
+            const [bingoData, setBingoData] = useState([]);
             const [data, setData] = useState({ rankings: [], history: {} });
             const [isLoading, setIsLoading] = useState(false);
             const [error, setError] = useState(null);
@@ -173,7 +174,38 @@
                     }
                 );
 
-                return () => unsubscribe();
+                // Carregamento do Bingo Book (Firestore + Fallback JSON Local)
+                let unsubBingo = null;
+                try {
+                    unsubBingo = db.collection('bingo_book').doc('latest').onSnapshot(
+                        (doc) => {
+                            if (doc.exists && doc.data() && Array.isArray(doc.data().ninjas)) {
+                                setBingoData(doc.data().ninjas);
+                            } else {
+                                fetch('./data/bingo_book.json')
+                                    .then(r => r.json())
+                                    .then(d => Array.isArray(d) && setBingoData(d))
+                                    .catch(() => {});
+                            }
+                        },
+                        () => {
+                            fetch('./data/bingo_book.json')
+                                .then(r => r.json())
+                                .then(d => Array.isArray(d) && setBingoData(d))
+                                .catch(() => {});
+                        }
+                    );
+                } catch(e) {
+                    fetch('./data/bingo_book.json')
+                        .then(r => r.json())
+                        .then(d => Array.isArray(d) && setBingoData(d))
+                        .catch(() => {});
+                }
+
+                return () => {
+                    unsubscribe();
+                    if (unsubBingo) unsubBingo();
+                };
             }, []);
 
 
@@ -936,6 +968,7 @@
                             onNavigateToPlayer={handlePlayerClick}
                             onOpenTournament={(t) => { setSelectedTournament(t); setSelectedPlayer(null); }} 
                             getShareLink={getShareLink}
+                            bingoData={bingoData}
                             t={t}
                         />
                     )}
@@ -981,6 +1014,7 @@
                             <button onClick={() => setViewMode('versus')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'versus' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Swords className="w-4 h-4" /> {t.versus}</button>
                             <button onClick={() => setViewMode('matches')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'matches' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Crosshair className="w-4 h-4" /> {t.matches_tab}</button>
                             <button onClick={() => setViewMode('tournaments')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'tournaments' ? 'bg-yellow-500 text-slate-900 shadow-lg shadow-yellow-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><GitBranch className="w-4 h-4" /> {t.tournaments}</button>
+                            <button onClick={() => setViewMode('bingo')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'bingo' ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><ScrollIcon className="w-4 h-4" /> {t.bingo_tab}</button>
                             <button onClick={() => setViewMode('maps')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'maps' ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><MapIcon className="w-4 h-4" /> Mapas</button>
                             <button onClick={() => setViewMode('blessings')} className={`px-5 py-3 rounded-lg font-bold text-sm transition-colors flex items-center gap-2 whitespace-nowrap ${viewMode === 'blessings' ? 'bg-pink-500 text-white shadow-lg shadow-pink-500/20' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}><Sparkles className="w-4 h-4" /> Bênçãos</button>
                         </div>
@@ -1657,6 +1691,23 @@
                                             <button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalBlessPages))} disabled={currentPage === totalBlessPages} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed text-slate-400 transition-colors"><ChevronRight className="w-5 h-5" /></button>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                        )}
+
+                        {viewMode === 'bingo' && (
+                            <div className="space-y-6">
+                                <div className="bg-slate-900/90 rounded-2xl shadow-xl overflow-hidden border border-slate-800 p-4 sm:p-6">
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+                                        <div>
+                                            <h3 className="text-2xl font-black text-white flex items-center gap-2">
+                                                <ScrollIcon className="w-7 h-7 text-amber-500" />
+                                                <span>{t.bingo_title}</span>
+                                            </h3>
+                                            <p className="text-xs sm:text-sm text-slate-400 mt-1">{t.bingo_desc}</p>
+                                        </div>
+                                    </div>
+                                    <BingoBookView bingoData={bingoData} t={t} />
                                 </div>
                             </div>
                         )}

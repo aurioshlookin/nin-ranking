@@ -351,7 +351,339 @@
             );
         };
 
-        const PlayerModal = ({ player, history, tournaments, activeTab, onClose, onNavigateToPlayer, onOpenTournament, getShareLink, t }) => {
+        const MasteryBadge = ({ mastery, size = 'sm' }) => {
+            const isAdv = mastery && mastery.startsWith('Advanced ');
+            const cleanName = isAdv ? mastery.replace('Advanced ', '') : mastery;
+            
+            const styles = {
+                'Fire': 'bg-red-950/80 text-red-400 border-red-500/40 shadow-red-500/10',
+                'Water': 'bg-blue-950/80 text-blue-400 border-blue-500/40 shadow-blue-500/10',
+                'Wind': 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40 shadow-emerald-500/10',
+                'Earth': 'bg-amber-950/80 text-amber-300 border-amber-500/40 shadow-amber-500/10',
+                'Lightning': 'bg-yellow-950/80 text-yellow-300 border-yellow-500/40 shadow-yellow-500/10',
+                'Medical': 'bg-teal-950/80 text-teal-300 border-teal-500/40 shadow-teal-500/10',
+                'Taijutsu': 'bg-rose-950/80 text-rose-300 border-rose-500/40 shadow-rose-500/10',
+                'Weapon': 'bg-slate-800 text-slate-300 border-slate-600/40 shadow-slate-500/10'
+            };
+            
+            const icons = {
+                'Fire': '🔥',
+                'Water': '🌊',
+                'Wind': '🌪️',
+                'Earth': '⛰️',
+                'Lightning': '⚡',
+                'Medical': '💉',
+                'Taijutsu': '👊',
+                'Weapon': '🗡️'
+            };
+            
+            const baseStyle = styles[cleanName] || 'bg-slate-800 text-slate-400 border-slate-700';
+            const icon = icons[cleanName] || '✨';
+            const pad = size === 'xs' ? 'px-1.5 py-0.5 text-[10px]' : (size === 'md' ? 'px-3 py-1 text-xs' : 'px-2 py-0.5 text-[11px]');
+            
+            return (
+                <span className={`inline-flex items-center gap-1 font-bold rounded border shadow-sm ${baseStyle} ${pad} ${isAdv ? 'ring-1 ring-yellow-400/50' : ''}`}>
+                    <span>{icon}</span>
+                    <span>{mastery}</span>
+                </span>
+            );
+        };
+
+        const VillageBadge = ({ village, size = 'sm' }) => {
+            if (!village) return null;
+            const isRogue = village.includes('Rogue');
+            let style = 'bg-slate-800 text-slate-300 border-slate-700';
+            let icon = '⛩️';
+            
+            if (village === 'Leaf') { style = 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30'; icon = '🍃'; }
+            else if (village === 'Sand') { style = 'bg-amber-950/60 text-amber-400 border-amber-500/30'; icon = '🏜️'; }
+            else if (village === 'Mist') { style = 'bg-cyan-950/60 text-cyan-400 border-cyan-500/30'; icon = '🌫️'; }
+            else if (isRogue) { style = 'bg-red-950/70 text-red-400 border-red-500/40 ring-1 ring-red-500/30'; icon = '🩸'; }
+            
+            const pad = size === 'xs' ? 'px-1.5 py-0.5 text-[10px]' : (size === 'md' ? 'px-3 py-1 text-xs' : 'px-2 py-0.5 text-[11px]');
+            return (
+                <span className={`inline-flex items-center gap-1 font-bold rounded-full border shadow-sm ${style} ${pad}`}>
+                    <span>{icon}</span>
+                    <span>{village}</span>
+                </span>
+            );
+        };
+
+        const NinjaDetailsModal = ({ ninja, onClose, t }) => {
+            useLockBodyScroll();
+            if (!ninja) return null;
+
+            return (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-[90]" onClick={onClose}>
+                    <div className="bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-5 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center text-white font-black text-xl shadow-lg">
+                                    {ninja.Name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h3 className="text-2xl font-black text-white flex items-center gap-2">
+                                        {ninja.Name}
+                                        <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">Lv. {ninja.Level}</span>
+                                    </h3>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <VillageBadge village={ninja.ParsedVillage} size="xs" />
+                                        <span className="text-xs text-slate-400 font-semibold">{ninja.ParsedRank}</span>
+                                        {ninja.ParsedClan && ninja.ParsedClan !== 'Clanless' && (
+                                            <span className="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-bold">🧬 {ninja.ParsedClan}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="text-slate-400 hover:text-white p-1.5 hover:bg-slate-700 rounded-full transition-colors">
+                                <XIcon className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto space-y-6">
+                            {/* Maestrias */}
+                            <div>
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">⚡ {t.mastery}</h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, idx) => (
+                                        <MasteryBadge key={idx} mastery={m} size="md" />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Estatísticas Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase block">⚔️ {t.pvp_kills}</span>
+                                    <span className="text-lg font-black text-red-400">{ninja.PvpKills || 0}</span>
+                                </div>
+                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase block">⭐ {t.fame}</span>
+                                    <span className="text-lg font-black text-yellow-400">{ninja.FamePoints || 0}</span>
+                                </div>
+                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase block">🛡️ Guild</span>
+                                    <span className="text-sm font-bold text-slate-200 truncate block">{ninja.GuildName || '-'}</span>
+                                </div>
+                                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase block">🏛️ Corporação</span>
+                                    <span className="text-sm font-bold text-slate-200 truncate block">{ninja.CorporationName || '-'}</span>
+                                </div>
+                            </div>
+
+                            {/* Linha do Tempo de Evolução */}
+                            <div>
+                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4 text-blue-400" />
+                                    {t.change_history}
+                                </h4>
+                                <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 space-y-2.5 max-h-48 overflow-y-auto">
+                                    {ninja.ChangeHistory && ninja.ChangeHistory.length > 0 ? (
+                                        ninja.ChangeHistory.map((item, idx) => (
+                                            <div key={idx} className="flex items-start gap-2 text-xs text-slate-300">
+                                                <span className="text-yellow-500 font-bold">•</span>
+                                                <span>{item}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-slate-500 italic">{t.no_changes_recorded}</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BingoBookView = ({ bingoData, t }) => {
+            const [searchTerm, setSearchTerm] = useState('');
+            const [selectedVillage, setSelectedVillage] = useState('All');
+            const [selectedMastery, setSelectedMastery] = useState('All');
+            const [selectedClan, setSelectedClan] = useState('All');
+            const [sortBy, setSortBy] = useState('level');
+            const [selectedNinja, setSelectedNinja] = useState(null);
+
+            const villages = ['All', 'Leaf', 'Sand', 'Mist', 'Rogue Leaf', 'Rogue Sand', 'Rogue Mist'];
+            const masteries = ['All', 'Fire', 'Water', 'Wind', 'Earth', 'Lightning', 'Medical', 'Taijutsu', 'Weapon'];
+            
+            const clans = useMemo(() => {
+                const set = new Set();
+                bingoData.forEach(n => { if (n.ParsedClan && n.ParsedClan !== 'Clanless') set.add(n.ParsedClan); });
+                return ['All', ...Array.from(set).sort()];
+            }, [bingoData]);
+
+            const filteredNinjas = useMemo(() => {
+                let list = [...bingoData];
+
+                if (searchTerm) {
+                    const q = searchTerm.toLowerCase();
+                    list = list.filter(n => n.Name.toLowerCase().includes(q) || (n.GuildName && n.GuildName.toLowerCase().includes(q)));
+                }
+
+                if (selectedVillage !== 'All') {
+                    list = list.filter(n => n.ParsedVillage === selectedVillage);
+                }
+
+                if (selectedMastery !== 'All') {
+                    list = list.filter(n => n.ParsedMasteries && n.ParsedMasteries.some(m => m.includes(selectedMastery)));
+                }
+
+                if (selectedClan !== 'All') {
+                    list = list.filter(n => n.ParsedClan === selectedClan);
+                }
+
+                list.sort((a, b) => {
+                    if (sortBy === 'level') return (b.Level || 0) - (a.Level || 0) || (b.PvpKills || 0) - (a.PvpKills || 0);
+                    if (sortBy === 'kills') return (b.PvpKills || 0) - (a.PvpKills || 0) || (b.Level || 0) - (a.Level || 0);
+                    if (sortBy === 'fame') return (b.FamePoints || 0) - (a.FamePoints || 0);
+                    if (sortBy === 'name') return a.Name.localeCompare(b.Name);
+                    return 0;
+                });
+
+                return list;
+            }, [bingoData, searchTerm, selectedVillage, selectedMastery, selectedClan, sortBy]);
+
+            return (
+                <div className="space-y-6">
+                    {selectedNinja && (
+                        <NinjaDetailsModal ninja={selectedNinja} onClose={() => setSelectedNinja(null)} t={t} />
+                    )}
+
+                    {/* Top Stats Banner */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">👥 Total de Ninjas</span>
+                            <span className="text-2xl font-black text-white">{bingoData.length}</span>
+                        </div>
+                        <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">🏆 Nível Máximo (Lv 70)</span>
+                            <span className="text-2xl font-black text-yellow-400">{bingoData.filter(n => n.Level === 70).length}</span>
+                        </div>
+                        <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">🩸 Renegados (Rogues)</span>
+                            <span className="text-2xl font-black text-red-400">{bingoData.filter(n => (n.ParsedVillage || '').includes('Rogue')).length}</span>
+                        </div>
+                        <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+                            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">⚡ Maestrias Avançadas</span>
+                            <span className="text-2xl font-black text-cyan-400">{bingoData.filter(n => (n.ParsedMasteries || []).some(m => m.startsWith('Advanced'))).length}</span>
+                        </div>
+                    </div>
+
+                    {/* Filtros e Busca */}
+                    <div className="bg-slate-900/90 p-4 md:p-6 rounded-2xl border border-slate-800 space-y-4">
+                        <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+                            <div className="relative w-full md:w-80">
+                                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                                <input
+                                    type="text"
+                                    placeholder={t.search_ninja_placeholder}
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-700 pl-10 pr-4 py-2.5 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-yellow-500"
+                                />
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                <select 
+                                    value={selectedMastery} 
+                                    onChange={(e) => setSelectedMastery(e.target.value)}
+                                    className="bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 focus:outline-none focus:border-yellow-500"
+                                >
+                                    <option value="All">{t.filter_mastery}</option>
+                                    {masteries.slice(1).map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+
+                                <select 
+                                    value={selectedClan} 
+                                    onChange={(e) => setSelectedClan(e.target.value)}
+                                    className="bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 focus:outline-none focus:border-yellow-500"
+                                >
+                                    <option value="All">{t.filter_clan}</option>
+                                    {clans.slice(1).map(c => <option key={c} value={c}>🧬 {c}</option>)}
+                                </select>
+
+                                <select 
+                                    value={sortBy} 
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="bg-slate-950 border border-slate-700 px-3 py-2 rounded-xl text-xs font-bold text-yellow-400 focus:outline-none focus:border-yellow-500"
+                                >
+                                    <option value="level">🔼 {t.sort_level}</option>
+                                    <option value="kills">⚔️ {t.sort_kills}</option>
+                                    <option value="fame">⭐ {t.sort_fame}</option>
+                                    <option value="name">🔤 {t.sort_name}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Village Pills */}
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800">
+                            {villages.map(v => (
+                                <button
+                                    key={v}
+                                    onClick={() => setSelectedVillage(v)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedVillage === v ? 'bg-yellow-500 text-slate-950 shadow-md' : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'}`}
+                                >
+                                    {v === 'All' ? t.filter_village : v}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Ninjas Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredNinjas.map((ninja, index) => (
+                            <div 
+                                key={ninja.Name || index}
+                                onClick={() => setSelectedNinja(ninja)}
+                                className="bg-slate-900/80 hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 p-4 rounded-xl cursor-pointer transition-all hover:scale-[1.01] hover:shadow-xl flex flex-col justify-between gap-3 group"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-white font-black text-sm group-hover:border-yellow-500/50 transition-colors">
+                                            {ninja.Name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white group-hover:text-yellow-400 transition-colors flex items-center gap-1.5">
+                                                {ninja.Name}
+                                            </h4>
+                                            <span className="text-[11px] text-slate-400">{ninja.GuildName !== '-' ? ninja.GuildName : 'Sem Guild'}</span>
+                                        </div>
+                                    </div>
+                                    <span className="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-black rounded">
+                                        Lv. {ninja.Level}
+                                    </span>
+                                </div>
+
+                                <div className="flex flex-wrap gap-1.5 items-center">
+                                    <VillageBadge village={ninja.ParsedVillage} size="xs" />
+                                    {ninja.ParsedClan && ninja.ParsedClan !== 'Clanless' && (
+                                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+                                            🧬 {ninja.ParsedClan}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-wrap gap-1 pt-2 border-t border-slate-800/80">
+                                    {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, idx) => (
+                                        <MasteryBadge key={idx} mastery={m} size="xs" />
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {filteredNinjas.length === 0 && (
+                        <div className="text-center py-16 text-slate-500 bg-slate-900/40 rounded-2xl border border-slate-800">
+                            <ScrollIcon className="w-12 h-12 mx-auto text-slate-700 mb-3" />
+                            <p className="font-bold text-sm">Nenhum ninja encontrado para este filtro.</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const PlayerModal = ({ player, history, tournaments, activeTab, onClose, onNavigateToPlayer, onOpenTournament, getShareLink, bingoData, t }) => {
             useLockBodyScroll(); 
             const [historyView, setHistoryView] = useState('matches'); 
             const cardRef = useRef(null);
@@ -402,15 +734,37 @@
                 });
             }, [tournaments, player.name]);
 
+            // Dados do Bingo Oficial do Jogo
+            const officialNinja = useMemo(() => {
+                if (!bingoData || !Array.isArray(bingoData)) return null;
+                return bingoData.find(n => n.Name && n.Name.toLowerCase() === player.name.toLowerCase());
+            }, [bingoData, player.name]);
+
             return (
                 <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center p-4 z-[80]" onClick={onClose}>
                     <div className="bg-slate-900 w-full max-w-6xl rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col h-[90vh]" onClick={(e) => e.stopPropagation()}>
                         <div className="p-4 sm:p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50 flex-shrink-0">
                             <div className="flex flex-col gap-2">
                                 <h2 className="text-2xl sm:text-3xl font-bold text-white mb-0 flex items-center gap-2">{player.name}{parseFloat(player.winRate) >= 60 && <TrendingUp className="w-6 h-6 text-green-400" />}</h2>
-                                <div className="flex flex-wrap gap-4 text-sm text-slate-400 items-center mt-1">
+                                <div className="flex flex-wrap gap-3 text-sm text-slate-400 items-center mt-1">
                                     <span className="bg-slate-800 px-2 py-0.5 rounded border border-slate-700 text-xs text-yellow-500 font-bold uppercase tracking-wider">{activeTab}</span>
                                     <span>{player.wins} {t.wins}</span><span>{player.losses} {t.losses}</span><span className={parseFloat(player.winRate) >= 50 ? 'text-green-400' : 'text-red-400'}>{player.winRate}% WR</span><span className="text-yellow-500 font-bold">{player.tournamentWins || 0} {t.t_wins}</span>
+                                    
+                                    {/* Badges Oficiais do Nin Online se cadastrado no Bingo */}
+                                    {officialNinja && (
+                                        <div className="flex items-center gap-2 pl-2 border-l border-slate-700">
+                                            <VillageBadge village={officialNinja.ParsedVillage} size="xs" />
+                                            {officialNinja.ParsedClan && officialNinja.ParsedClan !== 'Clanless' && (
+                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
+                                                    🧬 {officialNinja.ParsedClan}
+                                                </span>
+                                            )}
+                                            {officialNinja.ParsedMasteries && officialNinja.ParsedMasteries.map((m, idx) => (
+                                                <MasteryBadge key={idx} mastery={m} size="xs" />
+                                            ))}
+                                        </div>
+                                    )}
+
                                     {player.badges && player.badges.length > 0 && (<div className="flex items-center gap-2 pl-2">{player.badges.map((badge, idx) => { const BadgeIcon = badge.icon; return (<div key={idx} className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-900 border border-slate-700 shadow-sm" title={badge.label}><BadgeIcon className={`w-3.5 h-3.5 ${badge.color}`} /><span className="text-[10px] font-bold text-slate-300 uppercase tracking-wide hidden sm:inline-block">{badge.label}</span></div>); })}</div>)}
                                     {(player.displayStreak || 0) >= 3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-orange-900/30 border border-orange-500/30 shadow-sm ml-2"><Flame className="w-3.5 h-3.5 text-orange-500" /><span className="text-[10px] font-bold text-orange-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_win}</span></div>)}
                                     {(player.displayStreak || 0) <= -3 && (<div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-red-900/30 border border-red-500/30 shadow-sm ml-2"><Skull className="w-3.5 h-3.5 text-red-500" /><span className="text-[10px] font-bold text-red-300 uppercase tracking-wide hidden sm:inline-block">{t.icon_streak_loss}</span></div>)}
@@ -467,3 +821,7 @@ window.PlayerPerformanceChart = PlayerPerformanceChart;
 window.TournamentModal = TournamentModal;
 window.InfoModal = InfoModal;
 window.PlayerModal = PlayerModal;
+window.MasteryBadge = MasteryBadge;
+window.VillageBadge = VillageBadge;
+window.NinjaDetailsModal = NinjaDetailsModal;
+window.BingoBookView = BingoBookView;

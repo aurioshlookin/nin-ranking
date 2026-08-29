@@ -27,7 +27,14 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nêmesis (Quem mais te venceu)", icon_victim: "Vítima (Quem você mais venceu)", about_project: "Sobre o Projeto",
                 about_text_1: "Este painel foi desenvolvido por Auriosh.", about_text_2: "É um projeto sem fins lucrativos e não remunerado, criado para a comunidade.", about_text_3: "A atualização dos dados é feita manualmente através das informações divulgadas no canal oficial Servidor do Discord.",
                 share: "Compartilhar", won: "VENCEU", participated: "PARTICIPOU", no_tournament_period: "Nenhum torneio encontrado neste período.", stats_quick: "Estatísticas Rápidas",
-                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente"
+                total_matches: "Total Partidas", win_rate_label: "Taxa de Vitória", nemesis: "Nêmesis", victim: "Vítima", history: "Histórico", matches: "Partidas", loading: "A carregar...", error_loading: "Erro ao carregar dados", try_again: "Tentar Novamente",
+                // Bingo Book
+                bingo_tab: "Bingo Book", bingo_title: "Censo de Ninjas & Bingo Book", bingo_desc: "Consulta em tempo real de todos os ninjas, níveis, maestrias e vilas do servidor.",
+                village: "Vila", mastery: "Maestria", clan: "Clã", rank: "Rank", pvp_kills: "PVP Kills", fame: "Fama",
+                first_seen: "Descoberto em", last_seen: "Última vez visto", change_history: "Histórico de Evolução", no_changes_recorded: "Nenhuma alteração registrada ainda.",
+                filter_village: "Todas as Vilas", filter_mastery: "Todas as Maestrias", filter_clan: "Todos os Clãs", filter_rank: "Todos os Ranks",
+                sort_level: "Maior Nível", sort_kills: "Mais Kills", sort_fame: "Maior Fama", sort_name: "Nome (A-Z)",
+                search_ninja_placeholder: "Buscar ninja por nome...", ninja_details: "Ficha do Ninja", official_stats: "Dados Oficiais do Jogo"
             },
             en: {
                 server: "Server: Hawk", to: "to",
@@ -52,7 +59,14 @@
                 icon_elite: "Elite (WR >= 70%)", icon_nemesis: "Nemesis (Who beat you most)", icon_victim: "Victim (Who you beat most)", about_project: "About Project",
                 about_text_1: "This panel was developed by Auriosh.", about_text_2: "It is a non-profit, unpaid project created for the community.", about_text_3: "Data updates are done manually using information released on the official Discord Server channel.",
                 share: "Share", won: "WON", participated: "PARTICIPATED", no_tournament_period: "No tournament found in this period.", stats_quick: "Quick Stats",
-                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading...", error_loading: "Error loading data", try_again: "Try Again"
+                total_matches: "Total Matches", win_rate_label: "Win Rate", nemesis: "Nemesis", victim: "Victim", history: "History", matches: "Matches", loading: "Loading...", error_loading: "Error loading data", try_again: "Try Again",
+                // Bingo Book
+                bingo_tab: "Bingo Book", bingo_title: "Ninja Census & Bingo Book", bingo_desc: "Real-time query of all server ninjas, levels, masteries, and villages.",
+                village: "Village", mastery: "Mastery", clan: "Clan", rank: "Rank", pvp_kills: "PVP Kills", fame: "Fame",
+                first_seen: "First Seen", last_seen: "Last Seen", change_history: "Evolution History", no_changes_recorded: "No changes recorded yet.",
+                filter_village: "All Villages", filter_mastery: "All Masteries", filter_clan: "All Clans", filter_rank: "All Ranks",
+                sort_level: "Highest Level", sort_kills: "Most Kills", sort_fame: "Highest Fame", sort_name: "Name (A-Z)",
+                search_ninja_placeholder: "Search ninja by name...", ninja_details: "Ninja Profile", official_stats: "Official Game Data"
             }
         };
 

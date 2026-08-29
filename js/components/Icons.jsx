@@ -35,9 +35,9 @@
         const Award = (props) => <IconBase {...props}><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></IconBase>;
         const ShareIcon = (props) => <IconBase {...props}><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></IconBase>;
         const Flame = (props) => <IconBase {...props} fill="currentColor"><path d="M12 2c0 0-3 2.5-3 6 0 2 1.5 3 1.5 5S9 19 12 19s4.5-3.5 4.5-6-1.5-3-1.5-5-3-6-3-6zm0 15c-1.5 0-2.5-1.5-2.5-3.5S10.5 11 12 11s2.5 1.5 2.5 2.5S13.5 17 12 17z" /><path d="M9.5 9c0 0-1.5 1.5-1.5 3.5S9 16 11 16s2.5-1.5 2.5-3-2-5-4-4z" opacity="0.6"/></IconBase>;
-        const Star = (props) => <IconBase {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fillOpacity="0.2" /></IconBase>;
-        const ShurikenIcon = (props) => <IconBase {...props}><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor" fillOpacity="0.2" /></IconBase>;
         const CameraIcon = (props) => <IconBase {...props}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></IconBase>;
+        const ScrollIcon = (props) => <IconBase {...props}><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1z"/><path d="M4 5v14a2 2 0 0 0 2 2h2"/></IconBase>;
+        const ZapIcon = (props) => <IconBase {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconBase>;
 
 
 // --- GLOBAL EXPORTS ---
@@ -77,6 +77,6 @@ window.Skull = Skull;
 window.Award = Award;
 window.ShareIcon = ShareIcon;
 window.Flame = Flame;
-window.Star = Star;
-window.ShurikenIcon = ShurikenIcon;
 window.CameraIcon = CameraIcon;
+window.ScrollIcon = ScrollIcon;
+window.ZapIcon = ZapIcon;
