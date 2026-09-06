@@ -426,6 +426,26 @@
             );
         };
 
+        const isNinjaWeaponPending = (ninja) => {
+            if (!ninja) return false;
+            const hasWeapon = ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' && ninja.EquippedWeaponId > 0;
+            if (hasWeapon) return false;
+            
+            // Unarmed / None: was it updated on or after our weapon patch date (2026-09-06)?
+            const lastSeen = ninja.LastSeen || '';
+            if (lastSeen >= '2026-09-06') return false;
+            
+            if (Array.isArray(ninja.ChangeHistory)) {
+                const hasPostUpdate = ninja.ChangeHistory.some(h => {
+                    const m = typeof h === 'string' && h.match(/\[(\d{4}-\d{2}-\d{2})/);
+                    return m && m[1] >= '2026-09-06';
+                });
+                if (hasPostUpdate) return false;
+            }
+            return true;
+        };
+        window.isNinjaWeaponPending = isNinjaWeaponPending;
+
         const NinjaDetailsModal = ({ ninja, onClose, t }) => {
             useLockBodyScroll();
             if (!ninja) return null;
@@ -474,9 +494,13 @@
                                         <span className="text-xs px-2.5 py-0.5 rounded-lg bg-slate-950 border border-slate-700 text-yellow-300 font-bold">
                                             {ninja.EquippedWeapon}
                                         </span>
+                                    ) : isNinjaWeaponPending(ninja) ? (
+                                        <span className="text-xs px-2.5 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 font-bold flex items-center gap-1" title="Último registro anterior à captura de armas (2026-09-06)">
+                                            ⚠️ Pendente / Não mapeada
+                                        </span>
                                     ) : (
-                                        <span className="text-xs px-2.5 py-0.5 rounded-lg bg-slate-950/60 border border-slate-800 text-slate-500 font-semibold">
-                                            Desarmado / Nenhuma
+                                        <span className="text-xs px-2.5 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-bold flex items-center gap-1" title="Confirmado desarmado pós-atualização">
+                                            ✓ Desarmado (Confirmado)
                                         </span>
                                     )}
                                 </div>
@@ -708,9 +732,13 @@
                                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-950 text-yellow-300 border border-slate-800 flex items-center gap-1" title="Arma equipada">
                                             🗡️ {ninja.EquippedWeapon}
                                         </span>
+                                    ) : isNinjaWeaponPending(ninja) ? (
+                                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-950/30 text-amber-400 border border-amber-800/40 flex items-center gap-1" title="Arma pendente de atualização pós-patch">
+                                            ⚠️ Arma pendente
+                                        </span>
                                     ) : (
-                                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-950/60 text-slate-500 border border-slate-800/80 flex items-center gap-1" title="Desarmado">
-                                            🗡️ Desarmado
+                                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-950/60 text-slate-400 border border-slate-800/80 flex items-center gap-1" title="Desarmado confirmado">
+                                            ✓ Desarmado
                                         </span>
                                     )}
                                 </div>
@@ -1006,9 +1034,17 @@
                                                         {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, idx) => (
                                                             <MasteryBadge key={idx} mastery={m} size="xs" />
                                                         ))}
-                                                        {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' && (
+                                                        {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' ? (
                                                             <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-yellow-300 border border-slate-800" title="Arma equipada">
                                                                 🗡️ {ninja.EquippedWeapon}
+                                                            </span>
+                                                        ) : isNinjaWeaponPending(ninja) ? (
+                                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-950/30 text-amber-400 border border-amber-800/40" title="Arma pendente de atualização">
+                                                                ⚠️ Arma pendente
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-900/60 text-slate-500 border border-slate-800/80" title="Desarmado confirmado">
+                                                                ✓ Desarmado
                                                             </span>
                                                         )}
                                                     </div>
@@ -1167,9 +1203,17 @@
                                                             {ninja.ParsedMasteries.map((m, mIdx) => (
                                                                 <MasteryBadge key={mIdx} mastery={m} size="xs" />
                                                             ))}
-                                                            {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' && (
+                                                            {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' ? (
                                                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-yellow-300 border border-slate-800" title="Arma equipada">
                                                                     🗡️ {ninja.EquippedWeapon}
+                                                                </span>
+                                                            ) : isNinjaWeaponPending(ninja) ? (
+                                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-950/30 text-amber-400 border border-amber-800/40" title="Arma pendente de atualização">
+                                                                    ⚠️ Arma pendente
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-900/60 text-slate-500 border border-slate-800/80" title="Desarmado confirmado">
+                                                                    ✓ Desarmado
                                                                 </span>
                                                             )}
                                                         </div>
@@ -1192,6 +1236,108 @@
                                             </div>
                                         );
                                     })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const PendingWeaponsModal = ({ isOpen, onClose, pendingNinjas, onSelectNinja, onlyLvl50, t }) => {
+            if (!isOpen) return null;
+            useLockBodyScroll();
+            const [search, setSearch] = React.useState('');
+
+            const filtered = React.useMemo(() => {
+                if (!search.trim()) return pendingNinjas || [];
+                const q = search.toLowerCase();
+                return (pendingNinjas || []).filter(n => 
+                    (n.Name || '').toLowerCase().includes(q) ||
+                    (n.ParsedVillage || '').toLowerCase().includes(q) ||
+                    (n.ParsedClan || '').toLowerCase().includes(q)
+                );
+            }, [pendingNinjas, search]);
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overscroll-contain animate-in fade-in duration-200" onClick={onClose}>
+                    <div className="bg-slate-900 border border-amber-500/40 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] overscroll-contain animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="p-5 border-b border-slate-800 bg-slate-950/80 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400">
+                                    <AlertTriangle className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="text-lg font-black text-white">
+                                            {t.pending_weapons_modal_title || 'Ninjas com Cadastro Incompleto (Armas Pendentes)'}
+                                        </h3>
+                                        <span className="px-2.5 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full text-xs font-bold font-mono">
+                                            {(pendingNinjas || []).length} {onlyLvl50 ? '(Lvl 50+)' : '(Geral)'}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs text-slate-400 mt-0.5">
+                                        {t.pending_weapons_desc || 'Ninjas com cadastro de arma não atualizado após o patch do dumper de armas.'}
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+                                <XIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Search Filter */}
+                        <div className="p-3.5 border-b border-slate-800 bg-slate-950/40">
+                            <div className="relative">
+                                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    placeholder="Buscar ninja pendente por nome, vila ou clã..."
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Body List */}
+                        <div className="p-4 overflow-y-auto max-h-[60vh] space-y-2">
+                            {filtered.length === 0 ? (
+                                <div className="py-12 text-center text-slate-500 text-sm">
+                                    Nenhum ninja pendente encontrado com esse termo de busca.
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                    {filtered.map((ninja, idx) => (
+                                        <div 
+                                            key={ninja.UUID || ninja.Name || idx}
+                                            onClick={() => { onClose(); if (onSelectNinja) onSelectNinja(ninja); }}
+                                            className="p-3 bg-slate-950/70 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/40 rounded-xl transition-all cursor-pointer flex flex-col justify-between group shadow-sm"
+                                        >
+                                            <div className="flex items-center justify-between gap-2">
+                                                <div className="flex items-center gap-2 truncate">
+                                                    <span className="font-bold text-sm text-slate-200 group-hover:text-amber-300 transition-colors truncate">
+                                                        {ninja.Name}
+                                                    </span>
+                                                    <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded font-bold font-mono shrink-0">
+                                                        Lv.{ninja.Level || 0}
+                                                    </span>
+                                                </div>
+                                                <VillageBadge village={ninja.ParsedVillage} size="xs" />
+                                            </div>
+                                            <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-800/70 text-xs">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, mIdx) => (
+                                                        <MasteryBadge key={mIdx} mastery={m} size="xs" />
+                                                    ))}
+                                                </div>
+                                                <span className="text-[10px] text-slate-500 font-mono shrink-0" title="Último registro">
+                                                    {ninja.LastSeen ? ninja.LastSeen.split(' ')[0] : 'Antigo'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
@@ -1226,6 +1372,8 @@
             const [pvpTab, setPvpTab] = React.useState('single'); // 'single' | 'sub' | 'combo' | 'advanced'
             const [pvpSort, setPvpSort] = React.useState('wins'); // 'wins' | 'wr' | 'twins' | 'battles'
             const [onlyHighWR, setOnlyHighWR] = React.useState(false); // toggle: false (general) | true (> 50% WR)
+            const [onlyLvl50, setOnlyLvl50] = React.useState(true); // toggle: true (Level >= 50 default) | false (all levels)
+            const [showPendingModal, setShowPendingModal] = React.useState(false);
 
             // Fast lookup for PvP rankings
             const rankingsMap = React.useMemo(() => {
@@ -1240,8 +1388,20 @@
 
             const validNinjas = React.useMemo(() => {
                 if (!Array.isArray(bingoData)) return [];
-                return bingoData.filter(n => n && n.Name && Array.isArray(n.ParsedMasteries));
-            }, [bingoData]);
+                return bingoData.filter(n => {
+                    if (!n || !n.Name || !Array.isArray(n.ParsedMasteries)) return false;
+                    if (onlyLvl50 && (n.Level || 0) < 50) return false;
+                    return true;
+                });
+            }, [bingoData, onlyLvl50]);
+
+            const pendingNinjas = React.useMemo(() => {
+                return validNinjas.filter(n => isNinjaWeaponPending(n));
+            }, [validNinjas]);
+
+            const verifiedNinjasCount = React.useMemo(() => {
+                return validNinjas.length - pendingNinjas.length;
+            }, [validNinjas, pendingNinjas]);
 
             // Helper to get clean masteries list preserving variants
             const getNinjaMasteries = React.useCallback((ninja) => {
@@ -1603,13 +1763,63 @@
                                     {t.mastery_analytics_desc}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <div className="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 flex flex-col items-center">
+                            <div className="flex flex-wrap items-center gap-2.5">
+                                {/* Toggle Nível 50+ */}
+                                <button 
+                                    onClick={() => setOnlyLvl50(!onlyLvl50)}
+                                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2.5 border cursor-pointer select-none ${
+                                        onlyLvl50 
+                                            ? 'bg-amber-500/15 text-amber-300 border-amber-500/50 shadow-md shadow-amber-500/10' 
+                                            : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200 hover:border-slate-700'
+                                    }`}
+                                    title={t.only_lvl50_desc || "Alternar entre apenas ninjas com 2ª maestria liberada (Lvl 50+) ou todos os ninjas"}
+                                >
+                                    <div className={`w-2.5 h-2.5 rounded-full transition-all ${onlyLvl50 ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]' : 'bg-slate-600'}`} />
+                                    <div className="flex flex-col text-left">
+                                        <span className="text-[9px] text-slate-400 uppercase leading-none font-bold">Filtro de Nível</span>
+                                        <span className="text-xs font-black leading-tight">{onlyLvl50 ? (t.only_lvl50 || 'Apenas Lvl 50+') : 'Todos os Níveis'}</span>
+                                    </div>
+                                </button>
+
+                                {/* Ninjas no Censo */}
+                                <div className="bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 flex flex-col items-center min-w-[85px]">
                                     <span className="text-[10px] font-bold text-slate-500 uppercase">Ninjas no Censo</span>
                                     <span className="text-lg font-black text-yellow-400">{validNinjas.length}</span>
                                 </div>
-                                <div className="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 flex flex-col items-center">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Combinações Ativas</span>
+
+                                {/* Cadastros Incompletos / Armas Pendentes */}
+                                <button
+                                    onClick={() => setShowPendingModal(true)}
+                                    className="bg-slate-950 hover:bg-amber-950/30 px-3.5 py-2 rounded-xl border border-amber-500/40 hover:border-amber-500/70 transition-all flex flex-col items-center cursor-pointer text-center group min-w-[110px]"
+                                    title={t.pending_weapons_desc || "Clique para listar ninjas com cadastro incompleto (arma pendente de atualização)"}
+                                >
+                                    <span className="text-[10px] font-bold text-amber-400 uppercase flex items-center gap-1 group-hover:text-amber-300">
+                                        ⚠️ {t.pending_weapons || 'Armas Pendentes'}
+                                    </span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-lg font-black text-amber-400 group-hover:text-amber-300">{pendingNinjas.length}</span>
+                                        <span className="text-[10px] text-slate-500 font-bold">
+                                            ({Math.round((pendingNinjas.length / (validNinjas.length || 1)) * 100)}%)
+                                        </span>
+                                    </div>
+                                </button>
+
+                                {/* Armas Mapeadas / Confirmadas */}
+                                <div className="bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 flex flex-col items-center min-w-[95px]" title="Ninjas com arma equipada ou confirmados desarmados após a atualização">
+                                    <span className="text-[10px] font-bold text-emerald-400 uppercase flex items-center gap-1">
+                                        ✓ {t.mapped_weapons || 'Mapeados'}
+                                    </span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-lg font-black text-emerald-400">{verifiedNinjasCount}</span>
+                                        <span className="text-[10px] text-slate-500 font-bold">
+                                            ({Math.round((verifiedNinjasCount / (validNinjas.length || 1)) * 100)}%)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Combinações Ativas */}
+                                <div className="bg-slate-950 px-3.5 py-2 rounded-xl border border-slate-800 flex flex-col items-center min-w-[85px]">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Combinações</span>
                                     <span className="text-lg font-black text-blue-400">{comboMasteryStats.length}</span>
                                 </div>
                             </div>
@@ -2136,6 +2346,19 @@
                             t={t}
                         />
                     )}
+
+                    {/* Modal for viewing all ninjas with pending weapon updates */}
+                    <PendingWeaponsModal 
+                        isOpen={showPendingModal}
+                        onClose={() => setShowPendingModal(false)}
+                        pendingNinjas={pendingNinjas}
+                        onSelectNinja={(ninja) => {
+                            setShowPendingModal(false);
+                            if (onSelectNinja) onSelectNinja(ninja);
+                        }}
+                        onlyLvl50={onlyLvl50}
+                        t={t}
+                    />
                 </div>
             );
         };
@@ -2157,5 +2380,6 @@ window.NinjaDetailsModal = NinjaDetailsModal;
 window.BingoBookView = BingoBookView;
 window.MasteryComboModal = MasteryComboModal;
 window.PvPRepresentativesModal = PvPRepresentativesModal;
+window.PendingWeaponsModal = PendingWeaponsModal;
 window.MasteryAnalyticsView = MasteryAnalyticsView;
 
