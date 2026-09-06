@@ -351,39 +351,56 @@
             );
         };
 
+        const MASTERY_ICONS = {
+            'Fire': './maestrias/Fire.webp',
+            'Water': './maestrias/Water.webp',
+            'Water (Bubble)': './maestrias/Bubble.png',
+            'Wind': './maestrias/Wind.webp',
+            'Wind (Fan)': './maestrias/Fan.png',
+            'Earth': './maestrias/Earth.webp',
+            'Lightning': './maestrias/Lightning.webp',
+            'Medical': './maestrias/Medical.webp',
+            'Taijutsu': './maestrias/Taijutsu.webp',
+            'Taijutsu (Gentle Fist)': './maestrias/Gentle Fist.png',
+            'Weapon': './maestrias/Weapon.webp',
+            'Weapon (STR)': './maestrias/Weapon STR.png',
+            'Weapon (INT)': './maestrias/Weapon.webp'
+        };
+        window.MASTERY_ICONS = MASTERY_ICONS;
+
         const MasteryBadge = ({ mastery, size = 'sm' }) => {
+            if (!mastery || mastery === 'None') return null;
             const isAdv = mastery && mastery.startsWith('Advanced ');
             const cleanName = isAdv ? mastery.replace('Advanced ', '') : mastery;
             
             const styles = {
                 'Fire': 'bg-red-950/80 text-red-400 border-red-500/40 shadow-red-500/10',
                 'Water': 'bg-blue-950/80 text-blue-400 border-blue-500/40 shadow-blue-500/10',
+                'Water (Bubble)': 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40 shadow-cyan-500/10',
                 'Wind': 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40 shadow-emerald-500/10',
+                'Wind (Fan)': 'bg-teal-950/80 text-teal-300 border-teal-500/40 shadow-teal-500/10',
                 'Earth': 'bg-amber-950/80 text-amber-300 border-amber-500/40 shadow-amber-500/10',
                 'Lightning': 'bg-yellow-950/80 text-yellow-300 border-yellow-500/40 shadow-yellow-500/10',
                 'Medical': 'bg-teal-950/80 text-teal-300 border-teal-500/40 shadow-teal-500/10',
                 'Taijutsu': 'bg-rose-950/80 text-rose-300 border-rose-500/40 shadow-rose-500/10',
-                'Weapon': 'bg-slate-800 text-slate-300 border-slate-600/40 shadow-slate-500/10'
-            };
-            
-            const icons = {
-                'Fire': '🔥',
-                'Water': '🌊',
-                'Wind': '🌪️',
-                'Earth': '⛰️',
-                'Lightning': '⚡',
-                'Medical': '💉',
-                'Taijutsu': '👊',
-                'Weapon': '🗡️'
+                'Taijutsu (Gentle Fist)': 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40 shadow-indigo-500/10',
+                'Weapon': 'bg-slate-800 text-slate-300 border-slate-600/40 shadow-slate-500/10',
+                'Weapon (STR)': 'bg-orange-950/80 text-orange-300 border-orange-500/40 shadow-orange-500/10',
+                'Weapon (INT)': 'bg-purple-950/80 text-purple-300 border-purple-500/40 shadow-purple-500/10'
             };
             
             const baseStyle = styles[cleanName] || 'bg-slate-800 text-slate-400 border-slate-700';
-            const icon = icons[cleanName] || '✨';
+            const iconSrc = MASTERY_ICONS[cleanName];
             const pad = size === 'xs' ? 'px-1.5 py-0.5 text-[10px]' : (size === 'md' ? 'px-3 py-1 text-xs' : 'px-2 py-0.5 text-[11px]');
+            const imgClass = size === 'xs' ? 'w-3 h-3' : (size === 'md' ? 'w-4 h-4' : 'w-3.5 h-3.5');
             
             return (
-                <span className={`inline-flex items-center gap-1 font-bold rounded border shadow-sm ${baseStyle} ${pad} ${isAdv ? 'ring-1 ring-yellow-400/50' : ''}`}>
-                    <span>{icon}</span>
+                <span className={`inline-flex items-center gap-1.5 font-bold rounded border shadow-sm ${baseStyle} ${pad} ${isAdv ? 'ring-1 ring-yellow-400/50' : ''}`}>
+                    {iconSrc ? (
+                        <img src={iconSrc} alt={cleanName} className={`${imgClass} object-contain inline-block shrink-0`} />
+                    ) : (
+                        <span>✨</span>
+                    )}
                     <span>{mastery}</span>
                 </span>
             );
@@ -441,13 +458,27 @@
                         </div>
 
                         <div className="p-6 overflow-y-auto space-y-6">
-                            {/* Maestrias */}
-                            <div>
-                                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">⚡ {t.mastery}</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, idx) => (
-                                        <MasteryBadge key={idx} mastery={m} size="md" />
-                                    ))}
+                            {/* Maestrias & Arma */}
+                            <div className="space-y-3">
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">⚡ {t.mastery}</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, idx) => (
+                                            <MasteryBadge key={idx} mastery={m} size="md" />
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">🗡️ Arma Equipada:</span>
+                                    {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' ? (
+                                        <span className="text-xs px-2.5 py-0.5 rounded-lg bg-slate-950 border border-slate-700 text-yellow-300 font-bold">
+                                            {ninja.EquippedWeapon}
+                                        </span>
+                                    ) : (
+                                        <span className="text-xs px-2.5 py-0.5 rounded-lg bg-slate-950/60 border border-slate-800 text-slate-500 font-semibold">
+                                            Desarmado / Nenhuma
+                                        </span>
+                                    )}
                                 </div>
                             </div>
 
@@ -505,7 +536,11 @@
             const [selectedNinja, setSelectedNinja] = useState(null);
 
             const villages = ['All', 'Leaf', 'Sand', 'Mist', 'Rogue Leaf', 'Rogue Sand', 'Rogue Mist'];
-            const masteries = ['All', 'Fire', 'Water', 'Wind', 'Earth', 'Lightning', 'Medical', 'Taijutsu', 'Weapon'];
+            const masteries = [
+                'All', 
+                'Fire', 'Water', 'Wind', 'Earth', 'Lightning', 'Medical', 'Taijutsu', 'Weapon',
+                'Water (Bubble)', 'Wind (Fan)', 'Taijutsu (Gentle Fist)', 'Weapon (STR)', 'Weapon (INT)'
+            ];
             
             const clans = useMemo(() => {
                 const set = new Set();
@@ -526,7 +561,14 @@
                 }
 
                 if (selectedMastery !== 'All') {
-                    list = list.filter(n => n.ParsedMasteries && n.ParsedMasteries.some(m => m.includes(selectedMastery)));
+                    if (selectedMastery === 'Weapon') {
+                        list = list.filter(n => n.ParsedMasteries && n.ParsedMasteries.some(m => m.includes('Weapon')));
+                    } else {
+                        list = list.filter(n => n.ParsedMasteries && n.ParsedMasteries.some(m => {
+                            const clean = m.replace(/^Advanced\s+/i, '').trim();
+                            return clean === selectedMastery;
+                        }));
+                    }
                 }
 
                 if (selectedClan !== 'All') {
@@ -660,6 +702,15 @@
                                     {ninja.ParsedClan && ninja.ParsedClan !== 'Clanless' && (
                                         <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800">
                                             🧬 {ninja.ParsedClan}
+                                        </span>
+                                    )}
+                                    {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' ? (
+                                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-950 text-yellow-300 border border-slate-800 flex items-center gap-1" title="Arma equipada">
+                                            🗡️ {ninja.EquippedWeapon}
+                                        </span>
+                                    ) : (
+                                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-950/60 text-slate-500 border border-slate-800/80 flex items-center gap-1" title="Desarmado">
+                                            🗡️ Desarmado
                                         </span>
                                     )}
                                 </div>
@@ -811,6 +862,1285 @@
         };
 
 
+        // --- MASTERY ANALYTICS COMPONENTS ---
+        const ALL_MASTERIES = [
+            { id: 'Fire', name: 'Fire', labelPt: 'Fogo', shortPt: 'Fogo', icon: MASTERY_ICONS['Fire'], badgeColor: 'border-red-500/40 bg-red-500/10 text-red-400' },
+            { id: 'Water', name: 'Water', labelPt: 'Água', shortPt: 'Água', icon: MASTERY_ICONS['Water'], badgeColor: 'border-blue-500/40 bg-blue-500/10 text-blue-400' },
+            { id: 'Water (Bubble)', name: 'Water (Bubble)', labelPt: 'Água (Bolha)', shortPt: 'Bolha', icon: MASTERY_ICONS['Water (Bubble)'], badgeColor: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300' },
+            { id: 'Wind', name: 'Wind', labelPt: 'Vento', shortPt: 'Vento', icon: MASTERY_ICONS['Wind'], badgeColor: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400' },
+            { id: 'Wind (Fan)', name: 'Wind (Fan)', labelPt: 'Vento (Leque)', shortPt: 'Leque', icon: MASTERY_ICONS['Wind (Fan)'], badgeColor: 'border-teal-500/40 bg-teal-500/10 text-teal-300' },
+            { id: 'Earth', name: 'Earth', labelPt: 'Terra', shortPt: 'Terra', icon: MASTERY_ICONS['Earth'], badgeColor: 'border-amber-600/40 bg-amber-600/10 text-amber-400' },
+            { id: 'Lightning', name: 'Lightning', labelPt: 'Raio', shortPt: 'Raio', icon: MASTERY_ICONS['Lightning'], badgeColor: 'border-yellow-400/40 bg-yellow-400/10 text-yellow-400' },
+            { id: 'Medical', name: 'Medical', labelPt: 'Médica', shortPt: 'Médica', icon: MASTERY_ICONS['Medical'], badgeColor: 'border-teal-400/40 bg-teal-400/10 text-teal-300' },
+            { id: 'Taijutsu', name: 'Taijutsu', labelPt: 'Taijutsu', shortPt: 'Tai', icon: MASTERY_ICONS['Taijutsu'], badgeColor: 'border-orange-500/40 bg-orange-500/10 text-orange-400' },
+            { id: 'Taijutsu (Gentle Fist)', name: 'Taijutsu (Gentle Fist)', labelPt: 'Gentle Fist', shortPt: 'GF', icon: MASTERY_ICONS['Taijutsu (Gentle Fist)'], badgeColor: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-300' },
+            { id: 'Weapon (STR)', name: 'Weapon (STR)', labelPt: 'Armas (STR)', shortPt: 'WM (STR)', icon: MASTERY_ICONS['Weapon (STR)'], badgeColor: 'border-orange-500/40 bg-orange-500/10 text-orange-300' },
+            { id: 'Weapon (INT)', name: 'Weapon (INT)', labelPt: 'Armas (INT)', shortPt: 'WM (INT)', icon: MASTERY_ICONS['Weapon (INT)'], badgeColor: 'border-purple-500/40 bg-purple-500/10 text-purple-300' }
+        ];
+
+        const ALL_BASE_MASTERIES = ALL_MASTERIES;
+        const ALL_SUB_MASTERIES = ALL_MASTERIES.filter(m => m.name.includes('('));
+
+        const isMutuallyExclusive = (m1, m2) => {
+            if (m1 === m2) return false;
+
+            const baseOf = (m) => {
+                if (m.startsWith('Water')) return 'Water';
+                if (m.startsWith('Wind')) return 'Wind';
+                if (m.startsWith('Taijutsu')) return 'Taijutsu';
+                if (m.startsWith('Weapon')) return 'Weapon';
+                return m;
+            };
+            if (baseOf(m1) === baseOf(m2)) return true;
+
+            const isBubble = m1.includes('(Bubble)') || m2.includes('(Bubble)');
+            const isFan = m1.includes('(Fan)') || m2.includes('(Fan)');
+            const isGF = m1.includes('(Gentle Fist)') || m2.includes('(Gentle Fist)');
+
+            if ((isBubble && isFan) || (isBubble && isGF) || (isFan && isGF)) {
+                return true;
+            }
+
+            // Bubble, Fan, and GF are STR variants and cannot combine with Weapon (INT)
+            const hasWMInt = m1.includes('Weapon (INT)') || m2.includes('Weapon (INT)');
+            if ((isGF && hasWMInt) || (isBubble && hasWMInt) || (isFan && hasWMInt)) {
+                return true;
+            }
+
+            return false;
+        };
+
+        const MasteryComboModal = ({ comboData, onClose, onSelectNinja, t, rankingsMap }) => {
+            useLockBodyScroll();
+            const [filterSearch, setFilterSearch] = React.useState('');
+            if (!comboData) return null;
+
+            const { m1, m2, isSingle, ninjas } = comboData;
+
+            const filteredList = ninjas.filter(n => 
+                !filterSearch || (n.Name && n.Name.toLowerCase().includes(filterSearch.toLowerCase()))
+            );
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overscroll-contain animate-in fade-in duration-200" onClick={onClose}>
+                    <div className="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] overscroll-contain animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="p-5 border-b border-slate-800 bg-slate-950/50 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-400">
+                                    <GridIcon className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="text-lg font-black text-white">
+                                            {comboData.isPresence ? `Ninjas com ${m1}` : (isSingle ? `Ninjas com Apenas ${m1}` : `Combinação: ${m1} + ${m2}`)}
+                                        </h3>
+                                        <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full text-xs font-bold font-mono">
+                                            {ninjas.length} {ninjas.length === 1 ? 'ninja' : 'ninjas'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                        <MasteryBadge mastery={m1} size="xs" />
+                                        {!isSingle && <span className="text-slate-500 text-xs font-bold">+</span>}
+                                        {!isSingle && <MasteryBadge mastery={m2} size="xs" />}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+                                <XIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Search Bar */}
+                        <div className="p-4 border-b border-slate-800/80 bg-slate-900/60">
+                            <div className="relative">
+                                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Filtrar ninjas desta combinação..." 
+                                    value={filterSearch}
+                                    onChange={e => setFilterSearch(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-yellow-500/50"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Ninja Cards List */}
+                        <div className="p-4 overflow-y-auto overscroll-contain flex-1 scrollbar-thin">
+                            {filteredList.length === 0 ? (
+                                <div className="py-12 text-center text-slate-500">
+                                    <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                                    <p className="text-sm">{t.no_players_found_combo}</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {filteredList.map(ninja => {
+                                        const pvpRankData = rankingsMap ? rankingsMap[ninja.Name?.toLowerCase()] : null;
+                                        return (
+                                            <div 
+                                                key={ninja.Name} 
+                                                onClick={() => { onClose(); if (onSelectNinja) onSelectNinja(ninja); }}
+                                                className="p-3.5 bg-slate-950/60 hover:bg-slate-800/60 border border-slate-800/80 hover:border-slate-700 rounded-xl cursor-pointer transition-all flex items-start gap-3 group shadow-sm"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-slate-300 group-hover:border-yellow-500/50 group-hover:text-yellow-400 transition-colors flex-shrink-0">
+                                                    {ninja.Name ? ninja.Name.charAt(0).toUpperCase() : '?'}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between gap-1">
+                                                        <h4 className="font-bold text-slate-200 text-sm truncate group-hover:text-yellow-400 transition-colors">
+                                                            {ninja.Name}
+                                                        </h4>
+                                                        <span className="text-[11px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 flex-shrink-0">
+                                                            Lv. {ninja.Level || 0}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                        <VillageBadge village={ninja.ParsedVillage} size="xs" />
+                                                        {ninja.ParsedClan && ninja.ParsedClan !== 'Clanless' && (
+                                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">
+                                                                🧬 {ninja.ParsedClan}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                                                        {ninja.ParsedMasteries && ninja.ParsedMasteries.map((m, idx) => (
+                                                            <MasteryBadge key={idx} mastery={m} size="xs" />
+                                                        ))}
+                                                        {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' && (
+                                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-yellow-300 border border-slate-800" title="Arma equipada">
+                                                                🗡️ {ninja.EquippedWeapon}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    {pvpRankData && (
+                                                        <div className="mt-2 pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                                                            <span className="text-yellow-500 font-bold flex items-center gap-1">
+                                                                <Trophy className="w-2.5 h-2.5" /> {pvpRankData.tournamentWins} T.
+                                                            </span>
+                                                            <span className="text-slate-300">
+                                                                {pvpRankData.wins}V - {pvpRankData.losses}D ({pvpRankData.winRate}% WR)
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const PvPRepresentativesModal = ({ pvpItem, onClose, onSelectPlayer, onSelectNinja, t }) => {
+            useLockBodyScroll();
+            const [filterSearch, setFilterSearch] = React.useState('');
+            if (!pvpItem) return null;
+
+            const { m1, m2, isSingle, advName, name, winRate, wins, losses, battles, tournamentWins, players } = pvpItem;
+
+            const filteredList = (players || []).filter(({ player, ninja }) => {
+                if (!filterSearch) return true;
+                const searchLower = filterSearch.toLowerCase();
+                const pName = (player?.name || '').toLowerCase();
+                const nName = (ninja?.Name || '').toLowerCase();
+                const village = (ninja?.ParsedVillage || '').toLowerCase();
+                const clan = (ninja?.ParsedClan || '').toLowerCase();
+                return pName.includes(searchLower) || nName.includes(searchLower) || village.includes(searchLower) || clan.includes(searchLower);
+            });
+
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overscroll-contain animate-in fade-in duration-200" onClick={onClose}>
+                    <div className="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] overscroll-contain animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="p-5 border-b border-slate-800 bg-slate-950/50 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2.5 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-yellow-400">
+                                    <Swords className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <h3 className="text-lg font-black text-white">
+                                            {advName ? advName : m1 && m2 ? (isSingle ? `Jogadores de Apenas ${m1}` : `Combinação: ${m1} + ${m2}`) : (name || 'Maestria')}
+                                        </h3>
+                                        <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full text-xs font-bold font-mono">
+                                            {players.length} {players.length === 1 ? 'jogador' : 'jogadores'}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                        {advName ? (
+                                            <MasteryBadge mastery={advName} size="xs" />
+                                        ) : m1 && m2 ? (
+                                            <>
+                                                <MasteryBadge mastery={m1} size="xs" />
+                                                {!isSingle && <span className="text-slate-500 text-xs font-bold">+</span>}
+                                                {!isSingle && <MasteryBadge mastery={m2} size="xs" />}
+                                            </>
+                                        ) : name ? (
+                                            <MasteryBadge mastery={name} size="xs" />
+                                        ) : null}
+                                        <span className="text-slate-600">•</span>
+                                        <span className="text-xs font-bold text-green-400">{winRate}% WR</span>
+                                        <span className="text-slate-600">•</span>
+                                        <span className="text-xs text-slate-400">{wins}V / {losses}D ({battles} jogos)</span>
+                                        {tournamentWins > 0 && (
+                                            <>
+                                                <span className="text-slate-600">•</span>
+                                                <span className="text-xs font-bold text-yellow-400 flex items-center gap-1">
+                                                    <Trophy className="w-3 h-3" /> {tournamentWins}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                                <XIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Search Bar */}
+                        <div className="p-4 border-b border-slate-800/80 bg-slate-900/60">
+                            <div className="relative">
+                                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Filtrar jogadores por nome, vila ou clã..." 
+                                    value={filterSearch}
+                                    onChange={e => setFilterSearch(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-10 pr-4 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-yellow-500/50"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Player Cards List */}
+                        <div className="p-4 overflow-y-auto overscroll-contain flex-1 scrollbar-thin">
+                            {filteredList.length === 0 ? (
+                                <div className="py-12 text-center text-slate-500">
+                                    <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                                    <p className="text-sm">Nenhum jogador encontrado para este filtro.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    {filteredList.map(({ player, ninja }, pIdx) => {
+                                        const pBattles = player.battles || 0;
+                                        const pWR = player.winRate || (pBattles > 0 ? ((player.wins / pBattles) * 100).toFixed(1) : '0.0');
+                                        const wrNum = parseFloat(pWR);
+                                        const wrColor = wrNum >= 60 ? 'bg-green-500/20 text-green-400 border-green-500/30' : wrNum >= 45 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30';
+
+                                        return (
+                                            <div 
+                                                key={pIdx} 
+                                                onClick={() => { onClose(); if (onSelectPlayer) onSelectPlayer(player); }}
+                                                className="p-3.5 bg-slate-950/60 hover:bg-slate-800/60 border border-slate-800/80 hover:border-slate-700 rounded-xl cursor-pointer transition-all flex items-start gap-3 group shadow-sm"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-slate-300 group-hover:border-yellow-500/50 group-hover:text-yellow-400 transition-colors flex-shrink-0">
+                                                    {player.name ? player.name.charAt(0).toUpperCase() : '?'}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between gap-1">
+                                                        <h4 className="font-bold text-slate-200 text-sm truncate group-hover:text-yellow-400 transition-colors">
+                                                            {player.name}
+                                                        </h4>
+                                                        {ninja && ninja.Level && (
+                                                            <span className="text-[11px] font-black px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 flex-shrink-0">
+                                                                Lv. {ninja.Level}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    {ninja && (
+                                                        <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                                            {ninja.ParsedVillage && <VillageBadge village={ninja.ParsedVillage} size="xs" />}
+                                                            {ninja.ParsedClan && ninja.ParsedClan !== 'Clanless' && (
+                                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-slate-300 border border-slate-800">
+                                                                    🧬 {ninja.ParsedClan}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {ninja && ninja.ParsedMasteries && (
+                                                        <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                                                            {ninja.ParsedMasteries.map((m, mIdx) => (
+                                                                <MasteryBadge key={mIdx} mastery={m} size="xs" />
+                                                            ))}
+                                                            {ninja.EquippedWeapon && ninja.EquippedWeapon !== 'None' && (
+                                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-900 text-yellow-300 border border-slate-800" title="Arma equipada">
+                                                                    🗡️ {ninja.EquippedWeapon}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    <div className="mt-2 pt-2 border-t border-slate-900 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                                                        <span className="text-yellow-500 font-bold flex items-center gap-1">
+                                                            <Trophy className="w-3 h-3" /> {(player.tournamentWins || 0)} T.
+                                                        </span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-slate-300 font-bold">
+                                                                {player.wins}V - {player.losses}D
+                                                            </span>
+                                                            <span className={`text-[10px] font-black px-1.5 py-0.5 rounded border ${wrColor}`}>
+                                                                {pWR}%
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const MasteryAnalyticsView = ({ 
+            bingoData, 
+            rankings, 
+            t, 
+            onSelectPlayer, 
+            onSelectNinja,
+            activeTab,
+            setActiveTab,
+            timeFilter,
+            setTimeFilter,
+            availableMonths,
+            targetMonth,
+            setTargetMonth,
+            customStartDate,
+            setCustomStartDate,
+            customEndDate,
+            setCustomEndDate,
+            modeGroups,
+            language
+        }) => {
+            const [selectedCombo, setSelectedCombo] = React.useState(null);
+            const [selectedPvPItem, setSelectedPvPItem] = React.useState(null);
+            const [popTab, setPopTab] = React.useState('single'); // 'single' | 'sub' | 'combo' | 'advanced'
+            const [pvpTab, setPvpTab] = React.useState('single'); // 'single' | 'sub' | 'combo' | 'advanced'
+            const [pvpSort, setPvpSort] = React.useState('wins'); // 'wins' | 'wr' | 'twins' | 'battles'
+            const [onlyHighWR, setOnlyHighWR] = React.useState(false); // toggle: false (general) | true (> 50% WR)
+
+            // Fast lookup for PvP rankings
+            const rankingsMap = React.useMemo(() => {
+                const map = {};
+                if (Array.isArray(rankings)) {
+                    rankings.forEach(p => {
+                        if (p && p.name) map[p.name.toLowerCase()] = p;
+                    });
+                }
+                return map;
+            }, [rankings]);
+
+            const validNinjas = React.useMemo(() => {
+                if (!Array.isArray(bingoData)) return [];
+                return bingoData.filter(n => n && n.Name && Array.isArray(n.ParsedMasteries));
+            }, [bingoData]);
+
+            // Helper to get clean masteries list preserving variants
+            const getNinjaMasteries = React.useCallback((ninja) => {
+                if (!ninja || !Array.isArray(ninja.ParsedMasteries)) return [];
+                
+                const v = ninja.ParsedVillage || '';
+                const isLeaf = v.includes('Leaf');
+                const isSand = v.includes('Sand');
+                const isMist = v.includes('Mist');
+                
+                const eqW = (ninja.EquippedWeapon || '').toLowerCase();
+                const isUnarmed = (!ninja.EquippedWeapon || ninja.EquippedWeapon === 'None' || ninja.EquippedWeaponId === 0);
+                const isFan = eqW.includes('fan') || eqW.includes('seji no hani');
+                const isPipe = eqW.includes('pipe') || eqW.includes('chino awa');
+                
+                const pm = ninja.ParsedMasteries;
+                let hasGF = pm.some(m => m.includes('(Gentle Fist)'));
+                let hasBubble = pm.some(m => m.includes('(Bubble)'));
+                let hasFan = pm.some(m => m.includes('(Fan)'));
+                let hasWMStr = pm.some(m => m.includes('Weapon (STR)'));
+
+                if (!hasBubble && isMist && isPipe && pm.some(m => m.includes('Water'))) {
+                    hasBubble = true;
+                }
+                if (!hasFan && isSand && isFan && pm.some(m => m.includes('Wind'))) {
+                    hasFan = true;
+                }
+                if (!hasGF && isLeaf && (isUnarmed || hasWMStr) && pm.some(m => m.includes('Taijutsu'))) {
+                    hasGF = true;
+                }
+
+                if (hasGF || hasBubble || hasFan) {
+                    hasWMStr = true;
+                }
+
+                return Array.from(new Set(
+                    pm.map(m => {
+                        let clean = m.replace(/^Advanced\s+/i, '').trim();
+                        if (clean.startsWith('Water')) {
+                            return (hasBubble || clean.includes('(Bubble)')) ? 'Water (Bubble)' : 'Water';
+                        }
+                        if (clean.startsWith('Wind')) {
+                            return (hasFan || clean.includes('(Fan)')) ? 'Wind (Fan)' : 'Wind';
+                        }
+                        if (clean.startsWith('Taijutsu')) {
+                            return (hasGF || clean.includes('(Gentle Fist)')) ? 'Taijutsu (Gentle Fist)' : 'Taijutsu';
+                        }
+                        if (clean.startsWith('Weapon')) {
+                            return (hasWMStr || clean.includes('(STR)')) ? 'Weapon (STR)' : 'Weapon (INT)';
+                        }
+                        return clean;
+                    }).filter(Boolean)
+                ));
+            }, []);
+
+            const getNinjaBaseMasteries = getNinjaMasteries;
+            const getNinjaSpecificMasteries = getNinjaMasteries;
+
+            // Helper: Single mastery only (has ONLY this element, no 2nd mastery)
+            const getSingleMasteryNinjas = React.useCallback((m) => {
+                return validNinjas.filter(n => {
+                    const ms = getNinjaMasteries(n);
+                    return ms.length === 1 && ms[0] === m;
+                });
+            }, [validNinjas, getNinjaMasteries]);
+
+            // Helper: Dual combo (has both m1 and m2)
+            const getDualComboNinjas = React.useCallback((m1, m2) => {
+                return validNinjas.filter(n => {
+                    const ms = getNinjaMasteries(n);
+                    return ms.includes(m1) && ms.includes(m2);
+                });
+            }, [validNinjas, getNinjaMasteries]);
+
+            // Matrix Data & Heatmap Calculation (Triangular Half-Matrix for all 12 masteries)
+            const matrixStats = React.useMemo(() => {
+                let maxCount = 1;
+                const gridData = {};
+
+                ALL_MASTERIES.forEach((row, rIdx) => {
+                    ALL_MASTERIES.forEach((col, cIdx) => {
+                        if (cIdx >= rIdx) {
+                            const isSingle = rIdx === cIdx;
+                            const mutuallyExclusive = isMutuallyExclusive(row.name, col.name);
+                            const ninjas = mutuallyExclusive ? [] : (isSingle ? getSingleMasteryNinjas(row.name) : getDualComboNinjas(row.name, col.name));
+                            if (ninjas.length > maxCount) maxCount = ninjas.length;
+                            gridData[`${row.name}_${col.name}`] = {
+                                rIdx,
+                                cIdx,
+                                m1: row.name,
+                                m2: col.name,
+                                isSingle,
+                                mutuallyExclusive,
+                                ninjas,
+                                count: ninjas.length
+                            };
+                        }
+                    });
+                });
+
+                return { gridData, maxCount };
+            }, [validNinjas, getSingleMasteryNinjas, getDualComboNinjas]);
+
+            // Heatmap color generator
+            const getHeatStyle = (count, max) => {
+                if (count === 0) {
+                    return {
+                        cellBg: 'bg-slate-950/30 border-slate-800/40 text-slate-700',
+                        badgeBg: 'text-slate-700 font-medium',
+                        labelColor: 'text-slate-700',
+                        clickable: false
+                    };
+                }
+                const ratio = count / max;
+                if (ratio <= 0.20) {
+                    return {
+                        cellBg: 'bg-blue-950/40 hover:bg-blue-900/60 border-blue-800/50 text-blue-200 cursor-pointer shadow-sm',
+                        badgeBg: 'bg-blue-500/20 text-blue-300 border border-blue-500/40 font-bold',
+                        labelColor: 'text-blue-400/80',
+                        clickable: true
+                    };
+                } else if (ratio <= 0.45) {
+                    return {
+                        cellBg: 'bg-teal-950/50 hover:bg-teal-900/60 border-teal-700/60 text-teal-200 cursor-pointer shadow-sm',
+                        badgeBg: 'bg-teal-500/20 text-teal-300 border border-teal-500/50 font-bold',
+                        labelColor: 'text-teal-400/80',
+                        clickable: true
+                    };
+                } else if (ratio <= 0.70) {
+                    return {
+                        cellBg: 'bg-amber-950/60 hover:bg-amber-900/70 border-amber-600/60 text-amber-200 cursor-pointer shadow-md shadow-amber-950/40',
+                        badgeBg: 'bg-amber-500/25 text-amber-300 border border-amber-500/60 font-black',
+                        labelColor: 'text-amber-400',
+                        clickable: true
+                    };
+                } else if (ratio <= 0.90) {
+                    return {
+                        cellBg: 'bg-orange-950/75 hover:bg-orange-900/80 border-orange-500/80 text-orange-100 cursor-pointer shadow-lg shadow-orange-950/60',
+                        badgeBg: 'bg-orange-500/30 text-orange-200 border border-orange-400 font-black',
+                        labelColor: 'text-orange-300',
+                        clickable: true
+                    };
+                } else {
+                    return {
+                        cellBg: 'bg-red-950/90 hover:bg-red-900/90 border-red-500 text-white cursor-pointer shadow-xl shadow-red-600/30 font-black animate-pulse',
+                        badgeBg: 'bg-red-500 text-white font-black shadow-md shadow-red-500/50',
+                        labelColor: 'text-red-200',
+                        clickable: true
+                    };
+                }
+            };
+
+            // 1. Popularity: Masteries Presence (all 12 masteries)
+            const singleMasteryStats = React.useMemo(() => {
+                const stats = {};
+                ALL_MASTERIES.forEach(m => {
+                    stats[m.name] = { ...m, count: 0, ninjas: [] };
+                });
+
+                validNinjas.forEach(n => {
+                    const ms = getNinjaMasteries(n);
+                    ms.forEach(b => {
+                        if (stats[b]) {
+                            stats[b].count++;
+                            stats[b].ninjas.push(n);
+                        }
+                    });
+                });
+
+                return Object.values(stats).sort((a, b) => b.count - a.count);
+            }, [validNinjas, getNinjaMasteries]);
+
+            const subMasteryStats = singleMasteryStats.filter(s => s.name.includes('('));
+
+            // 2. Popularity: Normalized Combinations
+            const comboMasteryStats = React.useMemo(() => {
+                const map = {};
+                validNinjas.forEach(ninja => {
+                    const ms = getNinjaMasteries(ninja);
+                    if (ms.length === 0) return;
+
+                    let key = '';
+                    let m1 = '', m2 = '', isSingle = false;
+                    if (ms.length === 1) {
+                        m1 = ms[0];
+                        m2 = ms[0];
+                        isSingle = true;
+                        key = `Apenas ${ms[0]}`;
+                    } else {
+                        const sorted = [...ms].slice(0, 2).sort();
+                        m1 = sorted[0];
+                        m2 = sorted[1];
+                        isSingle = false;
+                        key = `${sorted[0]} + ${sorted[1]}`;
+                    }
+
+                    if (!map[key]) {
+                        map[key] = { key, m1, m2, isSingle, count: 0, ninjas: [] };
+                    }
+                    map[key].count++;
+                    map[key].ninjas.push(ninja);
+                });
+
+                return Object.values(map).sort((a, b) => b.count - a.count);
+            }, [validNinjas, getNinjaMasteries]);
+
+            // 3. Popularity: Advanced Masteries
+            const advancedMasteryStats = React.useMemo(() => {
+                const stats = {};
+                ALL_MASTERIES.forEach(m => {
+                    const advName = `Advanced ${m.name}`;
+                    stats[advName] = { baseName: m.name, advName, icon: m.icon, count: 0, ninjas: [] };
+                });
+
+                validNinjas.forEach(n => {
+                    const ms = getNinjaMasteries(n);
+                    (n.ParsedMasteries || []).forEach(rawM => {
+                        if (!rawM.startsWith('Advanced ')) return;
+                        let targetAdv = null;
+                        if (rawM.includes('Water')) targetAdv = ms.includes('Water (Bubble)') ? 'Advanced Water (Bubble)' : 'Advanced Water';
+                        else if (rawM.includes('Wind')) targetAdv = ms.includes('Wind (Fan)') ? 'Advanced Wind (Fan)' : 'Advanced Wind';
+                        else if (rawM.includes('Taijutsu')) targetAdv = ms.includes('Taijutsu (Gentle Fist)') ? 'Advanced Taijutsu (Gentle Fist)' : 'Advanced Taijutsu';
+                        else if (rawM.includes('Weapon')) targetAdv = ms.includes('Weapon (STR)') ? 'Advanced Weapon (STR)' : 'Advanced Weapon (INT)';
+                        else {
+                            const clean = rawM.replace(/^Advanced\s+/i, '').trim();
+                            targetAdv = `Advanced ${clean}`;
+                        }
+
+                        if (targetAdv && stats[targetAdv]) {
+                            stats[targetAdv].count++;
+                            stats[targetAdv].ninjas.push(n);
+                        }
+                    });
+                });
+
+                return Object.values(stats).filter(s => s.count > 0).sort((a, b) => b.count - a.count);
+            }, [validNinjas, getNinjaMasteries]);
+
+            // 4. PvP Efficiency Stats
+            const pvpAnalytics = React.useMemo(() => {
+                const singleMap = {};
+                const comboMap = {};
+                const advMap = {};
+
+                ALL_MASTERIES.forEach(m => {
+                    singleMap[m.name] = { name: m.name, labelPt: m.labelPt, icon: m.icon, wins: 0, losses: 0, battles: 0, tournamentWins: 0, players: [] };
+                });
+
+                if (Array.isArray(rankings)) {
+                    rankings.forEach(player => {
+                        const ninja = validNinjas.find(n => n.Name.toLowerCase() === player.name.toLowerCase());
+                        if (!ninja || !Array.isArray(ninja.ParsedMasteries) || ninja.ParsedMasteries.length === 0) return;
+
+                        const battles = player.battles || 0;
+                        if (battles === 0) return;
+
+                        if (onlyHighWR) {
+                            const pWinRate = (player.wins / battles) * 100;
+                            if (pWinRate <= 50) return;
+                        }
+
+                        const ms = getNinjaMasteries(ninja);
+                        const wins = player.wins || 0;
+                        const losses = player.losses || 0;
+                        const tWins = player.tournamentWins || 0;
+
+                        // Masteries presence (all 12 masteries)
+                        ms.forEach(mName => {
+                            if (singleMap[mName]) {
+                                singleMap[mName].wins += wins;
+                                singleMap[mName].losses += losses;
+                                singleMap[mName].battles += battles;
+                                singleMap[mName].tournamentWins += tWins;
+                                singleMap[mName].players.push({ player, ninja });
+                            }
+                        });
+
+                        // Combinations (using specific masteries to capture Fan, Bubble, GF, etc.)
+                        let comboKey = '';
+                        let m1 = '', m2 = '', isSingle = false;
+                        if (ms.length === 1) {
+                            m1 = ms[0];
+                            m2 = ms[0];
+                            isSingle = true;
+                            comboKey = `Apenas ${ms[0]}`;
+                        } else if (ms.length >= 2) {
+                            const sorted = [...ms].slice(0, 2).sort();
+                            m1 = sorted[0];
+                            m2 = sorted[1];
+                            isSingle = false;
+                            comboKey = `${sorted[0]} + ${sorted[1]}`;
+                        }
+
+                        if (comboKey) {
+                            if (!comboMap[comboKey]) {
+                                comboMap[comboKey] = { key: comboKey, m1, m2, isSingle, wins: 0, losses: 0, battles: 0, tournamentWins: 0, players: [] };
+                            }
+                            comboMap[comboKey].wins += wins;
+                            comboMap[comboKey].losses += losses;
+                            comboMap[comboKey].battles += battles;
+                            comboMap[comboKey].tournamentWins += tWins;
+                            comboMap[comboKey].players.push({ player, ninja });
+                        }
+
+                        // Advanced
+                        ninja.ParsedMasteries.forEach(m => {
+                            let cleanAdv = m;
+                            if (m === 'Advanced Weapon') cleanAdv = 'Advanced Weapon (STR)';
+                            if (cleanAdv.startsWith('Advanced ')) {
+                                if (!advMap[cleanAdv]) {
+                                    advMap[cleanAdv] = { advName: cleanAdv, wins: 0, losses: 0, battles: 0, tournamentWins: 0, players: [] };
+                                }
+                                advMap[cleanAdv].wins += wins;
+                                advMap[cleanAdv].losses += losses;
+                                advMap[cleanAdv].battles += battles;
+                                advMap[cleanAdv].tournamentWins += tWins;
+                                advMap[cleanAdv].players.push({ player, ninja });
+                            }
+                        });
+                    });
+                }
+
+                const computeWR = (list) => list.map(item => {
+                    const wr = item.battles > 0 ? ((item.wins / item.battles) * 100).toFixed(1) : '0.0';
+                    return { ...item, winRate: wr };
+                });
+
+                return {
+                    single: computeWR(Object.values(singleMap).filter(s => s.battles > 0)),
+                    combo: computeWR(Object.values(comboMap).filter(s => s.battles > 0)),
+                    advanced: computeWR(Object.values(advMap).filter(s => s.battles > 0))
+                };
+            }, [rankings, validNinjas, getNinjaMasteries, onlyHighWR]);
+
+            // Sort helper for PvP
+            const sortPvPList = (list) => {
+                return [...list].sort((a, b) => {
+                    if (pvpSort === 'wr') return parseFloat(b.winRate) - parseFloat(a.winRate);
+                    if (pvpSort === 'twins') return b.tournamentWins - a.tournamentWins;
+                    if (pvpSort === 'battles') return b.battles - a.battles;
+                    return b.wins - a.wins;
+                });
+            };
+
+            const activePvPList = sortPvPList(pvpAnalytics[pvpTab] || []);
+
+            return (
+                <div className="space-y-8 animate-in fade-in duration-300">
+                    {/* Header Banner */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                            <div>
+                                <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                                    <BarChart3 className="w-6 h-6 text-yellow-500" />
+                                    {t.mastery_analytics_title}
+                                </h2>
+                                <p className="text-sm text-slate-400 mt-1">
+                                    {t.mastery_analytics_desc}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 flex flex-col items-center">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Ninjas no Censo</span>
+                                    <span className="text-lg font-black text-yellow-400">{validNinjas.length}</span>
+                                </div>
+                                <div className="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 flex flex-col items-center">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Combinações Ativas</span>
+                                    <span className="text-lg font-black text-blue-400">{comboMasteryStats.length}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SECTION 1: PVP & TOURNAMENT PERFORMANCE RANKINGS */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+                            <div>
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <Swords className="w-5 h-5 text-yellow-500" />
+                                    {t.pvp_tab}
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    {onlyHighWR 
+                                        ? 'Exibindo dados apenas de jogadores com Win Rate acima de 50% (WR > 50%).' 
+                                        : 'Desempenho geral baseado em todos os jogadores registrados no Ranking.'}
+                                </p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3">
+                                {/* WR 50%+ Toggle Switch */}
+                                <button 
+                                    onClick={() => setOnlyHighWR(!onlyHighWR)}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 border cursor-pointer select-none ${
+                                        onlyHighWR 
+                                            ? 'bg-green-500/20 text-green-300 border-green-500/50 shadow-md shadow-green-500/10' 
+                                            : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200 hover:border-slate-700'
+                                    }`}
+                                    title="Filtrar dados para considerar apenas jogadores com mais de 50% de vitórias"
+                                >
+                                    <div className={`w-2.5 h-2.5 rounded-full transition-all ${onlyHighWR ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.8)]' : 'bg-slate-600'}`} />
+                                    <span>Apenas WR &gt; 50%</span>
+                                </button>
+
+                                {/* Type Toggle */}
+                                <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                                    <button onClick={() => setPvpTab('single')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${pvpTab === 'single' ? 'bg-yellow-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'}`}>{t.view_single_masteries}</button>
+                                    <button onClick={() => setPvpTab('combo')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${pvpTab === 'combo' ? 'bg-yellow-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'}`}>{t.view_combinations}</button>
+                                    <button onClick={() => setPvpTab('advanced')} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${pvpTab === 'advanced' ? 'bg-yellow-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'}`}>{t.view_advanced}</button>
+                                </div>
+                                {/* Sort Dropdown */}
+                                <select 
+                                    value={pvpSort} 
+                                    onChange={e => setPvpSort(e.target.value)}
+                                    className="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl py-1.5 px-3 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-yellow-500/50 cursor-pointer"
+                                >
+                                    <option value="wins">{t.sort_wins}</option>
+                                    <option value="wr">{t.sort_wr}</option>
+                                    <option value="twins">{t.sort_twins}</option>
+                                    <option value="battles">{t.sort_battles}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* PVP FILTER TOOLBAR (Modes & Period) */}
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 p-3 bg-slate-950/80 rounded-xl border border-slate-800 mb-6">
+                            {/* Left: Game Mode Buttons */}
+                            {modeGroups && modeGroups.main && (
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                    {modeGroups.main.map(mode => (
+                                        <button
+                                            key={mode}
+                                            onClick={() => setActiveTab && setActiveTab(mode)}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                                                activeTab === mode 
+                                                    ? 'bg-blue-600 text-white shadow-md' 
+                                                    : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            {mode === 'Geral' ? <Filter className="w-3 h-3" /> : mode === 'Ranked' ? <ShieldCheck className="w-3 h-3" /> : <Swords className="w-3 h-3" />}
+                                            {mode === 'Geral' && language === 'en' ? 'General' : mode}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Right: Period & Date Filter */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                {timeFilter === 'custom' && (
+                                    <div className="flex items-center gap-1.5">
+                                        <input 
+                                            type="date" 
+                                            value={customStartDate || ''} 
+                                            onChange={e => setCustomStartDate && setCustomStartDate(e.target.value)} 
+                                            className="bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-1.5 px-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50" 
+                                        />
+                                        <span className="text-slate-500 text-xs font-bold">~</span>
+                                        <input 
+                                            type="date" 
+                                            value={customEndDate || ''} 
+                                            onChange={e => setCustomEndDate && setCustomEndDate(e.target.value)} 
+                                            className="bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-1.5 px-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/50" 
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="relative group">
+                                    <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                        <Calendar className="w-3.5 h-3.5 text-slate-500" />
+                                    </div>
+                                    <select 
+                                        value={timeFilter || 'current_month'} 
+                                        onChange={(e) => setTimeFilter && setTimeFilter(e.target.value)} 
+                                        className="appearance-none bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-1.5 pl-8 pr-7 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer hover:bg-slate-800 transition-colors"
+                                    >
+                                        <option value="current_month">{t.current_month}</option>
+                                        <option value="day">{t.day}</option>
+                                        <option value="week">{t.week}</option>
+                                        <option value="specific_month">{t.specific_month}</option>
+                                        <option value="custom">{t.custom_date}</option>
+                                        <option value="all">{t.all}</option>
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                        <ChevronDown className="w-3 h-3 text-slate-500" />
+                                    </div>
+                                </div>
+
+                                {timeFilter === 'specific_month' && availableMonths && availableMonths.length > 0 && (
+                                    <div className="relative group">
+                                        <select 
+                                            value={targetMonth || ''} 
+                                            onChange={(e) => setTargetMonth && setTargetMonth(e.target.value)} 
+                                            className="appearance-none bg-slate-900 border border-slate-800 text-slate-200 rounded-lg py-1.5 px-3 pr-7 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 cursor-pointer"
+                                        >
+                                            {availableMonths.map(period => (
+                                                <option key={period.id} value={period.id}>{period.label}</option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                                            <ChevronDown className="w-3 h-3 text-slate-500" />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* PvP Table */}
+                        {activePvPList.length === 0 ? (
+                            <div className="py-12 text-center text-slate-500">
+                                <Swords className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                                <p className="text-sm">Nenhum dado de PvP registrado para esta seleção ainda.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto scrollbar-thin">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                                            <th className="p-3.5 text-center">#</th>
+                                            <th className="p-3.5">Maestria / Combinação</th>
+                                            <th className="p-3.5 text-center">Win Rate</th>
+                                            <th className="p-3.5 text-center">Vitórias</th>
+                                            <th className="p-3.5 text-center">Derrotas</th>
+                                            <th className="p-3.5 text-center">Partidas</th>
+                                            <th className="p-3.5 text-center">Torneios</th>
+                                            <th className="p-3.5">Top Representantes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-800/60">
+                                        {activePvPList.map((item, idx) => {
+                                            const wr = parseFloat(item.winRate);
+                                            const wrColor = wr >= 60 ? 'bg-green-500/20 text-green-400 border-green-500/30' : wr >= 45 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30';
+
+                                            return (
+                                                <tr 
+                                                    key={idx} 
+                                                    onClick={() => setSelectedPvPItem(item)}
+                                                    className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                                                    title="Clique para ver todos os jogadores desta combinação"
+                                                >
+                                                    <td className="p-3.5 text-center font-bold text-slate-500 font-mono text-sm">
+                                                        #{idx + 1}
+                                                    </td>
+                                                    <td className="p-3.5">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            {item.advName ? (
+                                                                <MasteryBadge mastery={item.advName} size="xs" />
+                                                            ) : item.m1 && item.m2 ? (
+                                                                <>
+                                                                    <MasteryBadge mastery={item.m1} size="xs" />
+                                                                    {!item.isSingle && <span className="text-slate-500 text-xs font-bold">+</span>}
+                                                                    {!item.isSingle && <MasteryBadge mastery={item.m2} size="xs" />}
+                                                                    {item.isSingle && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Apenas</span>}
+                                                                </>
+                                                            ) : (
+                                                                <MasteryBadge mastery={item.name} size="xs" />
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-3.5 text-center">
+                                                        <span className={`text-xs font-black px-2.5 py-1 rounded-full border ${wrColor}`}>
+                                                            {item.winRate}%
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-3.5 text-center font-bold text-slate-200 text-sm">
+                                                        {item.wins}
+                                                    </td>
+                                                    <td className="p-3.5 text-center font-medium text-slate-500 text-sm">
+                                                        {item.losses}
+                                                    </td>
+                                                    <td className="p-3.5 text-center font-mono text-slate-400 text-xs">
+                                                        {item.battles}
+                                                    </td>
+                                                    <td className="p-3.5 text-center font-bold text-yellow-500 text-sm">
+                                                        {item.tournamentWins > 0 ? (
+                                                            <span className="inline-flex items-center gap-1">
+                                                                <Trophy className="w-3.5 h-3.5" /> {item.tournamentWins}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-slate-600">-</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="p-3.5">
+                                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                                            {item.players.slice(0, 4).map(({ player }, pIdx) => (
+                                                                <span 
+                                                                    key={pIdx} 
+                                                                    onClick={(e) => { e.stopPropagation(); if (onSelectPlayer) onSelectPlayer(player); }}
+                                                                    className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-yellow-400 text-[11px] font-bold cursor-pointer transition-colors border border-slate-700 shadow-sm"
+                                                                >
+                                                                    {player.name}
+                                                                </span>
+                                                            ))}
+                                                            {item.players.length > 4 && (
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); setSelectedPvPItem(item); }}
+                                                                    className="px-2 py-0.5 rounded-full bg-blue-950/80 hover:bg-blue-900 border border-blue-700/80 text-blue-300 hover:text-white text-[10px] font-black cursor-pointer transition-all hover:scale-105 shadow-sm"
+                                                                    title={`Ver todos os ${item.players.length} jogadores`}
+                                                                >
+                                                                    +{item.players.length - 4} ver todos
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* SECTION 2: POPULARITY RANKINGS */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+                            <div>
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <Flame className="w-5 h-5 text-orange-500" />
+                                    {t.popularity_tab}
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    Distribuição percentual das escolhas de maestria no servidor.
+                                </p>
+                            </div>
+                            {/* Toggle Sub-tabs */}
+                            <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                                <button 
+                                    onClick={() => setPopTab('single')} 
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${popTab === 'single' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    {t.view_single_masteries}
+                                </button>
+                                <button 
+                                    onClick={() => setPopTab('combo')} 
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${popTab === 'combo' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    {t.view_combinations}
+                                </button>
+                                <button 
+                                    onClick={() => setPopTab('advanced')} 
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${popTab === 'advanced' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    {t.view_advanced}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Popularity Content */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {popTab === 'single' && singleMasteryStats.map((item, idx) => {
+                                const percent = validNinjas.length > 0 ? ((item.count / validNinjas.length) * 100).toFixed(1) : '0';
+                                return (
+                                    <div 
+                                        key={item.name} 
+                                        onClick={() => setSelectedCombo({ m1: item.name, m2: item.name, isSingle: true, isPresence: true, ninjas: item.ninjas })}
+                                        className="p-4 bg-slate-950/60 hover:bg-slate-800/60 border border-slate-800 hover:border-slate-700 rounded-xl cursor-pointer transition-all flex flex-col justify-between gap-3 group"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-mono font-bold text-slate-500 text-sm">#{idx + 1}</span>
+                                                <MasteryBadge mastery={item.name} size="sm" />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-black text-white">{item.count}</span>
+                                                <span className="text-xs font-bold text-slate-400 font-mono">({percent}%)</span>
+                                            </div>
+                                        </div>
+                                        {/* Progress Bar */}
+                                        <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                                            <div className="bg-gradient-to-r from-blue-500 to-yellow-500 h-full rounded-full transition-all duration-500" style={{ width: `${percent}%` }}></div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {popTab === 'combo' && comboMasteryStats.map((item, idx) => {
+                                const percent = validNinjas.length > 0 ? ((item.count / validNinjas.length) * 100).toFixed(1) : '0';
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        onClick={() => setSelectedCombo({ m1: item.m1, m2: item.m2, isSingle: item.isSingle, ninjas: item.ninjas })}
+                                        className="p-4 bg-slate-950/60 hover:bg-slate-800/60 border border-slate-800 hover:border-slate-700 rounded-xl cursor-pointer transition-all flex flex-col justify-between gap-3 group"
+                                    >
+                                        <div className="flex items-center justify-between flex-wrap gap-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-mono font-bold text-slate-500 text-sm">#{idx + 1}</span>
+                                                <MasteryBadge mastery={item.m1} size="xs" />
+                                                {!item.isSingle && <span className="text-slate-500 text-xs font-bold">+</span>}
+                                                {!item.isSingle && <MasteryBadge mastery={item.m2} size="xs" />}
+                                                {item.isSingle && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">Apenas</span>}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-black text-white">{item.count}</span>
+                                                <span className="text-xs font-bold text-slate-400 font-mono">({percent}%)</span>
+                                            </div>
+                                        </div>
+                                        {/* Progress Bar */}
+                                        <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                                            <div className="bg-gradient-to-r from-blue-500 to-yellow-500 h-full rounded-full transition-all duration-500" style={{ width: `${percent}%` }}></div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {popTab === 'advanced' && advancedMasteryStats.map((item, idx) => {
+                                const percent = validNinjas.length > 0 ? ((item.count / validNinjas.length) * 100).toFixed(1) : '0';
+                                return (
+                                    <div 
+                                        key={item.advName} 
+                                        onClick={() => setSelectedCombo({ m1: item.baseName, m2: item.baseName, isSingle: true, ninjas: item.ninjas })}
+                                        className="p-4 bg-slate-950/60 hover:bg-slate-800/60 border border-slate-800 hover:border-slate-700 rounded-xl cursor-pointer transition-all flex flex-col justify-between gap-3 group"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <span className="font-mono font-bold text-slate-500 text-sm">#{idx + 1}</span>
+                                                <MasteryBadge mastery={item.advName} size="sm" />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-black text-amber-400">{item.count}</span>
+                                                <span className="text-xs font-bold text-slate-400 font-mono">({percent}%)</span>
+                                            </div>
+                                        </div>
+                                        {/* Progress Bar */}
+                                        <div className="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+                                            <div className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full rounded-full transition-all duration-500" style={{ width: `${percent}%` }}></div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* SECTION 3: THE DUAL-MASTERY MATRIX / QUADRANT (HEATMAP & NON-REPEATING HALF-MATRIX) */}
+                    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-800">
+                            <div>
+                                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                    <GridIcon className="w-5 h-5 text-yellow-500" />
+                                    {t.matrix_title}
+                                </h3>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    {t.matrix_subtitle}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Interactive Half-Matrix Grid */}
+                        <div className="overflow-x-auto pb-4 scrollbar-thin">
+                            <table className="min-w-[700px] w-full border-collapse select-none">
+                                <thead>
+                                    <tr>
+                                        <th className="p-2 w-28 bg-slate-950/80 border border-slate-800 rounded-tl-xl text-center text-xs font-bold text-slate-400">
+                                            Maestria
+                                        </th>
+                                        {ALL_MASTERIES.map(col => (
+                                            <th key={col.name} className="p-1.5 border border-slate-800 bg-slate-950/60 text-center min-w-[56px]" title={col.labelPt || col.name}>
+                                                <div className="flex flex-col items-center gap-0.5">
+                                                    <img src={col.icon} alt={col.name} className="w-5 h-5 object-contain inline-block" />
+                                                    <span className="text-[10px] font-bold text-slate-300 truncate max-w-[52px]">{col.shortPt || col.name}</span>
+                                                </div>
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {ALL_MASTERIES.map((row, rIdx) => (
+                                        <tr key={row.name}>
+                                            {/* Row Header */}
+                                            <td className="p-2 border border-slate-800 bg-slate-950/60 whitespace-nowrap min-w-[125px]">
+                                                <div className="flex items-center gap-2">
+                                                    <img src={row.icon} alt={row.name} className="w-5 h-5 object-contain inline-block" />
+                                                    <span className="text-xs font-bold text-slate-200 truncate">{row.labelPt || row.name}</span>
+                                                </div>
+                                            </td>
+
+                                            {/* Matrix Cells */}
+                                            {ALL_MASTERIES.map((col, cIdx) => {
+                                                // If lower triangle, don't repeat to eliminate redundancy
+                                                if (cIdx < rIdx) {
+                                                    return (
+                                                        <td 
+                                                            key={col.name} 
+                                                            className="p-1 border border-slate-900/40 bg-slate-950/20 text-center opacity-10"
+                                                        />
+                                                    );
+                                                }
+
+                                                const cellInfo = matrixStats.gridData[`${row.name}_${col.name}`] || { count: 0, isSingle: rIdx === cIdx, mutuallyExclusive: false, ninjas: [] };
+                                                const { count, isSingle, mutuallyExclusive, ninjas: matchingNinjas } = cellInfo;
+
+                                                if (mutuallyExclusive) {
+                                                    return (
+                                                        <td 
+                                                            key={col.name}
+                                                            className="p-1 text-center border border-slate-900/60 bg-slate-950/40 select-none cursor-not-allowed"
+                                                            title={`${row.labelPt || row.name} e ${col.labelPt || col.name} não combinam entre si (mesma base ou vilas exclusivas diferentes)`}
+                                                        >
+                                                            <span className="text-slate-700 text-xs font-mono font-bold">✕</span>
+                                                        </td>
+                                                    );
+                                                }
+
+                                                const heat = getHeatStyle(count, matrixStats.maxCount);
+
+                                                return (
+                                                    <td 
+                                                        key={col.name}
+                                                        onClick={() => {
+                                                            if (count > 0) {
+                                                                setSelectedCombo({
+                                                                    m1: row.name,
+                                                                    m2: col.name,
+                                                                    isSingle,
+                                                                    ninjas: matchingNinjas
+                                                                });
+                                                            }
+                                                        }}
+                                                        className={`p-1.5 text-center border transition-all ${heat.cellBg}`}
+                                                        title={count > 0 ? (isSingle ? `${count} ninjas com apenas ${row.labelPt || row.name}` : `${count} ninjas com ${row.labelPt || row.name} + ${col.labelPt || col.name}`) : 'Nenhum ninja'}
+                                                    >
+                                                        {count > 0 ? (
+                                                            <div className="flex flex-col items-center justify-center gap-0.5">
+                                                                <div className="flex items-center gap-0.5">
+                                                                    {isSingle ? (
+                                                                        <img src={row.icon} alt={row.name} className="w-3.5 h-3.5 object-contain inline-block" />
+                                                                    ) : (
+                                                                        <div className="flex items-center justify-center -space-x-1">
+                                                                            <img src={row.icon} alt={row.name} className="w-3 h-3 object-contain" />
+                                                                            <img src={col.icon} alt={col.name} className="w-3 h-3 object-contain" />
+                                                                        </div>
+                                                                    )}
+                                                                    <span className={`px-1.5 py-0.2 rounded text-[11px] font-mono transition-transform hover:scale-110 ${heat.badgeBg}`}>
+                                                                        {count}
+                                                                    </span>
+                                                                </div>
+                                                                <span className={`text-[8px] font-bold ${heat.labelColor}`}>
+                                                                    {isSingle ? 'Apenas' : 'Dupla'}
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-slate-700 text-xs font-mono">-</span>
+                                                        )}
+                                                    </td>
+                                                );
+                                            })}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Heatmap Legend */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-slate-300">🔥 Mapa de Calor:</span>
+                                <div className="flex items-center gap-1 flex-wrap">
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-blue-950/60 border border-blue-800 text-blue-300 font-bold">Frio (Poucos)</span>
+                                    <span className="text-slate-600">→</span>
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-teal-950/60 border border-teal-700 text-teal-300 font-bold">Médio</span>
+                                    <span className="text-slate-600">→</span>
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-amber-950/60 border border-amber-600 text-amber-300 font-bold">Morno</span>
+                                    <span className="text-slate-600">→</span>
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-orange-950/75 border border-orange-500 text-orange-200 font-bold">Quente</span>
+                                    <span className="text-slate-600">→</span>
+                                    <span className="px-2 py-0.5 rounded text-[10px] bg-red-950/90 border border-red-500 text-red-200 font-black">Pico (Mais Ninjas)</span>
+                                </div>
+                            </div>
+                            <div className="text-[11px] text-slate-500 font-medium flex items-center gap-3 flex-wrap">
+                                <span>* Apenas = ninja tem apenas 1 maestria. Dupla = combinação de 2 maestrias.</span>
+                                <span className="text-slate-400 font-bold">✕ = Incompatível (mesma base ou vilas exclusivas diferentes).</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Modal for viewing ninjas of a selected combination */}
+                    {selectedCombo && (
+                        <MasteryComboModal 
+                            comboData={selectedCombo}
+                            onClose={() => setSelectedCombo(null)}
+                            onSelectNinja={onSelectNinja}
+                            t={t}
+                            rankingsMap={rankingsMap}
+                        />
+                    )}
+
+                    {/* Modal for viewing all PvP representatives */}
+                    {selectedPvPItem && (
+                        <PvPRepresentativesModal 
+                            pvpItem={selectedPvPItem}
+                            onClose={() => setSelectedPvPItem(null)}
+                            onSelectPlayer={onSelectPlayer}
+                            onSelectNinja={onSelectNinja}
+                            t={t}
+                        />
+                    )}
+                </div>
+            );
+        };
+
+
 // --- GLOBAL EXPORTS ---
 window.HighlightText = HighlightText;
 window.processBattleLogs = processBattleLogs;
@@ -825,3 +2155,7 @@ window.MasteryBadge = MasteryBadge;
 window.VillageBadge = VillageBadge;
 window.NinjaDetailsModal = NinjaDetailsModal;
 window.BingoBookView = BingoBookView;
+window.MasteryComboModal = MasteryComboModal;
+window.PvPRepresentativesModal = PvPRepresentativesModal;
+window.MasteryAnalyticsView = MasteryAnalyticsView;
+
